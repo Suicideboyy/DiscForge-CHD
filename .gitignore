@@ -1,0 +1,8 @@
+temp/
+cache/
+*.log
+*.tmp
+*.user
+.vs/
+.env
+.env.*

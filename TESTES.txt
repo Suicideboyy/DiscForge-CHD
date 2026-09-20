@@ -1,0 +1,20 @@
+Testes funcionais — 20/09/2026 — fixtures pequenas, sem alterar a coleção.
+
+PASSOU: ISO dentro de ZIP -> CD / hunk 2448.
+PASSOU: CHD DVD dentro de 7z -> DVD / hunk 2048.
+PASSOU: CHD avulso PS1 e CHD avulso PS2.
+PASSOU: retomada de ZIP e 7z sem extrair novamente.
+PASSOU: CUE + duas faixas, incluindo áudio -> um CHD com dois metadados CHT2.
+PASSOU: CUE + faixas dentro de ZIP -> um CHD verificado.
+PASSOU: seis BINs Track sem CUE -> um erro, sem extração/CHD parcial.
+PASSOU: consulta em cache força DVD para ISO pequena e nomeia pelo título/serial.
+PASSOU: nome de compactado com espaços, & e !.
+PASSOU: parada após a primeira de duas entradas, com código de interrupção.
+PASSOU: remoção do ZIP após encode e verificação.
+PASSOU: compactado inválido e caminho ../outside.iso preservados com erro.
+PASSOU: ISO extraída do CHD DVD idêntica à entrada (SHA-256).
+PASSOU: renderização das abas Sobre e Changelog.
+
+Os CHDs novos foram verificados pelo chdman antes da publicação.
+Não foi feito benchmark em jogos completos, teste de todos os formatos de
+compactação, nova consulta online nem certificação de ausência de malware.

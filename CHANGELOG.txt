@@ -1,0 +1,14 @@
+1.2.0 — 20/09/2026
+- Motor BAT/PowerShell convertido para C#.
+- Execução direta e sem janela de console do chdman e 7-Zip.
+- Preservados seleção de plataforma, pastas, codecs, hunks e threads.
+- Preservados painel do jogo, capas por serial e aba Sobre/Changelog.
+- Retomada de compactados por listagem, antes de extrair as imagens.
+- CUE multifaixa preservado; conjunto Track sem CUE bloqueado.
+- Publicação na pasta de saída somente após verificar o CHD copiado.
+- Exclusão do compactado somente após sucesso integral da entrada.
+- Progresso por etapa e lote, sem repetir porcentagens no quadro de log.
+
+1.1.0 — 20/09/2026
+- Painel do jogo, capas, Sobre e Changelog.
+- Correção da interpretação de BINs numerados como faixas.

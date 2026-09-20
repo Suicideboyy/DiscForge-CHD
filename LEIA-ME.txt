@@ -1,0 +1,47 @@
+CHD Optimizer 1.2.0 — Windows x64 — 20/09/2026
+
+Abra CHD-Optimizer.exe. Selecione entrada, saída, plataforma e codecs.
+O executável inclui chdman.exe, 7z.exe e 7z.dll. O processamento foi
+reescrito em C#: não executa BAT, CMD ou PowerShell durante a conversão.
+Requer o .NET Framework instalado no Windows (recomendado: 4.8).
+
+PS2: CD usa createcd / hunk 2448; DVD usa createdvd / hunk 2048,
+com os valores e codecs selecionados na interface. Não há segundo encode.
+PS1: processa os CHDs da pasta escolhida. Se o CHD original for menor,
+pode conservá-lo após verificação.
+
+Consulta por serial preservada (Redump e PSX Data Center), inclusive CD.
+Títulos consultados geram Nome [SERIAL].chd. Sem resultado, utiliza o nome
+de entrada. ISO sem identificação: até 400 MiB = CD; acima = DVD.
+Capas: xlenore/ps2-covers, com cache local. Rede indisponível não bloqueia.
+
+ZIP, RAR, 7z e demais formatos suportados pelo 7-Zip são extraídos por entrada.
+Antes da extração, verifica se os CHDs esperados já existem e são legíveis.
+Faixas BIN numeradas sem o CUE original são bloqueadas, não tratadas como
+discos separados. Um CHD antigo contendo só a primeira faixa não resolve isso.
+
+A opção de apagar compactados só atua quando todos os discos dessa entrada
+foram criados nesta execução e verificados. Não apaga imagens avulsas nem
+compactados apenas ignorados por já existir saída. Em caso de falha, preserva
+o compactado. A parada solicitada termina a entrada atual antes de interromper.
+
+Log: entrada\temp\log.txt. Temporários exclusivos por entrada.
+Ferramentas e capas: %LOCALAPPDATA%\CHD Optimizer.
+
+Fontes completos: pasta fontes. O script compilar.ps1 serve somente para
+recompilar; não é usado pelo aplicativo. Execute-o no PowerShell com:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\fontes\compilar.ps1
+O comando gera CHD-Optimizer.exe nesta pasta, com as três ferramentas incluídas.
+
+Motor anterior BAT: 1555 linhas. Novo NativeEngine.cs: 299 linhas.
+Total C# (motor, interface e data de compilação): 469 linhas.
+Contagens incluem linhas em branco; não representam uma medida de desempenho.
+
+O chdman incluído permanece o binário fornecido, MAME 0.289 (unknown),
+compilado em 14/09/2026 para Zen 3 / x64. Esta atualização recompila o
+aplicativo C#, não altera a compressão interna do chdman.
+Componentes chdman/MAME e 7-Zip pertencem aos respectivos autores.
+
+Esta compilação passou por testes funcionais, não por certificação antivírus.
+Nenhuma configuração do Defender foi alterada e nenhum arquivo em quarentena
+foi restaurado. A conversão para C# não garante ausência de novos alertas.
