@@ -1,3 +1,9 @@
+Regressão 1.2.1 — 21/09/2026
+PASSOU: PS1, PS2, ZIP/7z, CUE multifaixa, rejeição de faixas sem CUE,
+retomada sem extração, parada após a entrada e exclusão após sucesso.
+Cinco CHDs idênticos aos produzidos pela versão 1.2.0 (SHA-256).
+Abas Sobre/Changelog renderizadas; Sobre inspecionada visualmente.
+
 Testes funcionais — 20/09/2026 — fixtures pequenas, sem alterar a coleção.
 
 PASSOU: ISO dentro de ZIP -> CD / hunk 2448.

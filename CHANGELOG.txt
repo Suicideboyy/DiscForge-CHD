@@ -1,3 +1,10 @@
+1.2.1 — 21/09/2026
+- Código separado em 29 arquivos por responsabilidade.
+- Blocos explícitos, inicializadores por linha e nomes mais claros no processamento.
+- Interface, consultas, compactados, arquivos e processos em módulos próprios.
+- Compilação recursiva e guia de estrutura em fontes/README.md.
+- Verificada equivalência de cinco CHDs por SHA-256 contra a versão 1.2.0.
+
 1.2.0 — 20/09/2026
 - Motor BAT/PowerShell convertido para C#.
 - Execução direta e sem janela de console do chdman e 7-Zip.

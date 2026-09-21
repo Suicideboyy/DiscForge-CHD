@@ -4,7 +4,7 @@ Este projeto reúne o código C#, as ferramentas incluídas e o executável atua
 Repositório público: https://github.com/Suicideboyy/DiscForge-CHD
 Remoto Git: `origin`; branch: `main`.
 
-Após alterar o código, atualizar a versão X.Y.Z.0 em Program.cs e o changelog,
+Após alterar o código, atualizar a versão X.Y.Z.0 em fontes/Properties/AssemblyInfo.cs e o changelog,
 validar a alteração e executar:
 
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Publicar.ps1

@@ -1,4 +1,4 @@
-param([switch]$SomenteCompilar)
+﻿param([switch]$SomenteCompilar)
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 
@@ -9,7 +9,7 @@ function Git {
     return $result
 }
 
-$source = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fontes\Program.cs'))
+$source = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fontes\Properties\AssemblyInfo.cs'))
 $match = [regex]::Match($source, 'AssemblyVersion\("(\d+\.\d+\.\d+)\.0"\)')
 if (-not $match.Success) { throw 'Use AssemblyVersion no formato X.Y.Z.0.' }
 $tag = 'v' + $match.Groups[1].Value
@@ -35,7 +35,7 @@ $hash = Get-FileHash -LiteralPath 'CHD-Optimizer.exe' -Algorithm SHA256
 if ($SomenteCompilar) { Write-Host 'Compilado; nenhuma publicação solicitada.'; exit 0 }
 
 # Lista explícita: não inclui a coleção de jogos, caches ou credenciais.
-Git add -- fontes Publicar.ps1 .gitignore AGENTS.md README.md PUBLICACAO.md LEIA-ME.txt CHANGELOG.txt TESTES.txt CHD-Optimizer.exe SHA256.txt
+Git add -- fontes Publicar.ps1 .gitignore .editorconfig AGENTS.md README.md PUBLICACAO.md LEIA-ME.txt CHANGELOG.txt TESTES.txt CHD-Optimizer.exe SHA256.txt
 Git commit -m "CHD Optimizer $tag"
 Git tag $tag
 Git push --atomic origin "HEAD:refs/heads/$branch" "refs/tags/$tag"

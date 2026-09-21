@@ -1,4 +1,4 @@
-CHD Optimizer 1.2.0 — Windows x64 — 20/09/2026
+CHD Optimizer 1.2.1 — Windows x64 — 21/09/2026
 
 Abra CHD-Optimizer.exe. Selecione entrada, saída, plataforma e codecs.
 O executável inclui chdman.exe, 7z.exe e 7z.dll. O processamento foi
@@ -33,8 +33,8 @@ recompilar; não é usado pelo aplicativo. Execute-o no PowerShell com:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\fontes\compilar.ps1
 O comando gera CHD-Optimizer.exe nesta pasta, com as três ferramentas incluídas.
 
-Motor anterior BAT: 1555 linhas. Novo NativeEngine.cs: 299 linhas.
-Total C# (motor, interface e data de compilação): 469 linhas.
+C# anterior: 469 linhas em 3 arquivos. Agora: 2406 linhas em 29 arquivos.
+Módulos e guia de leitura: fontes/README.md. Máximo: 118 caracteres por linha.
 Contagens incluem linhas em branco; não representam uma medida de desempenho.
 
 O chdman incluído permanece o binário fornecido, MAME 0.289 (unknown),
