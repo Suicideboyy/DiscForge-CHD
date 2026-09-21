@@ -1,4 +1,4 @@
-# DiscForge CHD
+﻿# DiscForge CHD
 
 CHD Optimizer: aplicativo Windows x64 em C# para converter e otimizar imagens
 de jogos PS1/PS2 em CHD, usando chdman e 7-Zip.
@@ -10,7 +10,9 @@ pastas de entrada/saída, a plataforma e as opções de compressão.
 Consulte [LEIA-ME.txt](LEIA-ME.txt) para detalhes e limitações.
 
 - CD/DVD, arquivos compactados e CUE multifaixa.
-- Consulta por serial e capas de jogos PS2.
+- Consulta por serial e capas de jogos PS2, inclusive com mídia já identificada.
+- Tempo por entrada, CPU/discos em tempo real e threads automáticas.
+- Interface colorida com controles arredondados.
 - Progresso, retomada e verificação antes de publicar o CHD.
 - Exclusão opcional do compactado somente após sucesso integral.
 - O aplicativo não depende de scripts BAT ou PowerShell para processar jogos.

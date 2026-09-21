@@ -1,3 +1,14 @@
+﻿Regressão 1.3.0 — 21/09/2026
+PASSOU: PS1, PS2, ZIP/7z, CUE multifaixa, rejeição de faixas sem CUE,
+retomada sem extração, parada após a entrada e exclusão após sucesso.
+Cinco CHDs idênticos à referência 1.2.0 por SHA-256.
+PASSOU: repetição da capa após falha com mídia DVD já conhecida,
+troca rápida de serial e deduplicação de pedidos simultâneos.
+PASSOU: início/atualização/parada do cronômetro e detecção de 16 threads.
+PASSOU: amostragem real de CPU/discos e limites válidos.
+PASSOU: histórico do aplicativo inicia em 1.2.0, sem refatoração 1.2.1.
+Interface renderizada para inspeção visual. Testes com entradas pequenas.
+
 Regressão 1.2.1 — 21/09/2026
 PASSOU: PS1, PS2, ZIP/7z, CUE multifaixa, rejeição de faixas sem CUE,
 retomada sem extração, parada após a entrada e exclusão após sucesso.

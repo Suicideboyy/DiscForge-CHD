@@ -9,3 +9,9 @@ Não publicar alterações que ainda falhem nas verificações apropriadas.
 Não incluir jogos, arquivos temporários, credenciais ou outros projetos.
 Não desativar o antivírus nem restaurar arquivos em quarentena.
 Comunicar de forma concisa, sem reler o projeto inteiro a cada atualização.
+
+Informar ao usuário quando houver alterações de código. O changelog do aplicativo
+(Properties/AppChangelog.cs) contém apenas novas funções e correções desde 1.2.0;
+não registrar ali refatoração, formatação ou outras mudanças internas.
+Cada versão local fica em versoes/X.Y.Z, com executável, checksum e pacote completo.
+Manter os fontes organizados e ler/alterar somente os módulos necessários.

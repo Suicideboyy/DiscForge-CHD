@@ -23,7 +23,7 @@ partial class MainForm
         });
         box.Dock = DockStyle.Fill;
         row.Controls.Add(box);
-        var b = new Button
+        var b = new RoundedButton
         {
             Text = "Escolher…",
             Dock = DockStyle.Fill
@@ -69,7 +69,7 @@ partial class MainForm
         options.Controls.Add(control, x + 1, y);
     }
 
-    Control ProgressRow(Label text, ProgressBar bar, string initial)
+    Control ProgressRow(Label text, RoundedProgress bar, string initial)
     {
         var p = new TableLayoutPanel
         {

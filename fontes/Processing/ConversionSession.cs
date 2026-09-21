@@ -63,7 +63,7 @@ sealed partial class ConversionSession
 
     public async Task<int> Run()
     {
-        Say("CHD Optimizer 1.2.1 — motor C# — " + DateTime.Now);
+        Say(AppInfo.DisplayName + " — " + DateTime.Now);
         Say("Origem: " + _settings.Input + " | Saída: " + _settings.Output);
         var sources = Sources(_settings.Input).ToList();
         var images = MediaFiles.SelectDiscInputs(sources.Where(p => _settings.Platform == "PS2"

@@ -52,7 +52,7 @@ static class CoverService
                 var request = (HttpWebRequest)WebRequest.Create(coverBaseUrl + serial + ".jpg");
                 request.Timeout = 12000;
                 request.ReadWriteTimeout = 12000;
-                request.UserAgent = "CHD-Optimizer/1.2.1";
+                request.UserAgent = AppInfo.UserAgent;
                 using (var response = request.GetResponse())
                     using (var stream = response.GetResponseStream())
                         using (var ms = new MemoryStream())

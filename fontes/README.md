@@ -1,4 +1,4 @@
-# Estrutura do código
+﻿# Estrutura do código
 
 Comece por `Application/Program.cs` e siga para `Processing/Engine.cs`.
 A interface coleta as opções; o motor abre uma sessão e processa cada entrada.
@@ -30,3 +30,9 @@ formatadores ou bibliotecas adicionais para compilar o aplicativo.
 
 Ao atualizar a versão, edite `Properties/AssemblyInfo.cs`, os textos visíveis
 e o changelog. `Properties/BuildInfo.cs` é gerado durante a compilação.
+
+Novos módulos: Interface/Theme.cs e MainForm.Appearance.cs definem o visual;
+MainForm.Telemetry.cs apresenta tempo e métricas. Infrastructure/MachineInfo.cs
+detecta processadores lógicos; SystemPerformance.cs lê os contadores do Windows.
+Properties/AppInfo.cs centraliza a versão visível; AppChangelog.cs contém
+somente o histórico de funções e correções mostrado ao usuário.

@@ -76,6 +76,10 @@ static class Program
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Length == 2 && args[0] == "--features-test")
+            {
+                return MainForm.VerifyFeatures(args[1]);
+            }
             if ((args.Length == 2 || args.Length == 3) && args[0] == "--ui-test")
             {
                 return MainForm.SavePreview(args);

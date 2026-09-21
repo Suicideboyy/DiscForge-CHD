@@ -1,4 +1,4 @@
-CHD Optimizer 1.2.1 — Windows x64 — 21/09/2026
+﻿CHD Optimizer 1.3.0 — Windows x64 — 21/09/2026
 
 Abra CHD-Optimizer.exe. Selecione entrada, saída, plataforma e codecs.
 O executável inclui chdman.exe, 7z.exe e 7z.dll. O processamento foi
@@ -14,6 +14,14 @@ Consulta por serial preservada (Redump e PSX Data Center), inclusive CD.
 Títulos consultados geram Nome [SERIAL].chd. Sem resultado, utiliza o nome
 de entrada. ISO sem identificação: até 400 MiB = CD; acima = DVD.
 Capas: xlenore/ps2-covers, com cache local. Rede indisponível não bloqueia.
+A capa é solicitada durante a identificação, mesmo com mídia já conhecida.
+Se falhar, é tentada novamente nas atualizações e a cada 30 s durante a tarefa.
+
+Threads são preenchidas conforme os processadores lógicos desta máquina.
+O cronômetro acompanha a entrada atual, da identificação à verificação.
+CPU e discos mostram o uso total do sistema, incluindo outros programas.
+Leitura/escrita em MiB/s; atividade média de todos os discos físicos em %.
+Contadores indisponíveis aparecem como N/D. A coleta ocorre a cada segundo.
 
 ZIP, RAR, 7z e demais formatos suportados pelo 7-Zip são extraídos por entrada.
 Antes da extração, verifica se os CHDs esperados já existem e são legíveis.
@@ -31,9 +39,10 @@ Ferramentas e capas: %LOCALAPPDATA%\CHD Optimizer.
 Fontes completos: pasta fontes. O script compilar.ps1 serve somente para
 recompilar; não é usado pelo aplicativo. Execute-o no PowerShell com:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\fontes\compilar.ps1
-O comando gera CHD-Optimizer.exe nesta pasta, com as três ferramentas incluídas.
+O comando gera versoes/1.3.0/CHD-Optimizer.exe e atualiza o executável da raiz.
+Publicar.ps1 também guarda checksum, documentação e pacote completo por versão.
 
-C# anterior: 469 linhas em 3 arquivos. Agora: 2406 linhas em 29 arquivos.
+C# anterior: 2406 linhas em 29 arquivos. Agora: 3132 linhas em 37 arquivos.
 Módulos e guia de leitura: fontes/README.md. Máximo: 118 caracteres por linha.
 Contagens incluem linhas em branco; não representam uma medida de desempenho.
 

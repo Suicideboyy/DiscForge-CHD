@@ -11,7 +11,7 @@ class EncoderSettings
     public string Dvd = "lzma,zstd,zlib,flac";
     public int CdHunk = 2448;
     public int DvdHunk = 2048;
-    public int Threads = Math.Max(1, Environment.ProcessorCount - 2);
+    public int Threads = MachineInfo.LogicalProcessors;
     public bool Delete = false;
     public bool Online = true;
     public void Validate()
@@ -65,7 +65,7 @@ class EncoderSettings
             throw new Exception("Hunk inválido para a mídia.");
         }
 
-        if (Threads < 1 || Threads > Environment.ProcessorCount)
+        if (Threads < 1 || Threads > MachineInfo.LogicalProcessors)
         {
             throw new Exception("Quantidade de threads inválida.");
         }

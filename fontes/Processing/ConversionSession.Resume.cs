@@ -27,6 +27,9 @@ sealed partial class ConversionSession
 
         if (_settings.Platform == "PS2")
         {
+            // A capa pode começar a carregar enquanto a consulta de mídia está em andamento.
+            game.Status = "IDENTIFICANDO";
+            Show(game);
             GameRecord hit = database.Lookup(game.Serial);
             game.Lookup = hit == null ? (_settings.Online
                 ? "Base indisponível ou sem correspondência inequívoca" : "Consulta online desativada")
@@ -47,6 +50,8 @@ sealed partial class ConversionSession
             game.Lookup = "Plataforma PS1";
         }
 
+        game.Status = "PROCESSANDO";
+        Show(game);
         return game;
     }
 

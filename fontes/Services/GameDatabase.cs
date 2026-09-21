@@ -143,7 +143,7 @@ sealed class GameDatabase
                 request.Timeout = 10000;
                 request.ReadWriteTimeout = 10000;
                 request.MaximumAutomaticRedirections = 4;
-                request.UserAgent = "CHD-Optimizer/1.2.1";
+                request.UserAgent = AppInfo.UserAgent;
                 string html;
                 using (var response = request.GetResponse())
                     using (var stream = response.GetResponseStream())

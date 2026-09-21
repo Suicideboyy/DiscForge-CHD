@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Diagnostics;
 using System.Drawing;
@@ -23,10 +23,10 @@ partial class MainForm : Form
     NumericUpDown threads = new NumericUpDown();
     CheckBox delete = new CheckBox();
     CheckBox online = new CheckBox();
-    Button start = new Button();
-    Button stop = new Button();
-    ProgressBar batch = new ProgressBar();
-    ProgressBar stage = new ProgressBar();
+    RoundedButton start = new RoundedButton();
+    RoundedButton stop = new RoundedButton();
+    RoundedProgress batch = new RoundedProgress();
+    RoundedProgress stage = new RoundedProgress { FillColor = Theme.Teal };
     Label batchText = new Label();
     Label stageText = new Label();
     Label hint = new Label();
@@ -35,12 +35,12 @@ partial class MainForm : Form
     string activity = "Aguardando";
     public MainForm()
     {
-        Text = "CHD Optimizer 1.2.1 • PS1 e PS2";
+        Text = AppInfo.DisplayName + " • PS1 e PS2";
         Font = new Font("Segoe UI", 10);
-        ClientSize = new Size(1190, 780);
-        MinimumSize = new Size(1110, 760);
+        ClientSize = new Size(1240, 900);
+        MinimumSize = new Size(1120, 850);
         StartPosition = FormStartPosition.CenterScreen;
-        BackColor = Color.FromArgb(246, 248, 251);
+        BackColor = Theme.Background;
         tabs.Dock = DockStyle.Fill;
         Controls.Add(tabs);
         var conversion = new TabPage("Conversão");
@@ -58,7 +58,7 @@ partial class MainForm : Form
             Dock = DockStyle.Fill,
             Padding = new Padding(16),
             ColumnCount = 1,
-            RowCount = 9
+            RowCount = 10
         };
         columns.Controls.Add(layout, 0, 0);
         var game = new TableLayoutPanel
@@ -94,7 +94,7 @@ partial class MainForm : Form
         gameInfo.Text = "Os dados consultados aparecerão aqui.";
         game.Controls.Add(gameInfo);
         BuildAbout();
-        foreach (int h in new[]{48, 40, 40, 250, 28, 48, 48, 48})
+        foreach (int h in new[]{52, 104, 40, 40, 238, 28, 44, 44, 46})
         {
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, h));
         }
@@ -106,6 +106,7 @@ partial class MainForm : Form
             Font = new Font("Segoe UI", 22, FontStyle.Bold),
             AutoSize = true
         });
+        layout.Controls.Add(BuildTelemetry());
         layout.Controls.Add(PathRow("Entrada", input));
         layout.Controls.Add(PathRow("Saída", output));
         options = new TableLayoutPanel
@@ -128,10 +129,10 @@ partial class MainForm : Form
         platform.Items.AddRange(new object[]{"PS1", "PS2"});
         platform.SelectedIndex = 1;
         threads.Minimum = 1;
-        threads.Maximum = Environment.ProcessorCount;
-        threads.Value = Math.Max(1, Environment.ProcessorCount - 2);
+        threads.Maximum = MachineInfo.LogicalProcessors;
+        threads.Value = MachineInfo.LogicalProcessors;
         AddOption("Plataforma", platform, 0, 0);
-        AddOption("Threads", threads, 2, 0);
+        AddOption("Threads (auto)", threads, 2, 0);
         cdh.DropDownStyle = dvdh.DropDownStyle = ComboBoxStyle.DropDownList;
         cdh.Items.AddRange(new object[]{"2448", "19584", "78336", "1047744"});
         dvdh.Items.AddRange(new object[]{"2048", "4096", "32768", "262144", "1048576"});
@@ -177,7 +178,7 @@ partial class MainForm : Form
         stop.Width = 170;
         stop.Height = 34;
         stop.Enabled = false;
-        var open = new Button
+        var open = new RoundedButton
         {
             Text = "Abrir saída",
             Width = 120,
@@ -222,7 +223,7 @@ partial class MainForm : Form
             bool ps2 = platform.Text == "PS2";
             dvd.Enabled = dvdh.Enabled = online.Enabled = delete.Enabled = ps2;
             hint.Text = ps2 ? "PS2: compactados, ISO, BIN/CUE e CHD. Até 4 codecs por mídia."
-                : "PS1: otimiza arquivos CHD na pasta de entrada, conforme o BAT original.";
+                : "PS1: otimiza arquivos CHD na pasta de entrada, com os codecs selecionados.";
         }
 
         ;
@@ -236,5 +237,6 @@ partial class MainForm : Form
         }
 
         ;
+        ApplyAppearance(conversion, columns, layout, game);
     }
 }

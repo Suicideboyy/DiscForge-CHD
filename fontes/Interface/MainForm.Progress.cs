@@ -28,6 +28,10 @@ partial class MainForm
 
         BeginInvoke(new Action(delegate
         {
+            if (Regex.IsMatch(line, @"^Entrada \d+ / \d+:"))
+            {
+                BeginEntry();
+            }
             if (line.StartsWith("GUI_GAME:"))
             {
                 try
@@ -47,6 +51,8 @@ partial class MainForm
             var ps1 = Regex.Match(line, @"GUI_ITEM=(\d+)/(\d+)");
             if (total.Success)
             {
+                taskClock.Stop();
+                UpdateElapsed();
                 batch.Value = Math.Min(100, (int)(100.0 * Int32.Parse(total.Groups[2].Value) / Math.Max(1,
                     Int32.Parse(total.Groups[3].Value))));
                 batchText.Text = line;
@@ -105,6 +111,8 @@ partial class MainForm
             };
             s.Validate();
             running = true;
+            taskClock.Reset();
+            UpdateElapsed();
             options.Enabled = input.Enabled = output.Enabled = start.Enabled = false;
             stop.Enabled = true;
             batch.Value = stage.Value = 0;
@@ -131,6 +139,8 @@ partial class MainForm
         }
         finally
         {
+            taskClock.Stop();
+            UpdateElapsed();
             running = false;
             options.Enabled = input.Enabled = output.Enabled = start.Enabled = true;
             stop.Enabled = false;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Collections.Generic;
@@ -41,6 +41,13 @@ partial class MainForm
                 }
 
                 Application.DoEvents();
+            }
+
+            var samplingWatch = Stopwatch.StartNew();
+            while (samplingWatch.ElapsedMilliseconds < 2600)
+            {
+                Application.DoEvents();
+                Thread.Sleep(20);
             }
 
             using (var bitmap = new Bitmap(f.Width, f.Height))
