@@ -86,7 +86,7 @@ sealed class SystemPerformance : IDisposable
         CounterValue value;
         uint type;
         uint status = PdhGetFormattedCounterValue(counter, 0x00000200, out type, out value);
-        if (status != 0 || value.Status > 1 || Double.IsNaN(value.Number)
+        if (status != 0 || value.Status > 0 || Double.IsNaN(value.Number)
             || Double.IsInfinity(value.Number))
         {
             return null;
