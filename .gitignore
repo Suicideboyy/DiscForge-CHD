@@ -8,3 +8,6 @@ cache/
 .env.*
 versoes/
 .aider*
+fontes/bin/
+fontes/obj/
+*.pdb

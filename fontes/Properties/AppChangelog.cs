@@ -1,10 +1,17 @@
-using System;
+﻿using System;
 
 static class AppChangelog
 {
     // Histórico visível ao usuário: somente funções e correções, desde a primeira versão C#.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.0.0 — 25/09/2026",
+        "",
+        "• Nova interface WinUI 3 com painel de jogos e capas em WebView2.",
+        "• Extração com SharpCompress e 7-Zip de reserva para casos incompatíveis.",
+        "• Distribuição portátil com os componentes necessários à execução.",
+        "• Mantidas retomada, verificação, telemetria e exclusão opcional após sucesso.",
+        "",
         "1.3.0 — 21/09/2026",
         "",
         "• Capas carregadas durante a identificação, inclusive para jogos já reconhecidos.",

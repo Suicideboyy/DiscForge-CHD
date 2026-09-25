@@ -1,56 +1,39 @@
-﻿CHD Optimizer 1.3.0 — Windows x64 — 21/09/2026
+﻿CHD Optimizer 2.0.0 — Windows x64 — 25/09/2026
 
-Abra CHD-Optimizer.exe. Selecione entrada, saída, plataforma e codecs.
-O executável inclui chdman.exe, 7z.exe e 7z.dll. O processamento foi
-reescrito em C#: não executa BAT, CMD ou PowerShell durante a conversão.
-Requer o .NET Framework instalado no Windows (recomendado: 4.8).
+Extraia TODO o pacote win-x64.zip e abra CHD-Optimizer.exe dentro da pasta.
+Não mova apenas o EXE: esta versão WinUI 3 inclui DLLs e arquivos de recursos.
+Requer Windows 10 2004 (19041) ou posterior. Windows 11 recomendado.
+.NET 10 e Windows App SDK incluídos; não exige instalar o SDK para usar.
+WebView2 Runtime: necessário para o painel de capas. Ausência não impede converter.
+Download oficial: https://developer.microsoft.com/microsoft-edge/webview2/
 
-PS2: CD usa createcd / hunk 2448; DVD usa createdvd / hunk 2048,
-com os valores e codecs selecionados na interface. Não há segundo encode.
-PS1: processa os CHDs da pasta escolhida. Se o CHD original for menor,
-pode conservá-lo após verificação.
+Selecione entrada, saída, plataforma, hunks, codecs e número de threads.
+Codecs separados por vírgula, até quatro distintos por mídia.
+CD: cdlz,cdzs,cdzl,cdfl. DVD: lzma,zstd,zlib,flac ou huff.
+PS2: createcd para CD (2448); createdvd para DVD (2048). Sem segundo encode.
+PS1: otimiza CHDs, preservando o original quando menor após verificação.
+Threads iniciam na quantidade de processadores lógicos da máquina atual.
 
-Consulta por serial preservada (Redump e PSX Data Center), inclusive CD.
-Títulos consultados geram Nome [SERIAL].chd. Sem resultado, utiliza o nome
-de entrada. ISO sem identificação: até 400 MiB = CD; acima = DVD.
-Capas: xlenore/ps2-covers, com cache local. Rede indisponível não bloqueia.
-A capa é solicitada durante a identificação, mesmo com mídia já conhecida.
-Se falhar, é tentada novamente nas atualizações e a cada 30 s durante a tarefa.
+SharpCompress lista e extrai os compactados. 7-Zip permanece incluído como
+reserva para volumes divididos e formatos/métodos incompatíveis detectados.
+Corrupção, senha, links e caminhos inválidos são erros, sem contornar validações.
+Listagem/retomada antes da extração. CUE multifaixa preservado; faixas órfãs
+sem CUE são bloqueadas. Formatos aninhados TAR são processados em duas etapas.
 
-Threads são preenchidas conforme os processadores lógicos desta máquina.
-O cronômetro acompanha a entrada atual, da identificação à verificação.
-CPU e discos mostram o uso total do sistema, incluindo outros programas.
-Leitura/escrita em MiB/s; atividade média de todos os discos físicos em %.
-Contadores indisponíveis aparecem como N/D. A coleta ocorre a cada segundo.
+Consulta por serial Redump/PSX Data Center, inclusive CDs. Saída Nome [SERIAL].chd.
+Sem identificação: ISO até 400 MiB é tratada como CD, acima como DVD.
+Capa PS2 solicitada independentemente do resultado da consulta de mídia.
+Capas em cache; falhas não impedem converter. Nova tentativa durante a tarefa.
+Tempo inclui identificação, extração, compressão e verificação da entrada.
+CPU, leitura/escrita (MiB/s) e atividade (%) representam o sistema inteiro.
+Contadores indisponíveis exibem N/D. Atualização a cada segundo.
 
-ZIP, RAR, 7z e demais formatos suportados pelo 7-Zip são extraídos por entrada.
-Antes da extração, verifica se os CHDs esperados já existem e são legíveis.
-Faixas BIN numeradas sem o CUE original são bloqueadas, não tratadas como
-discos separados. Um CHD antigo contendo só a primeira faixa não resolve isso.
+Apagar compactados vem desmarcado. Só remove os volumes originais quando todos
+os discos da entrada foram criados nesta execução e os CHDs foram verificados.
+Entradas ignoradas por saída existente, imagens avulsas ou erros não são apagadas.
+Parar conclui a entrada atual. Durante o trabalho, fechar solicita essa parada.
 
-A opção de apagar compactados só atua quando todos os discos dessa entrada
-foram criados nesta execução e verificados. Não apaga imagens avulsas nem
-compactados apenas ignorados por já existir saída. Em caso de falha, preserva
-o compactado. A parada solicitada termina a entrada atual antes de interromper.
-
-Log: entrada\temp\log.txt. Temporários exclusivos por entrada.
-Ferramentas e capas: %LOCALAPPDATA%\CHD Optimizer.
-
-Fontes completos: pasta fontes. O script compilar.ps1 serve somente para
-recompilar; não é usado pelo aplicativo. Execute-o no PowerShell com:
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\fontes\compilar.ps1
-O comando gera versoes/1.3.0/CHD-Optimizer.exe e atualiza o executável da raiz.
-Publicar.ps1 também guarda checksum, documentação e pacote completo por versão.
-
-C# anterior: 2406 linhas em 29 arquivos. Agora: 3132 linhas em 37 arquivos.
-Módulos e guia de leitura: fontes/README.md. Máximo: 118 caracteres por linha.
-Contagens incluem linhas em branco; não representam uma medida de desempenho.
-
-O chdman incluído permanece o binário fornecido, MAME 0.289 (unknown),
-compilado em 14/09/2026 para Zen 3 / x64. Esta atualização recompila o
-aplicativo C#, não altera a compressão interna do chdman.
-Componentes chdman/MAME e 7-Zip pertencem aos respectivos autores.
-
-Esta compilação passou por testes funcionais, não por certificação antivírus.
-Nenhuma configuração do Defender foi alterada e nenhum arquivo em quarentena
-foi restaurado. A conversão para C# não garante ausência de novos alertas.
+Logs: entrada/temp/log.txt. Cache: %LOCALAPPDATA%/CHD Optimizer.
+O aplicativo não usa BAT/PowerShell para converter. Scripts são só de compilação/publicação.
+chdman MAME 0.289 (unknown), 14/09/2026, C++20/GCC 16.2/Zen 3 preservado.
+Changelog do app: funções e correções desde a primeira versão C# (1.2.0).

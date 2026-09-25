@@ -1,45 +1,37 @@
 ﻿param([switch]$SomenteCompilar)
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
-
 function Git {
     param([Parameter(ValueFromRemainingArguments=$true)][string[]]$Arguments)
     $result = & git.exe @Arguments
-    if ($LASTEXITCODE -ne 0) { throw "Git falhou: $($Arguments -join ' '). Nenhum push forçado foi realizado." }
+    if ($LASTEXITCODE -ne 0) { throw "Git falhou: $($Arguments -join ' '). Não foi usado push forçado." }
     return $result
 }
-
 $source = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fontes\Properties\AssemblyInfo.cs'))
-$match = [regex]::Match($source, 'AssemblyVersion\("(\d+\.\d+\.\d+)\.0"\)')
-if (-not $match.Success) { throw 'Use AssemblyVersion no formato X.Y.Z.0.' }
-$tag = 'v' + $match.Groups[1].Value
-$versionFolder = Join-Path $PSScriptRoot ('versoes\' + $match.Groups[1].Value)
-
+$version = [regex]::Match($source, 'AssemblyVersion\("(\d+\.\d+\.\d+)\.0"\)').Groups[1].Value
+if (-not $version) { throw 'Versão inválida.' }
+$tag = 'v' + $version
+$folder = Join-Path $PSScriptRoot ('versoes\' + $version)
 if (-not $SomenteCompilar) {
-    if (-not (Test-Path -LiteralPath '.git')) { throw 'Configure primeiro o repositório Git e o remoto origin.' }
-    $remote = Git remote get-url origin
-    $branch = Git symbolic-ref --short HEAD
-    Git check-ref-format --branch $branch | Out-Null
-    if (Git tag --list $tag) { throw "A versão $tag já foi registrada. Aumente a versão antes de publicar uma atualização." }
-    $remoteTag = Git ls-remote --tags origin "refs/tags/$tag"
-    if ($remoteTag) { throw "A versão $tag já existe no servidor. Aumente a versão." }
-    $staged = @(Git diff --cached --name-only)
-    if ($staged.Count -gt 0) { throw 'Existem alterações preparadas no Git. Resolva-as antes da publicação automática.' }
+    if ((Git symbolic-ref --short HEAD) -ne 'master') { throw 'Publique somente pela master.' }
+    if (Git tag --list $tag) { throw 'Esta versão já foi registrada. Retome o envio ou incremente a versão.' }
+    Git fetch origin --prune | Out-Null
+    if (Git ls-remote --heads origin master) { Git merge --ff-only origin/master | Out-Null }
+    if (Git ls-remote --tags origin "refs/tags/$tag") { throw 'Tag já publicada.' }
+    $gh = if ($env:GH_PATH) { $env:GH_PATH } else { (Get-Command gh -ErrorAction Stop).Source }
+    & $gh auth status
+    if ($LASTEXITCODE -ne 0) { throw 'Autentique o GitHub CLI antes de publicar.' }
 }
-
-# PowerShell é usado apenas na compilação/publicação, nunca pelo aplicativo.
 & (Join-Path $PSScriptRoot 'fontes\compilar.ps1')
-Set-Location -LiteralPath $PSScriptRoot
-if (-not (Test-Path -LiteralPath 'CHD-Optimizer.exe')) { throw 'Executável não foi gerado.' }
-$hash = Get-FileHash -LiteralPath 'CHD-Optimizer.exe' -Algorithm SHA256
-[IO.File]::WriteAllText((Join-Path $PSScriptRoot 'SHA256.txt'), $hash.Hash + '  CHD-Optimizer.exe' + [Environment]::NewLine)
-Copy-Item -LiteralPath 'SHA256.txt', 'LEIA-ME.txt', 'CHANGELOG.txt', 'TESTES.txt' -Destination $versionFolder -Force
-if ($SomenteCompilar) { Write-Host 'Compilado; nenhuma publicação solicitada.'; exit 0 }
-
-# Lista explícita: não inclui a coleção de jogos, caches ou credenciais.
-Git add -- fontes Publicar.ps1 .gitignore .editorconfig AGENTS.md README.md PUBLICACAO.md LEIA-ME.txt CHANGELOG.txt TESTES.txt CHD-Optimizer.exe SHA256.txt
+if ($SomenteCompilar) { return }
+# Apenas código, documentação e ferramentas do aplicativo; jogos/caches ficam fora.
+Git add -- fontes Publicar.ps1 global.json .gitignore .editorconfig AGENTS.md README.md PUBLICACAO.md LEIA-ME.txt CHANGELOG.txt TESTES.txt TERCEIROS.md RELEASE.md SHA256.txt
 Git commit -m "CHD Optimizer $tag"
 Git tag $tag
-Git archive --format=zip --output (Join-Path $versionFolder ('CHD-Optimizer-' + $match.Groups[1].Value + '-completo.zip')) HEAD
-Git push --atomic origin "HEAD:refs/heads/$branch" "refs/tags/$tag"
-Write-Host "Publicado: $tag ($remote)."
+$sources = Join-Path $folder ('CHD-Optimizer-' + $version + '-fontes.zip')
+Git archive --format=zip --output $sources HEAD
+Git push --atomic origin HEAD:refs/heads/master "refs/tags/$tag"
+$package = Join-Path $folder ('CHD-Optimizer-' + $version + '-win-x64.zip')
+& $gh release create $tag $package $sources (Join-Path $folder 'SHA256.txt') --repo Suicideboyy/DiscForge-CHD --title "CHD Optimizer $version" --notes-file (Join-Path $PSScriptRoot 'RELEASE.md')
+if ($LASTEXITCODE -ne 0) { throw 'Commit e tag enviados, mas a Release falhou. Retome apenas o upload dos arquivos.' }
+Write-Host "Publicado: $tag"

@@ -16,15 +16,9 @@ sealed class ToolRunner
         this.workingDirectory = workingDirectory;
     }
 
-    static string QuoteArgument(string value)
-    {
-        return "\"" + Regex.Replace(value, @"(\\*)""", "$1$1\\\"") + Regex.Match(value, @"\\+$").Value + "\"";
-    }
-
     public async Task<ProcessResult> RunAsync(string name, string[] args, bool progress)
     {
-        var start = new ProcessStartInfo(Path.Combine(BundledTools.Tools, name), String.Join(" ",
-            args.Select(QuoteArgument)))
+        var start = new ProcessStartInfo(Path.Combine(BundledTools.Tools, name))
 
         {
             UseShellExecute = false,
@@ -36,6 +30,10 @@ sealed class ToolRunner
             StandardErrorEncoding = Encoding.UTF8,
             WorkingDirectory = workingDirectory()
         };
+        foreach (string argument in args)
+        {
+            start.ArgumentList.Add(argument);
+        }
         using (var process = new Process
         {
             StartInfo = start
@@ -44,7 +42,7 @@ sealed class ToolRunner
             process.Start();
             process.StandardInput.Close();
             var text = new StringBuilder();
-            object gate = new object ();
+            object gate = new object();
             bool truncated = false;
             Action<string> line = value =>
             {
@@ -73,7 +71,7 @@ sealed class ToolRunner
             ;
             await Task.WhenAll(ReadLinesAsync(process.StandardOutput, line),
                 ReadLinesAsync(process.StandardError, line)).ConfigureAwait(false);
-            process.WaitForExit();
+            await process.WaitForExitAsync().ConfigureAwait(false);
             if (truncated)
             {
                 throw new IOException(

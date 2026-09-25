@@ -1,9 +1,10 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
 using System.Threading;
-using System.Windows.Forms;
+using System.Collections.Generic;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 
 static class Program
 {
@@ -12,103 +13,67 @@ static class Program
     {
         try
         {
-            var inherited = Environment.GetEnvironmentVariables();
-            var canonical = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string key in inherited.Keys)
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            if (args.Length == 3 && args[0] == "--archive-test")
             {
-                if (canonical.ContainsKey(key))
-                {
-                    string value = canonical[key];
-                    Environment.SetEnvironmentVariable(key, null);
-                    Environment.SetEnvironmentVariable(key, value);
-                }
-                else
-                {
-                    canonical[key] = (string)inherited[key];
-                }
-            }
-
-            if (args.Length == 3 && args[0] == "--cover-test")
-            {
-                using (var image = CoverService.Load(args[1]).GetAwaiter().GetResult())
-                {
-                    if (image == null)
-                    {
-                        return 3;
-                    }
-
-                    image.Save(args[2]);
-                }
-
+                BundledTools.Stage();
+                Directory.CreateDirectory(args[2]);
+                var messages = new List<string>();
+                var reader = new ArchiveReader(new ToolRunner(messages.Add, () => args[2]), messages.Add);
+                reader.ListAsync(args[1], args[2]).GetAwaiter().GetResult();
+                reader.ExtractAsync(args[1], args[2]).GetAwaiter().GetResult();
+                File.WriteAllLines(args[2] + ".log", messages);
                 return 0;
             }
-
-            if (args.Length == 4 && (args[0] == "--run-test" || args[0] == "--stop-test"
-                || args[0] == "--delete-test"))
+            if (args.Length == 4 && args[0] is "--run-test" or "--stop-test" or "--delete-test")
+                return RunTest(args);
+            if (args.Length == 3 && args[0] == "--cover-test")
             {
-                var s = new EncoderSettings
-                {
-                    Input = args[1],
-                    Output = args[2],
-                    Platform = args[3],
-                    Online = false,
-                    Delete = args[0] == "--delete-test",
-                    Threads = Math.Min(4, Environment.ProcessorCount)
-                };
-                var lines = new List<string>();
-                int code = Engine.Run(s, delegate (string t)
-                {
-                    lock (lines)
-                    {
-                        lines.Add(t);
-                    }
-
-                    if (args[0] == "--stop-test" && t.StartsWith("Tipo:") && Engine.StopFile != null)
-                    {
-                        File.WriteAllText(Engine.StopFile, "");
-                    }
-                }
-
-                ).GetAwaiter().GetResult();
-                File.WriteAllLines(Path.Combine(s.Input, "app-test.log"), lines, Encoding.UTF8);
-                return code;
+                byte[] image = CoverService.Load(args[1]).GetAwaiter().GetResult();
+                if (image == null)
+                    return 3;
+                File.WriteAllBytes(args[2], image);
+                return 0;
             }
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            if (args.Length == 2 && args[0] == "--features-test")
+            using var mutex = new Mutex(true, @"Local\CHDOptimizerDesktop", out bool created);
+            if (!created)
+                return 1;
+            WinRT.ComWrappersSupport.InitializeComWrappers();
+            Application.Start(parameters =>
             {
-                return MainForm.VerifyFeatures(args[1]);
-            }
-            if ((args.Length == 2 || args.Length == 3) && args[0] == "--ui-test")
-            {
-                return MainForm.SavePreview(args);
-            }
-
-            bool created;
-            using (var mutex = new Mutex(true, "Local\\CHDOptimizerDesktop", out created))
-            {
-                if (!created)
-                {
-                    MessageBox.Show("O CHD Optimizer já está aberto.");
-                    return 1;
-                }
-
-                Application.Run(new MainForm());
-            }
-
+                SynchronizationContext.SetSynchronizationContext(
+                    new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
+                _ = new DiscForge.DesktopApp(args);
+            });
             return 0;
         }
         catch (Exception ex)
         {
-            if (args.Length > 0)
-            {
-                File.WriteAllText(Path.Combine(Path.GetTempPath(), "chd-optimizer-error.txt"), ex.ToString());
-                return 1;
-            }
-
-            MessageBox.Show(ex.Message, "CHD Optimizer");
+            File.WriteAllText(Path.Combine(Path.GetTempPath(), "chd-optimizer-error.txt"), ex.ToString());
             return 1;
         }
+    }
+
+    static int RunTest(string[] args)
+    {
+        var settings = new EncoderSettings
+        {
+            Input = args[1],
+            Output = args[2],
+            Platform = args[3],
+            Online = false,
+            Delete = args[0] == "--delete-test",
+            Threads = Math.Min(4, Environment.ProcessorCount)
+        };
+        var lines = new List<string>();
+        int code = Engine.Run(settings, line =>
+        {
+            lock (lines)
+                lines.Add(line);
+            if (args[0] == "--stop-test" && line.StartsWith("Tipo:") && Engine.StopFile != null)
+                File.WriteAllText(Engine.StopFile, "");
+        }).GetAwaiter().GetResult();
+        File.WriteAllLines(Path.Combine(settings.Input, "app-test.log"), lines, Encoding.UTF8);
+        return code;
     }
 }

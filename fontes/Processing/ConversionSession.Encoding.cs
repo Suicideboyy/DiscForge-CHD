@@ -87,29 +87,11 @@ sealed partial class ConversionSession
             }
             else
             {
-               byte[] header = new byte[16];
-		using (var f = File.OpenRead(input))
-		{
- 	   int headerBytesRead = 0;
-
- 	   while (headerBytesRead < 16)
-   	 {
-        int read = f.Read(
-            header,
-            headerBytesRead,
-            16 - headerBytesRead
-        );
-
-        if (read == 0)
-        {
-            throw new IOException(
-                "Imagem muito pequena para análise de cabeçalho."
-            );
-        }
-
-        headerBytesRead += read;
-    }
-}
+                byte[] header = new byte[16];
+                using (var stream = File.OpenRead(input))
+                {
+                    stream.ReadExactly(header);
+                }
 
                 bool raw = original > 0 && original % 2352 == 0 && header[0] == 0 && header[11] == 0
                     && header.Skip(1).Take(10).All(b => b == 255) && (header[15] == 1 || header[15] == 2);

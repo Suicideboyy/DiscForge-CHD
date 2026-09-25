@@ -5,14 +5,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Net;
-using System.Web.Script.Serialization;
+
 
 sealed class GameDatabase
 {
     readonly bool online;
     readonly string cacheDirectory;
     readonly Action<string> report;
-    readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
+
     readonly Dictionary<string, GameRecord> cache = new Dictionary<string, GameRecord>();
     readonly HashSet<string> misses = new HashSet<string>();
     readonly Dictionary<string, int> failures = new Dictionary<string, int>();
@@ -34,7 +34,7 @@ sealed class GameDatabase
                 return;
             }
 
-            foreach (var r in serializer.Deserialize<GameRecord[]>(File.ReadAllText(p)))
+            foreach (var r in JsonData.Read<GameRecord[]>(File.ReadAllText(p)))
             {
                 DateTime date;
                 if (Regex.IsMatch(r.Serial ?? "", @"^[A-Z]{4}-\d{5}$") && (r.Type == "CD"
@@ -57,7 +57,7 @@ sealed class GameDatabase
             + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            File.WriteAllText(tmp, serializer.Serialize(cache.Values.ToArray()), Encoding.UTF8);
+            File.WriteAllText(tmp, JsonData.Write(cache.Values.ToArray()), Encoding.UTF8);
             if (File.Exists(p))
             {
                 File.Replace(tmp, p, null);
@@ -124,7 +124,7 @@ sealed class GameDatabase
             return null;
         }
 
-        var providers = new[]{"Redump", "PSX Data Center"};
+        var providers = new[] { "Redump", "PSX Data Center" };
         var urls = new[]{"https://redump.info/discs?system=PS2&q=" + serial,
             "https://psxdatacenter.com/psx2/games2/" + serial + ".html"};
         for (int i = 0; i < urls.Length; i++)
@@ -138,35 +138,12 @@ sealed class GameDatabase
 
             try
             {
-                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var request = (HttpWebRequest)WebRequest.Create(urls[i]);
-                request.Timeout = 10000;
-                request.ReadWriteTimeout = 10000;
-                request.MaximumAutomaticRedirections = 4;
-                request.UserAgent = AppInfo.UserAgent;
-                string html;
-                using (var response = request.GetResponse())
-                    using (var stream = response.GetResponseStream())
-                        using (var reader = new StreamReader(stream))
-                        {
-                            var buffer = new char[8192];
-                            var text = new StringBuilder();
-                            int n;
-                            while ((n = reader.Read(buffer, 0, buffer.Length)) > 0)
-                            {
-                                text.Append(buffer, 0, n);
-                                if (text.Length > 8000000)
-                                {
-                                    throw new IOException("Página muito grande.");
-                                }
-                            }
-
-                            html = text.ToString();
-                        }
+                string html = System.Text.Encoding.UTF8.GetString(
+                    HttpData.DownloadAsync(urls[i], 8000000).GetAwaiter().GetResult());
 
                 failures[providers[i]] = 0;
                 string serialFields = String.Join(" ", Fields(html, i == 0 ? new[]{"Disc Serial",
-                    "Disc Serials", "Serial"} : new[]{"SERIAL NUMBER(S)"}));
+                    "Disc Serials", "Serial"} : new[] { "SERIAL NUMBER(S)" }));
                 if (!Regex.IsMatch(serialFields.Replace('_', '-'), Regex.Escape(serial),
                     RegexOptions.IgnoreCase) && MediaFiles.NormalizeSerial(serialFields) != serial)
                 {

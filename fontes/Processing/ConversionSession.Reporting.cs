@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 
@@ -19,6 +19,6 @@ sealed partial class ConversionSession
 
     void Show(GameInfo game)
     {
-        Say("GUI_GAME:" + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(_serializer.Serialize(game))));
+        Say("GUI_GAME:" + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonData.Write(game))));
     }
 }

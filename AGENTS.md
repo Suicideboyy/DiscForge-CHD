@@ -15,3 +15,9 @@ Informar ao usuário quando houver alterações de código. O changelog do aplic
 não registrar ali refatoração, formatação ou outras mudanças internas.
 Cada versão local fica em versoes/X.Y.Z, com executável, checksum e pacote completo.
 Manter os fontes organizados e ler/alterar somente os módulos necessários.
+
+A partir de 2.0.0: branch master, .NET 10/C# 14, Desktop/ com WinUI 3 e WebView2.
+Interface/ e Diagnostics/ são referência WinForms antiga, fora do csproj.
+SharpCompress é principal; SevenZipArchive permanece como reserva.
+Distribuir sempre o ZIP portátil inteiro; o EXE depende das DLLs e recursos ao lado.
+Publicar.ps1 envia os pacotes pelas Releases do GitHub, sem binários novos na raiz.

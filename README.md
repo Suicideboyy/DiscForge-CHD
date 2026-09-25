@@ -1,34 +1,27 @@
 ﻿# DiscForge CHD
 
-CHD Optimizer: aplicativo Windows x64 em C# para converter e otimizar imagens
-de jogos PS1/PS2 em CHD, usando chdman e 7-Zip.
+Aplicativo Windows x64 para converter jogos PS1/PS2 em CHD.
 
-## Usar
+## Instalar
 
-Baixe [CHD-Optimizer.exe](CHD-Optimizer.exe), abra o programa e selecione as
-pastas de entrada/saída, a plataforma e as opções de compressão.
-Consulte [LEIA-ME.txt](LEIA-ME.txt) para detalhes e limitações.
+Baixe o pacote **win-x64.zip** na [última Release](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest),
+extraia a pasta inteira e abra `CHD-Optimizer.exe`. Mantenha as DLLs junto do executável.
+.NET e Windows App SDK estão incluídos. Windows 10 2004 ou posterior; Windows 11 recomendado.
+O painel de capas utiliza o [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
+Se ele faltar, o aplicativo informa e mantém a conversão disponível.
 
-- CD/DVD, arquivos compactados e CUE multifaixa.
-- Consulta por serial e capas de jogos PS2, inclusive com mídia já identificada.
-- Tempo por entrada, CPU/discos em tempo real e threads automáticas.
-- Interface colorida com controles arredondados.
-- Progresso, retomada e verificação antes de publicar o CHD.
-- Exclusão opcional do compactado somente após sucesso integral.
-- O aplicativo não depende de scripts BAT ou PowerShell para processar jogos.
+- Interface WinUI 3, painel do jogo em WebView2 e capas por serial.
+- PS2 CD: createcd / hunk 2448; DVD: createdvd / hunk 2048. Opções ajustáveis.
+- SharpCompress como extrator principal; 7-Zip de reserva para formatos/métodos incompatíveis e volumes.
+- Retomada antes de extrair novamente, verificação de CHD e exclusão opcional após sucesso.
+- Tempo por entrada, CPU e discos do sistema, threads automáticas.
 
-## Desenvolver e publicar
+## Desenvolvimento
 
-Código completo em [fontes](fontes). O chdman e o 7-Zip incluídos pertencem
-aos respectivos autores. O repositório não contém jogos nem imagens de discos.
+C# 14 / .NET 10. SDK fixado em global.json; dependências fixadas em fontes/packages.lock.json.
+Execute `fontes/compilar.ps1` com o SDK instalado. Leia [estrutura dos fontes](fontes/README.md),
+[testes](TESTES.txt) e [publicação](PUBLICACAO.md).
 
-Após alterar, testar e incrementar a versão:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Publicar.ps1
-```
-
-O comando compila e envia fonte, executável e tag para o GitHub configurado
-como `origin`. Não utiliza consultas periódicas a uma IA.
-Veja [PUBLICACAO.md](PUBLICACAO.md), [CHANGELOG.txt](CHANGELOG.txt) e
-[TESTES.txt](TESTES.txt).
+A branch de desenvolvimento e publicação é **master**. Versões anteriores permanecem nas tags.
+Distribuições locais: `versoes/X.Y.Z/`. Binários completos são publicados nas Releases.
+Componentes e licenças: [TERCEIROS.md](TERCEIROS.md).

@@ -1,29 +1,23 @@
-﻿Atualizações do CHD Optimizer
+﻿# Compilar e publicar
 
-Este projeto reúne o código C#, as ferramentas incluídas e o executável atual.
-Repositório público: https://github.com/Suicideboyy/DiscForge-CHD
-Remoto Git: `origin`; branch: `main`.
+Branch única: master. Remoto: https://github.com/Suicideboyy/DiscForge-CHD.
 
-Após alterar o código, atualizar a versão X.Y.Z.0 em fontes/Properties/AssemblyInfo.cs e o changelog,
-validar a alteração e executar:
+1. Instale o SDK .NET 10.0.401 (global.json) e GitHub CLI; autentique com gh auth login.
+2. Atualize AssemblyInfo.cs, AppInfo.cs, AppChangelog.cs e RELEASE.md. Valide a mudança.
+3. Execute `powershell -NoProfile -ExecutionPolicy Bypass -File .\Publicar.ps1`.
 
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Publicar.ps1
+Para só compilar: acrescente `-SomenteCompilar`. SDK portátil: configure DOTNET_ROOT;
+GitHub CLI portátil: configure GH_PATH com o caminho do gh.exe.
 
-O comando compila, calcula SHA-256, registra a atualização e publica código,
-executável e tag vX.Y.Z no remoto origin. Usa a autenticação normal do Git;
-não salva senhas ou tokens no projeto. Uma versão já publicada não é sobrescrita.
+O script restaura versões travadas, compila C# x64, inclui os runtimes .NET/Windows App SDK,
+e cria versoes/X.Y.Z/aplicativo, ZIP portátil, checksum e ZIP dos fontes.
+Registra commit/tag, envia à master e anexa os pacotes à Release correspondente.
+Não inclui jogos, caches ou credenciais. O chdman incluído não é recompilado.
 
-Para compilar sem publicar, acrescente -SomenteCompilar.
+Tags publicadas nunca são sobrescritas. Se o envio falhar após o commit/tag, retome
+o push desses mesmos objetos. Se apenas a Release falhar, retome o upload com gh release.
+Não use push forçado. Novas branches não são apagadas automaticamente pelo script.
+A consolidação solicitada para esta migração é uma operação única, após preservar o histórico.
 
-Se o push falhar depois de criar o commit/tag local, corrija o acesso e envie
-esse mesmo commit/tag com Git; não crie outra versão apenas para repetir o envio.
-Não use push forçado. O servidor precisa aceitar push atômico de branch e tag.
-
-Não há monitoramento recorrente: a publicação ocorre ao concluir cada atualização,
-com um comando local, sem precisar consultar um agente periodicamente.
-
-Cada versão fica em versoes/X.Y.Z, com executável, SHA256.txt, documentação
-e ZIP completo do commit publicado. A raiz mantém a versão mais recente.
-As pastas locais versoes/ não são duplicadas no Git; as tags preservam o histórico.
-Atualize também fontes/Properties/AppInfo.cs e AppChangelog.cs. O histórico
-visível no aplicativo inclui apenas funções e correções desde 1.2.0.
+O changelog visível no aplicativo contém apenas bugs e funções desde 1.2.0.
+Mudanças internas ficam no CHANGELOG.txt e são informadas ao usuário.

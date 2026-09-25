@@ -1,107 +1,163 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SharpCompress.Archives;
+using SharpCompress.Common;
 
 sealed class ArchiveReader
 {
-    static readonly StringComparer Paths = StringComparer.OrdinalIgnoreCase;
-    readonly ToolRunner toolRunner;
-    public ArchiveReader(ToolRunner toolRunner)
+    readonly SevenZipArchive fallback;
+    readonly Action<string> report;
+    readonly HashSet<string> useFallback = new(StringComparer.OrdinalIgnoreCase);
+
+    public ArchiveReader(ToolRunner tools, Action<string> report)
     {
-        this.toolRunner = toolRunner;
+        fallback = new SevenZipArchive(tools);
+        this.report = report;
     }
 
-    public async Task<List<ArchiveEntry>> ListAsync(string archive, string destination)
+    public static IEnumerable<string> GetVolumes(string path) => SevenZipArchive.GetVolumes(path);
+
+    static bool Unsupported(Exception error) => error is NotSupportedException
+        || error.GetType().Name is "InvalidFormatException" or "IncompleteArchiveException";
+
+    void SelectFallback(string archive, string reason)
     {
-        string listing = await toolRunner.RequireSuccessAsync("7z.exe", false, "l", "-slt", "-ba",
-            "-sccUTF-8", "-p", "--", archive).ConfigureAwait(false);
+        useFallback.Add(archive);
+        report("7-Zip de reserva: " + reason);
+    }
+
+    static List<ArchiveEntry> Validate(IArchive archive, string destination)
+    {
         var entries = new List<ArchiveEntry>();
-        var seen = new HashSet<string>(Paths);
-        foreach (string block in Regex.Split(listing, @"\r?\n\s*\r?\n"))
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in archive.Entries)
         {
-            var p = Regex.Match(block, @"(?m)^Path = (.+)\r?$");
-            if (!p.Success)
-            {
-                continue;
-            }
-
-            if (Regex.IsMatch(block, @"(?im)^(Symbolic Link|Hard Link) = .+|^Attributes = .*\bl[rwx-]{9}"))
-            {
+            if (!string.IsNullOrEmpty(entry.LinkTarget)
+                || entry is SharpCompress.Common.Zip.ZipEntry zip && ((zip.Attrib.GetValueOrDefault() >> 16) & 0xF000) == 0xA000)
                 throw new IOException("Arquivo compactado contém links.");
-            }
-
-            string target = FileSystemPaths.ResolveArchivePath(destination, p.Groups[1].Value.TrimEnd('\r'));
+            if (entry.IsEncrypted)
+                throw new IOException("Compactado protegido por senha.");
+            string target = FileSystemPaths.ResolveArchivePath(destination, entry.Key);
             if (!seen.Add(target))
-            {
                 throw new IOException("Caminhos duplicados no compactado.");
-            }
-
-            if (Regex.IsMatch(block, @"(?m)^Folder = \+|^Attributes = D"))
-            {
-                continue;
-            }
-
-            var size = Regex.Match(block, @"(?m)^Size = (\d+)");
-            if (!size.Success)
-            {
-                throw new IOException("Tamanho ausente na listagem do compactado.");
-            }
-
-            entries.Add(new ArchiveEntry
-            {
-                Path = target,
-                Size = Int64.Parse(size.Groups[1].Value)
-            });
+            if (!entry.IsDirectory)
+                entries.Add(new ArchiveEntry { Path = target, Size = entry.Size });
         }
-
         if (entries.Count == 0)
-        {
-            throw new IOException("Compactado vazio ou listagem não reconhecida.");
-        }
-
+            throw new IOException("Compactado vazio.");
         return entries;
     }
 
-    public async Task<List<DiscInput>> PreviewAsync(string archive, string destination,
-        List<ArchiveEntry> entries)
+    public async Task<List<ArchiveEntry>> ListAsync(string path, string destination)
     {
-        var cues = new Dictionary<string, string>(Paths);
-        foreach (var e in entries.Where(e => MediaFiles.Extension(e.Path) == ".cue"))
+        if (GetVolumes(path).Skip(1).Any())
+            SelectFallback(path, "arquivo em múltiplos volumes");
+        if (!useFallback.Contains(path))
         {
-            if (e.Size > 1048576)
+            try
             {
-                throw new IOException("Descritor CUE muito grande.");
+                using var archive = ArchiveFactory.Open(path);
+                return Validate(archive, destination);
             }
-
-            string relative = e.Path.Substring(destination.TrimEnd('\\').Length + 1);
-            cues[e.Path] = await toolRunner.RequireSuccessAsync("7z.exe", false, "x", "-so", "-p",
-                "-sccUTF-8", "-spd", "--", archive, relative).ConfigureAwait(false);
+            catch (Exception ex) when (Unsupported(ex)) { SelectFallback(path, ex.Message); }
         }
-
-        return MediaFiles.SelectDiscInputs(entries.Select(e => e.Path), destination, cues);
+        return await fallback.ListAsync(path, destination).ConfigureAwait(false);
     }
 
-    public static IEnumerable<string> GetVolumes(string path)
+    public async Task<List<DiscInput>> PreviewAsync(string path, string destination, List<ArchiveEntry> entries)
     {
-        string name = Path.GetFileName(path), pattern = null;
-        var m = Regex.Match(name, @"(?i)^(.*)\.part0*1\.rar$");
-        if (m.Success)
+        if (useFallback.Contains(path))
+            return await fallback.PreviewAsync(path, destination, entries).ConfigureAwait(false);
+        try
         {
-            pattern = "^" + Regex.Escape(m.Groups[1].Value) + @"\.part\d+\.rar$";
+            var cues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (entries.Any(e => MediaFiles.Extension(e.Path) == ".cue"))
+            {
+                using var archive = ArchiveFactory.Open(path);
+                Validate(archive, destination);
+                foreach (var entry in archive.Entries.Where(e => MediaFiles.Extension(e.Key) == ".cue"))
+                {
+                    if (entry.Size > 1048576)
+                        throw new IOException("Descritor CUE muito grande.");
+                    using var stream = entry.OpenEntryStream();
+                    using var reader = new StreamReader(stream);
+                    char[] buffer = new char[1048577];
+                    int count = await reader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                    if (count > 1048576)
+                        throw new IOException("Descritor CUE muito grande.");
+                    cues[FileSystemPaths.ResolveArchivePath(destination, entry.Key)] = new string(buffer, 0, count);
+                }
+            }
+            return MediaFiles.SelectDiscInputs(entries.Select(e => e.Path), destination, cues);
         }
-        else if ((m = Regex.Match(name, @"(?i)^(.*\.(?:7z|zip))\.001$")).Success)
+        catch (Exception ex) when (Unsupported(ex))
         {
-            pattern = "^" + Regex.Escape(m.Groups[1].Value) + @"\.\d{3}$";
+            SelectFallback(path, ex.Message);
+            await fallback.ListAsync(path, destination).ConfigureAwait(false);
+            return await fallback.PreviewAsync(path, destination, entries).ConfigureAwait(false);
         }
-        else if (MediaFiles.Extension(path) == ".rar")
-        {
-            pattern = "^" + Regex.Escape(Path.GetFileNameWithoutExtension(path)) + @"\.(rar|r\d{2})$";
-        }
+    }
 
-        return pattern == null ? new[]{path} : Directory.GetFiles(Path.GetDirectoryName(path)).Where(p
-            => Regex.IsMatch(Path.GetFileName(p), pattern, RegexOptions.IgnoreCase));
+    public async Task ExtractAsync(string path, string destination)
+    {
+        if (!useFallback.Contains(path))
+        {
+            try
+            {
+                using var archive = ArchiveFactory.Open(path);
+                var listed = Validate(archive, destination);
+                long total = listed.Sum(e => e.Size), done = 0;
+                int lastPercent = -1;
+                report("Descompactando com SharpCompress…");
+                using var reader = archive.IsSolid || archive.Type == ArchiveType.SevenZip
+                    ? archive.ExtractAllEntries()
+                    : SharpCompress.Readers.ReaderFactory.Open(File.OpenRead(path),
+                        new SharpCompress.Readers.ReaderOptions { LeaveStreamOpen = false });
+                byte[] buffer = new byte[131072];
+                while (reader.MoveToNextEntry())
+                {
+                    if (reader.Entry.IsDirectory)
+                        continue;
+                    if (!string.IsNullOrEmpty(reader.Entry.LinkTarget))
+                        throw new IOException("Link não permitido.");
+                    string target = FileSystemPaths.ResolveArchivePath(destination, reader.Entry.Key);
+                    Directory.CreateDirectory(Path.GetDirectoryName(target));
+                    FileSystemPaths.EnsureNoLinks(target);
+                    using var input = reader.OpenEntryStream();
+                    await using var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write,
+                        FileShare.None, buffer.Length, FileOptions.Asynchronous | FileOptions.SequentialScan);
+                    long written = 0;
+                    int count;
+                    while ((count = await input.ReadAsync(buffer).ConfigureAwait(false)) > 0)
+                    {
+                        written += count;
+                        if (written > reader.Entry.Size)
+                            throw new IOException("Tamanho extraído difere da listagem.");
+                        await output.WriteAsync(buffer.AsMemory(0, count)).ConfigureAwait(false);
+                        done += count;
+                        int percent = (int)(100.0 * done / Math.Max(1, total));
+                        if (percent != lastPercent)
+                        {
+                            report("Etapa: " + percent + "%");
+                            lastPercent = percent;
+                        }
+                    }
+                    if (written != reader.Entry.Size)
+                        throw new IOException("Extração incompleta.");
+                }
+                return;
+            }
+            catch (Exception ex) when (Unsupported(ex))
+            {
+                SelectFallback(path, ex.Message);
+                FileSystemPaths.DeleteWorkDirectory(destination, Path.GetDirectoryName(destination));
+                Directory.CreateDirectory(destination);
+            }
+        }
+        await fallback.ListAsync(path, destination).ConfigureAwait(false);
+        await fallback.ExtractAsync(path, destination).ConfigureAwait(false);
     }
 }

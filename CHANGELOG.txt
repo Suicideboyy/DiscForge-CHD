@@ -1,4 +1,13 @@
-﻿1.3.0 — 21/09/2026
+﻿2.0.0 — 25/09/2026
+- Nova interface WinUI 3 e painel de capas/dados do jogo em WebView2.
+- SharpCompress como extrator principal; 7-Zip mantido como reserva.
+- Mantidas validações de caminhos/links, retomada e verificação de CHD.
+- Distribuição portátil com runtimes, pacotes nas Releases e branch master.
+- Código: .NET 10/C# 14, System.Text.Json, HttpClient, argumentos de processo
+  estruturados, espera assíncrona e leitura exata de cabeçalhos.
+- Histórico ai-development integrado antes da consolidação das branches.
+
+1.3.0 — 21/09/2026
 - Capas durante a identificação e nova tentativa após falha.
 - Tempo por entrada, uso da CPU e leitura/escrita/atividade dos discos.
 - Threads automáticas conforme a máquina e interface colorida arredondada.
@@ -27,3 +36,5 @@
 1.1.0 — 20/09/2026
 - Painel do jogo, capas, Sobre e Changelog.
 - Correção da interpretação de BINs numerados como faixas.
+
+Contagem 2.0.0: antes 3149 linhas C#; agora 2638 linhas em 37 arquivos compilados. Referências WinForms preservadas fora do projeto: 1173 linhas. Total no repositório: 3811. Inclui linhas em branco.

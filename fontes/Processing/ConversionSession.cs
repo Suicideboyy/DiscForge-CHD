@@ -3,15 +3,15 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
+
 
 sealed partial class ConversionSession
 {
     readonly EncoderSettings _settings;
     readonly Action<string> _report;
     readonly string _temporaryDirectory;
-    readonly JavaScriptSerializer _serializer = new JavaScriptSerializer();
-    readonly object _logLock = new object ();
+
+    readonly object _logLock = new object();
     int _successfulEntries;
     int _existingEntries;
     int _failedEntries;
@@ -27,7 +27,7 @@ sealed partial class ConversionSession
         _report = report;
         _temporaryDirectory = temporaryDirectory;
         toolRunner = new ToolRunner(Say, () => _workingDirectory ?? _temporaryDirectory);
-        archiveReader = new ArchiveReader(toolRunner);
+        archiveReader = new ArchiveReader(toolRunner, Say);
         database = new GameDatabase(settings.Online, temporaryDirectory, Say);
         outputNaming = new OutputNaming(settings.Output);
     }
@@ -112,16 +112,14 @@ sealed partial class ConversionSession
 
                     Say("Descompactando: " + Path.GetFileName(source));
                     Directory.CreateDirectory(unpacked);
-                    await toolRunner.RequireSuccessAsync("7z.exe", true, "x", "-y", "-p", "-bsp1",
-                        "-sccUTF-8", "-o" + unpacked, "--", source).ConfigureAwait(false);
+                    await archiveReader.ExtractAsync(source, unpacked).ConfigureAwait(false);
                     var files = FileSystemPaths.EnumerateFiles(unpacked).ToList();
                     if (files.Count == 1 && MediaFiles.Extension(files[0]) == ".tar")
                     {
                         string nested = Path.Combine(_workingDirectory, "tar");
                         await archiveReader.ListAsync(files[0], nested).ConfigureAwait(false);
                         Directory.CreateDirectory(nested);
-                        await toolRunner.RequireSuccessAsync("7z.exe", true, "x", "-y", "-p", "-bsp1", "-o"
-                            + nested, "--", files[0]).ConfigureAwait(false);
+                        await archiveReader.ExtractAsync(files[0], nested).ConfigureAwait(false);
                         unpacked = nested;
                         files = FileSystemPaths.EnumerateFiles(unpacked).ToList();
                     }
