@@ -1,7 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DiscForge</RootNamespace>
+    <AssemblyName>DiscForge-CHD</AssemblyName>
+    <ApplicationIcon>Assets/discforge.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
@@ -19,6 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Application/**/*.cs;Archives/**/*.cs;Configuration/**/*.cs;Infrastructure/**/*.cs;Media/**/*.cs;Models/**/*.cs;Processing/**/*.cs;Properties/**/*.cs;Services/**/*.cs;Storage/**/*.cs;Desktop/**/*.cs" />
+    <Content Include="Assets/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="tools/chdman.exe" LogicalName="chdman.exe" />
     <EmbeddedResource Include="tools/7z.exe" LogicalName="7z.exe" />
     <EmbeddedResource Include="tools/7z.dll" LogicalName="7z.dll" />

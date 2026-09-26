@@ -5,6 +5,14 @@ static class AppChangelog
     // Histórico visível ao usuário: somente funções e correções, desde a primeira versão C#.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.1.0 — 26/09/2026",
+        "",
+        "• Nova interface com seções, cartões e ajustes avançados recolhíveis.",
+        "• Balões de ajuda explicam cada opção de conversão.",
+        "• Identidade DiscForge CHD, ícone próprio e data de compilação em destaque.",
+        "• Pacote organizado em aplicativo, documentação e licenças.",
+        "• Layout adapta o painel do jogo à largura da janela.",
+        "",
         "2.0.0 — 25/09/2026",
         "",
         "• Nova interface WinUI 3 com painel de jogos e capas em WebView2.",

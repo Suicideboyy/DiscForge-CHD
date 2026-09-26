@@ -21,3 +21,8 @@ A consolidação solicitada para esta migração é uma operação única, após
 
 O changelog visível no aplicativo contém apenas bugs e funções desde 1.2.0.
 Mudanças internas ficam no CHANGELOG.txt e são informadas ao usuário.
+
+Pacotes: DiscForge-CHD-X.Y.Z-win-x64.zip e DiscForge-CHD-X.Y.Z-fontes.zip.
+Projeto: fontes/DiscForge-CHD.csproj. O executável da raiz inicia app/DiscForge-CHD.exe.
+BuildTools/Launcher compartilha o runtime incluído; HostPatcher usa o SDK oficial
+para criar esse iniciador com o ícone. Documentos e licenças têm pastas próprias.

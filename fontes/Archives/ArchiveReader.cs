@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -101,6 +101,7 @@ sealed class ArchiveReader
         }
     }
 
+    // Valida caminhos antes da escrita e só usa a reserva para incompatibilidades conhecidas.
     public async Task ExtractAsync(string path, string destination)
     {
         if (!useFallback.Contains(path))

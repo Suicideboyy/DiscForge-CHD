@@ -1,4 +1,4 @@
-# CHD Optimizer
+# DiscForge CHD
 
 O usuário autorizou publicar automaticamente as atualizações deste projeto.
 Depois de implementar e validar uma atualização, incrementar AssemblyVersion e
@@ -19,5 +19,5 @@ Manter os fontes organizados e ler/alterar somente os módulos necessários.
 A partir de 2.0.0: branch master, .NET 10/C# 14, Desktop/ com WinUI 3 e WebView2.
 Interface/ e Diagnostics/ são referência WinForms antiga, fora do csproj.
 SharpCompress é principal; SevenZipArchive permanece como reserva.
-Distribuir sempre o ZIP portátil inteiro; o EXE depende das DLLs e recursos ao lado.
+Distribuir sempre o ZIP portátil inteiro; preservando as subpastas app, documentacao e licencas.
 Publicar.ps1 envia os pacotes pelas Releases do GitHub, sem binários novos na raiz.

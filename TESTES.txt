@@ -1,4 +1,14 @@
-﻿Migração 2.0.0 — 25/09/2026
+Versão 2.1.0 — 26/09/2026
+PASSOU: compilação sem avisos/erros e abertura pelo iniciador da raiz do ZIP extraído.
+PASSOU: PS1/PS2, CUE multifaixa, rejeição de faixas sem CUE, retomada, parada e exclusão.
+Cinco CHDs com SHA-256 idêntico à referência anterior.
+PASSOU: WinUI 3, WebView2, progresso, cronômetro e métricas do sistema.
+Inspeção visual: tela principal, ajustes avançados, janela estreita, Sobre e capa.
+Ícone extraído do executável raiz conferido; versão e data visíveis no aplicativo.
+Fontes ativos: 2638 -> 2960 linhas C#; 50 linhas adicionais em BuildTools.
+Motor de compressão preservado; alterações principais na interface e distribuição.
+
+Migração 2.0.0 — 25/09/2026
 Compilação .NET 10.0.12 / SDK 10.0.401 / C# 14 / x64, sem avisos ou erros.
 
 PASSOU: PS1, PS2, ZIP, 7z, CUE multifaixa e faixas órfãs bloqueadas.

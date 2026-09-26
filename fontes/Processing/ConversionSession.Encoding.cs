@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 sealed partial class ConversionSession
 {
+    // Publica a saída somente depois de codificar e verificar sua integridade.
     async Task<string> Convert(string source, DiscInput media, string root, int index, int total,
         long packed, HashSet<string> outputs)
     {

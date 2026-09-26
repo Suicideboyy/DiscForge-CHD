@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -73,6 +73,7 @@ sealed partial class MainWindow
         Append(line);
     }
 
+    // Captura opções validadas antes de desabilitar a edição e executar o motor fora da UI.
     async Task StartAsync()
     {
         try

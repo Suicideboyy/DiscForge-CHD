@@ -12,15 +12,31 @@ $version = [regex]::Match($assembly, 'AssemblyVersion\("(\d+\.\d+\.\d+)\.0"\)').
 if (-not $version) { throw 'Versão inválida.' }
 $folder = Join-Path $repo ('versoes\' + $version)
 $portable = Join-Path $folder 'aplicativo'
-New-Item -ItemType Directory -Path $portable -Force | Out-Null
+$application = Join-Path $portable 'app'
+$documentation = Join-Path $portable 'documentacao'
+New-Item -ItemType Directory -Path $application,$documentation -Force | Out-Null
 $date = Get-Date -Format 'dd/MM/yyyy'
 $buildInfo = "static class BuildInfo { public const string Date = `"$date`"; }"
 [IO.File]::WriteAllText((Join-Path $PSScriptRoot 'Properties\BuildInfo.cs'), $buildInfo + [Environment]::NewLine)
 Push-Location $repo
 try {
-    & $DotnetPath publish (Join-Path $PSScriptRoot 'CHD-Optimizer.csproj') -c Release -r win-x64 --self-contained true -o $portable -p:RestoreLockedMode=true -p:DebugType=None -p:DebugSymbols=false
+    & $DotnetPath publish (Join-Path $PSScriptRoot 'DiscForge-CHD.csproj') -c Release -r win-x64 --self-contained true -o $application -p:RestoreLockedMode=true -p:DebugType=None -p:DebugSymbols=false
     if ($LASTEXITCODE -ne 0) { throw 'Falha na compilação.' }
-    Copy-Item -LiteralPath 'LEIA-ME.txt','CHANGELOG.txt','TESTES.txt','TERCEIROS.md' -Destination $portable -Force
+    # O iniciador compartilha o runtime em app, onde o WinUI e suas DLLs precisam ficar juntos.
+    & $DotnetPath publish (Join-Path $repo 'BuildTools\Launcher\Launcher.csproj') -c Release -o $application -p:DebugType=None -p:DebugSymbols=false
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o iniciador.' }
+    $hostTool = Join-Path $repo 'BuildTools\HostPatcher\HostPatcher.csproj'
+    & $DotnetPath build $hostTool -c Release -v quiet
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o organizador do pacote.' }
+    $runtime = Get-Content (Join-Path $application 'DiscForge-CHD.runtimeconfig.json') -Raw | ConvertFrom-Json
+    $runtimeVersion = $runtime.runtimeOptions.includedFrameworks[0].version
+    $template = Join-Path (Split-Path -Parent $DotnetPath) (
+        'packs\Microsoft.NETCore.App.Host.win-x64\' + $runtimeVersion + '\runtimes\win-x64\native\apphost.exe')
+    $hostDll = Join-Path $repo 'BuildTools\HostPatcher\bin\Release\net10.0\HostPatcher.dll'
+    & $DotnetPath $hostDll $template (Join-Path $portable 'DiscForge-CHD.exe') 'app/DiscForge.Launcher.dll' (Join-Path $application 'DiscForge.Launcher.exe')
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao gerar o executável de entrada.' }
+    Copy-Item -LiteralPath 'LEIA-ME.txt' -Destination $portable -Force
+    Copy-Item -LiteralPath 'CHANGELOG.txt','TESTES.txt','TERCEIROS.md' -Destination $documentation -Force
     $licenses = Join-Path $portable 'licencas'
     New-Item -ItemType Directory -Path $licenses -Force | Out-Null
     Copy-Item -Path (Join-Path $PSScriptRoot 'licencas\*') -Destination $licenses -Force
@@ -40,7 +56,7 @@ try {
             }
         }
     }
-    $zip = Join-Path $folder ('CHD-Optimizer-' + $version + '-win-x64.zip')
+    $zip = Join-Path $folder ('DiscForge-CHD-' + $version + '-win-x64.zip')
     $candidate = Join-Path $folder ('pacote-' + [Guid]::NewGuid().ToString('N') + '.zip')
     $sevenZip = Join-Path $PSScriptRoot 'tools\7z.exe'
     Push-Location $portable

@@ -84,6 +84,7 @@ sealed class GamePanel : Grid, IDisposable
     public Task RetryAsync() => cover == null && !loading && current.Serial.Length > 0
         && DateTime.UtcNow - attempted > TimeSpan.FromSeconds(30) ? LoadCoverAsync() : Task.CompletedTask;
 
+    // Descarta respostas atrasadas para não mostrar a capa de uma entrada anterior.
     async Task LoadCoverAsync()
     {
         int request = generation;

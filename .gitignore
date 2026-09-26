@@ -11,3 +11,5 @@ versoes/
 fontes/bin/
 fontes/obj/
 *.pdb
+BuildTools/**/bin/
+BuildTools/**/obj/

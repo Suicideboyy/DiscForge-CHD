@@ -1,7 +1,9 @@
-﻿CHD Optimizer 2.0.0 — Windows x64 — 25/09/2026
+DiscForge CHD 2.1.0 — Windows x64 — 26/09/2026
 
-Extraia TODO o pacote win-x64.zip e abra CHD-Optimizer.exe dentro da pasta.
-Não mova apenas o EXE: esta versão WinUI 3 inclui DLLs e arquivos de recursos.
+Extraia TODO o pacote win-x64.zip e abra DiscForge-CHD.exe na raiz da pasta.
+Preserve app (componentes), documentacao (guias) e licencas. Não mova só o EXE.
+Os botões ? explicam cada opção. Ajustes avançados ficam recolhidos inicialmente.
+Nome, versão e data de compilação aparecem no cabeçalho e na aba Sobre.
 Requer Windows 10 2004 (19041) ou posterior. Windows 11 recomendado.
 .NET 10 e Windows App SDK incluídos; não exige instalar o SDK para usar.
 WebView2 Runtime: necessário para o painel de capas. Ausência não impede converter.

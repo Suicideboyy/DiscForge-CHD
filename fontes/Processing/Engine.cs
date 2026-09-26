@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 static class Engine
 {
     public static string StopFile;
+    // Impede lotes simultâneos na mesma entrada e libera a parada ao encerrar.
     public static async Task<int> Run(EncoderSettings settings, Action<string> report)
     {
         settings.Validate();

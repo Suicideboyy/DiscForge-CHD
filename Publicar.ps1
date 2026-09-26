@@ -25,13 +25,13 @@ if (-not $SomenteCompilar) {
 & (Join-Path $PSScriptRoot 'fontes\compilar.ps1')
 if ($SomenteCompilar) { return }
 # Apenas código, documentação e ferramentas do aplicativo; jogos/caches ficam fora.
-Git add -- fontes Publicar.ps1 global.json .gitignore .editorconfig AGENTS.md README.md PUBLICACAO.md LEIA-ME.txt CHANGELOG.txt TESTES.txt TERCEIROS.md RELEASE.md SHA256.txt
-Git commit -m "CHD Optimizer $tag"
+Git add -- fontes BuildTools Publicar.ps1 global.json .gitignore .editorconfig AGENTS.md README.md PUBLICACAO.md LEIA-ME.txt CHANGELOG.txt TESTES.txt TERCEIROS.md RELEASE.md SHA256.txt
+Git commit -m "DiscForge CHD $tag"
 Git tag $tag
-$sources = Join-Path $folder ('CHD-Optimizer-' + $version + '-fontes.zip')
+$sources = Join-Path $folder ('DiscForge-CHD-' + $version + '-fontes.zip')
 Git archive --format=zip --output $sources HEAD
 Git push --atomic origin HEAD:refs/heads/master "refs/tags/$tag"
-$package = Join-Path $folder ('CHD-Optimizer-' + $version + '-win-x64.zip')
-& $gh release create $tag $package $sources (Join-Path $folder 'SHA256.txt') --repo Suicideboyy/DiscForge-CHD --title "CHD Optimizer $version" --notes-file (Join-Path $PSScriptRoot 'RELEASE.md')
+$package = Join-Path $folder ('DiscForge-CHD-' + $version + '-win-x64.zip')
+& $gh release create $tag $package $sources (Join-Path $folder 'SHA256.txt') --repo Suicideboyy/DiscForge-CHD --title "DiscForge CHD $version" --notes-file (Join-Path $PSScriptRoot 'RELEASE.md')
 if ($LASTEXITCODE -ne 0) { throw 'Commit e tag enviados, mas a Release falhou. Retome apenas o upload dos arquivos.' }
 Write-Host "Publicado: $tag"

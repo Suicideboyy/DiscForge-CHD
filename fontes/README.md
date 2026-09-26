@@ -25,3 +25,9 @@ Use somente pastas descartáveis nos testes de exclusão.
 
 `compilar.ps1` cria o pacote por versão. `packages.lock.json` fixa as dependências.
 Atualize AppInfo.cs/AssemblyInfo.cs juntos; BuildInfo.cs é gerado ao compilar.
+
+Projeto: DiscForge-CHD.csproj. Desktop separa Layout, Controls, Settings, Events,
+Processing, Telemetry, About e Diagnostics. VisualTheme centraliza aparência;
+OptionHelp centraliza explicações. Comentários descrevem responsabilidades e
+invariantes das funções principais. Assets guarda o ícone em PNG e ICO.
+BuildTools, na raiz do repositório, contém o iniciador portátil e seu empacotador.
