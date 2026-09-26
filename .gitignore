@@ -7,6 +7,7 @@ cache/
 .env
 .env.*
 versoes/
+versions/
 .aider*
 fontes/bin/
 fontes/obj/

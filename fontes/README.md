@@ -1,33 +1,21 @@
-﻿# Estrutura C# 14 / .NET 10
+# Source structure: C# 14 / .NET 10
 
-`Application/Program.cs` inicia diagnósticos ou `Desktop/DesktopApp.cs`.
-`App.xaml` registra recursos e metadados WinUI; a janela é construída em C#.
+`Application/Program.cs` starts diagnostics or the WinUI application. `App.xaml` registers resources; the window is built in C#.
 
-| Pasta | Responsabilidade |
+| Directory | Responsibility |
 |---|---|
-| Desktop | Layout WinUI 3, eventos de conversão, telemetria, painel WebView2 e captura de diagnóstico |
-| Processing | Lote, conversão, verificação, retomada e relatórios |
-| Archives | SharpCompress principal; SevenZipArchive preserva o adaptador de reserva |
-| Infrastructure | Processos, JSON, HTTP limitado, contadores e ferramentas incluídas |
-| Services | Consulta/cache da base e capas, sem dependência de UI |
-| Media / Storage | Imagens, CUE, serial, nomes, caminhos e integridade dos arquivos |
-| Configuration / Models | Configurações validadas e dados compartilhados |
-| Properties | Versão, compilação e changelog visível |
-| Interface / Diagnostics | Referência histórica WinForms 1.3; explicitamente excluída da compilação |
+| Desktop | WinUI layout, settings, contextual help, conversion events, telemetry and WebView2 panel |
+| Processing | Batch control, encoding, verification, resume and reports |
+| Archives | SharpCompress extraction and 7-Zip fallback |
+| Infrastructure | Processes, JSON, HTTP, system counters and bundled tools |
+| Services | Database lookup, cache and covers without UI dependencies |
+| Media / Storage | Disc images, CUE, serials, output names and file integrity |
+| Configuration / Models | Validated settings and shared data |
+| Properties | Version, build date and in-app changelog |
+| Assets | Application icon in ICO and PNG formats |
 
-O csproj inclui apenas os módulos atuais. Os fontes históricos estão preservados,
-mas não devem ser usados para novas funções. Não há dependência de Windows Forms
-ou System.Web no aplicativo compilado.
+The active project is `DiscForge-CHD.csproj`. `Desktop` separates layout, controls, settings, events, processing, telemetry, About and diagnostics. `VisualTheme` centralizes appearance and `OptionHelp` centralizes explanations. `BuildTools` at repository root contains the portable launcher and host generator. There is no WinForms or System.Web dependency in the compiled application.
 
-Comandos: `--run-test entrada saida PS2`, `--stop-test`, `--delete-test`,
-`--archive-test arquivo destino`, `--cover-test serial arquivo`, `--ui-smoke relatório`.
-Use somente pastas descartáveis nos testes de exclusão.
+Diagnostic commands: `--run-test input output PS2`, `--stop-test`, `--delete-test`, `--archive-test archive destination`, `--cover-test serial file`, `--ui-smoke report`. Use disposable directories for deletion tests.
 
-`compilar.ps1` cria o pacote por versão. `packages.lock.json` fixa as dependências.
-Atualize AppInfo.cs/AssemblyInfo.cs juntos; BuildInfo.cs é gerado ao compilar.
-
-Projeto: DiscForge-CHD.csproj. Desktop separa Layout, Controls, Settings, Events,
-Processing, Telemetry, About e Diagnostics. VisualTheme centraliza aparência;
-OptionHelp centraliza explicações. Comentários descrevem responsabilidades e
-invariantes das funções principais. Assets guarda o ícone em PNG e ICO.
-BuildTools, na raiz do repositório, contém o iniciador portátil e seu empacotador.
+`build.ps1` creates the versioned package. Update AppInfo.cs and AssemblyInfo.cs together for a new application release. BuildInfo.cs is generated during compilation.

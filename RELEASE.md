@@ -1,10 +1,8 @@
 DiscForge CHD 2.1.0
 
-- Interface reorganizada com cartões, cantos arredondados e ajustes avançados recolhíveis.
-- Balões explicam plataforma, hunks, codecs, threads e demais opções.
-- Nome unificado, ícone próprio e data de compilação no cabeçalho e na aba Sobre.
-- Pacote organizado em app, documentacao e licencas.
+- Redesigned interface with cards, rounded corners and expandable advanced settings.
+- Contextual help explains platform, hunks, codecs, threads and other options.
+- Unified application name, custom icon and build date in the header and About tab.
+- Portable archive organized into separate component, documentation and license folders.
 
-Baixe DiscForge-CHD-2.1.0-win-x64.zip, extraia tudo e abra DiscForge-CHD.exe.
-.NET 10 e Windows App SDK incluídos. Windows 10 2004+ x64.
-WebView2 Runtime necessário para o painel de capas. Fontes completos no ZIP fontes.
+Download DiscForge-CHD-2.1.0-win-x64.zip, extract the entire archive and run DiscForge-CHD.exe. .NET 10 and Windows App SDK are included. Requires Windows 10 2004+ x64. The cover panel requires WebView2 Runtime. The source ZIP contains the complete buildable project.

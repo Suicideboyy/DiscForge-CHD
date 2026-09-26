@@ -1,0 +1,17 @@
+DiscForge CHD 2.1.0 — Windows x64 — 2026-09-26
+
+Extract the COMPLETE win-x64.zip archive and run DiscForge-CHD.exe at its root. Keep every folder from the archive together. The ? buttons explain each option; advanced settings are initially collapsed. The header and About tab show the application name, version and build date.
+
+Requires Windows 10 2004 (19041) or newer. .NET 10 and Windows App SDK are included. The WebView2 Runtime is needed for covers but not for conversion: https://developer.microsoft.com/microsoft-edge/webview2/
+
+Choose input, output, platform, hunk sizes, codecs and thread count. Separate codecs with commas, up to four distinct codecs per media type. CD: cdlz, cdzs, cdzl, cdfl. DVD: lzma, zstd, zlib, flac or huff. PS2 uses createcd for CD (default 2448-byte hunk) and createdvd for DVD (default 2048-byte hunk). There is no second encode. PS1 optimizes existing CHDs and keeps the original when smaller after verification. Thread count defaults to the machine's logical processor count.
+
+SharpCompress lists and extracts archives; bundled 7-Zip handles recognized unsupported methods/formats and split volumes. Corrupt, encrypted, linked or unsafe paths are rejected. Resume checks occur before extraction. Multi-track CUE files are preserved; orphan BIN tracks without a CUE are rejected. Nested TAR formats are processed in two steps.
+
+Redump/PSX Data Center lookup works for CDs and DVDs. Output names use Game Name [SERIAL].chd. Without identification, ISO images up to 400 MiB are treated as CD and larger ones as DVD. PS2 covers are requested regardless of the media lookup result. Covers are cached and retried during a task; a cover failure does not stop conversion.
+
+The entry timer includes identification, extraction, encoding and verification. CPU, disk throughput (MiB/s) and disk activity (%) represent the whole system. Unavailable counters show N/D and metrics refresh every second.
+
+Delete original archives is disabled by default. Original volumes are removed only after all discs from that input were created in the current run and their CHDs verified. Existing outputs, standalone images and failed entries are not deleted. Stop finishes the current entry; closing while busy requests the same stop.
+
+Logs: input/temp/log.txt. Cache: %LOCALAPPDATA%/CHD Optimizer. Conversion does not use BAT or PowerShell; scripts are only for build and publication. Bundled chdman: MAME 0.289 (unknown), 2026-09-14, C++20/GCC 16.2/Zen 3. The in-app changelog lists features and fixes since the first C# version (1.2.0).

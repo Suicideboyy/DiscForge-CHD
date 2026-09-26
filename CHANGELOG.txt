@@ -1,48 +1,38 @@
-2.1.0 — 26/09/2026
-- Interface moderna com cartões, layout adaptável e opções avançadas recolhíveis.
-- Ajuda contextual para opções de conversão e indicadores.
-- Nome DiscForge CHD, ícone próprio e data de compilação visível.
-- Pacote separado em app, documentacao e licencas.
-- Código: aparência, ajuda, eventos e diagnósticos separados por responsabilidade;
-  funções principais comentadas e iniciador portátil com runtime compartilhado.
+2.1.0 — 2026-09-26
+- Modern card-based interface, adaptive layout and collapsible advanced options.
+- Contextual help for conversion settings and performance indicators.
+- DiscForge CHD name, custom icon and visible build date.
+- Portable archive separated into app, documentation and licenses.
+- Internal: UI responsibilities split into modules; launcher shares packaged runtime.
 
-2.0.0 — 25/09/2026
-- Nova interface WinUI 3 e painel de capas/dados do jogo em WebView2.
-- SharpCompress como extrator principal; 7-Zip mantido como reserva.
-- Mantidas validações de caminhos/links, retomada e verificação de CHD.
-- Distribuição portátil com runtimes, pacotes nas Releases e branch master.
-- Código: .NET 10/C# 14, System.Text.Json, HttpClient, argumentos de processo
-  estruturados, espera assíncrona e leitura exata de cabeçalhos.
-- Histórico ai-development integrado antes da consolidação das branches.
+2.0.0 — 2026-09-25
+- WinUI 3 interface and WebView2 game details/cover panel.
+- SharpCompress primary extraction with 7-Zip fallback.
+- Preserved path/link validation, resume and CHD verification.
+- Portable release with runtimes; master became the release branch.
+- Internal: .NET 10/C# 14, System.Text.Json, HttpClient and structured process arguments.
 
-1.3.0 — 21/09/2026
-- Capas durante a identificação e nova tentativa após falha.
-- Tempo por entrada, uso da CPU e leitura/escrita/atividade dos discos.
-- Threads automáticas conforme a máquina e interface colorida arredondada.
-- Changelog do aplicativo limitado a funções e correções desde 1.2.0.
-- Distribuições locais separadas em pastas por versão.
-- Código: módulos próprios para aparência, telemetria e informações da versão.
+1.3.0 — 2026-09-21
+- Cover lookup during identification, including retries after temporary failures.
+- Per-entry timer, CPU and disk throughput/activity metrics.
+- Automatic thread count and rounded, colorful interface.
+- In-app changelog limited to features and fixes since 1.2.0.
 
-1.2.1 — 21/09/2026
-- Código separado em 29 arquivos por responsabilidade.
-- Blocos explícitos, inicializadores por linha e nomes mais claros no processamento.
-- Interface, consultas, compactados, arquivos e processos em módulos próprios.
-- Compilação recursiva e guia de estrutura em fontes/README.md.
-- Verificada equivalência de cinco CHDs por SHA-256 contra a versão 1.2.0.
+1.2.1 — 2026-09-21
+- Split C# source into modules by responsibility.
+- Confirmed five CHDs match 1.2.0 by SHA-256.
 
-1.2.0 — 20/09/2026
-- Motor BAT/PowerShell convertido para C#.
-- Execução direta e sem janela de console do chdman e 7-Zip.
-- Preservados seleção de plataforma, pastas, codecs, hunks e threads.
-- Preservados painel do jogo, capas por serial e aba Sobre/Changelog.
-- Retomada de compactados por listagem, antes de extrair as imagens.
-- CUE multifaixa preservado; conjunto Track sem CUE bloqueado.
-- Publicação na pasta de saída somente após verificar o CHD copiado.
-- Exclusão do compactado somente após sucesso integral da entrada.
-- Progresso por etapa e lote, sem repetir porcentagens no quadro de log.
+1.2.0 — 2026-09-20
+- Converted BAT/PowerShell conversion logic to C#.
+- Direct chdman and 7-Zip execution without console windows.
+- Preserved platform, folders, codecs, hunks, threads, covers and About tab.
+- Archive resume check before image extraction.
+- Preserved multi-track CUE; rejected orphan BIN tracks.
+- Publish outputs and remove source archives only after full verification.
+- Progress by stage and batch without duplicate log percentages.
 
-1.1.0 — 20/09/2026
-- Painel do jogo, capas, Sobre e Changelog.
-- Correção da interpretação de BINs numerados como faixas.
+1.1.0 — 2026-09-20
+- Game panel, covers, About and changelog.
+- Fixed numbered BIN track interpretation.
 
-Contagem 2.0.0: antes 3149 linhas C#; agora 2638 linhas em 37 arquivos compilados. Referências WinForms preservadas fora do projeto: 1173 linhas. Total no repositório: 3811. Inclui linhas em branco.
+The active C# sources grew from 2,638 lines in 2.0.0 to 2,960 in 2.1.0; two build tools add 50 lines. The 1,173-line retired WinForms reference was removed from the current tree after 2.1.0 and remains in Git history.

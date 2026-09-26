@@ -1,0 +1,42 @@
+Verification history
+
+2.1.0 — 2026-09-26
+PASS: build with no warnings or errors; root launcher starts from a freshly extracted ZIP.
+PASS: PS1, PS2, multi-track CUE, missing-CUE rejection, resume, stop and deletion after success.
+Five output CHDs match the previous reference by SHA-256.
+PASS: WinUI 3, WebView2, progress, timer and system performance metrics.
+Visually inspected the main screen, advanced settings, narrow layout, About and cover panel.
+Confirmed icon extracted from the root executable, version and build date in the app.
+The encoder itself was unchanged.
+
+2.0.0 — 2026-09-25
+PASS: PS1, PS2, ZIP, 7z, multi-track CUE, missing-CUE rejection, resume, stop and conditional deletion.
+Five CHDs match version 1.2.0 by SHA-256.
+PASS: previous JSON cache, SLUS-21693, DVD selection and database-derived output title.
+PASS: SharpCompress extraction of ZIP, TAR, TAR.GZ and public normal/solid RAR fixtures; extracted SHA-256 matched 7-Zip.
+PASS: split 7z volumes fall back to 7-Zip.
+PASS: reject parent-path traversal, case-insensitive duplicate names and ZIP symlinks.
+PASS: WinUI 3, WebView2, 16 automatic threads, batch/stage progress, timer and Windows metrics.
+PASS: complete portable ZIP extracted into a fresh directory and tested with five matching CHD hashes.
+The package includes App.xbf and DiscForge-CHD.pri.
+
+1.3.0 — 2026-09-21
+PASS: PS1, PS2, ZIP/7z, multi-track CUE, resume, stop and conditional deletion.
+PASS: cover retry with known DVD media, rapid serial changes and concurrent-request deduplication.
+PASS: timer start/update/stop, 16 detected threads and valid real performance counters.
+PASS: in-app changelog starts at 1.2.0 and excludes internal refactoring.
+
+1.2.1 — 2026-09-21
+PASS: conversion regression and five SHA-256 matches to 1.2.0.
+PASS: rendered About and changelog tabs.
+
+Initial functional tests — 2026-09-20
+PASS: ZIP ISO to CD/hunk 2448; 7z DVD CHD to DVD/hunk 2048; standalone PS1/PS2 CHDs.
+PASS: ZIP/7z resume without repeat extraction; multi-track CUE and audio in and outside ZIP.
+PASS: six BIN tracks without CUE fail without partial output.
+PASS: cached database result sets DVD for a small ISO and supplies title/serial.
+PASS: source names containing spaces, ampersands and exclamation marks.
+PASS: stop after first of two entries; ZIP removal after successful verified encode.
+PASS: invalid archive and ../outside.iso rejected; DVD CHD round-trip ISO SHA-256 matches input.
+
+Tests used small disposable fixtures and did not modify the game collection. No complete-game benchmark, exhaustive archive-format test, clean Windows 10 installation test or malware certification was performed.

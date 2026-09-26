@@ -5,15 +5,15 @@ if (-not $DotnetPath) {
     $found = Get-Command dotnet -ErrorAction SilentlyContinue
     if ($found) { $DotnetPath = $found.Source }
     elseif ($env:DOTNET_ROOT) { $DotnetPath = Join-Path $env:DOTNET_ROOT 'dotnet.exe' }
-    else { throw 'Instale o SDK .NET 10.0.401 ou informe -DotnetPath.' }
+    else { throw 'Install .NET SDK 10.0.401 or supply -DotnetPath.' }
 }
 $assembly = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Properties\AssemblyInfo.cs'))
 $version = [regex]::Match($assembly, 'AssemblyVersion\("(\d+\.\d+\.\d+)\.0"\)').Groups[1].Value
-if (-not $version) { throw 'Versão inválida.' }
-$folder = Join-Path $repo ('versoes\' + $version)
-$portable = Join-Path $folder 'aplicativo'
+if (-not $version) { throw 'Invalid version.' }
+$folder = Join-Path $repo ('versions\' + $version)
+$portable = Join-Path $folder 'application'
 $application = Join-Path $portable 'app'
-$documentation = Join-Path $portable 'documentacao'
+$documentation = Join-Path $portable 'documentation'
 New-Item -ItemType Directory -Path $application,$documentation -Force | Out-Null
 $date = Get-Date -Format 'dd/MM/yyyy'
 $buildInfo = "static class BuildInfo { public const string Date = `"$date`"; }"
@@ -21,25 +21,25 @@ $buildInfo = "static class BuildInfo { public const string Date = `"$date`"; }"
 Push-Location $repo
 try {
     & $DotnetPath publish (Join-Path $PSScriptRoot 'DiscForge-CHD.csproj') -c Release -r win-x64 --self-contained true -o $application -p:RestoreLockedMode=true -p:DebugType=None -p:DebugSymbols=false
-    if ($LASTEXITCODE -ne 0) { throw 'Falha na compilação.' }
-    # O iniciador compartilha o runtime em app, onde o WinUI e suas DLLs precisam ficar juntos.
+    if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
+    # The launcher shares the runtime in app, where WinUI must reside beside its native DLLs.
     & $DotnetPath publish (Join-Path $repo 'BuildTools\Launcher\Launcher.csproj') -c Release -o $application -p:DebugType=None -p:DebugSymbols=false
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o iniciador.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Launcher build failed.' }
     $hostTool = Join-Path $repo 'BuildTools\HostPatcher\HostPatcher.csproj'
     & $DotnetPath build $hostTool -c Release -v quiet
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o organizador do pacote.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Host generator build failed.' }
     $runtime = Get-Content (Join-Path $application 'DiscForge-CHD.runtimeconfig.json') -Raw | ConvertFrom-Json
     $runtimeVersion = $runtime.runtimeOptions.includedFrameworks[0].version
     $template = Join-Path (Split-Path -Parent $DotnetPath) (
         'packs\Microsoft.NETCore.App.Host.win-x64\' + $runtimeVersion + '\runtimes\win-x64\native\apphost.exe')
     $hostDll = Join-Path $repo 'BuildTools\HostPatcher\bin\Release\net10.0\HostPatcher.dll'
     & $DotnetPath $hostDll $template (Join-Path $portable 'DiscForge-CHD.exe') 'app/DiscForge.Launcher.dll' (Join-Path $application 'DiscForge.Launcher.exe')
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao gerar o executável de entrada.' }
-    Copy-Item -LiteralPath 'LEIA-ME.txt' -Destination $portable -Force
-    Copy-Item -LiteralPath 'CHANGELOG.txt','TESTES.txt','TERCEIROS.md' -Destination $documentation -Force
-    $licenses = Join-Path $portable 'licencas'
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to generate the root executable.' }
+    Copy-Item -LiteralPath 'USER-GUIDE.txt' -Destination $portable -Force
+    Copy-Item -LiteralPath 'CHANGELOG.txt','TESTS.txt','THIRD-PARTY.md' -Destination $documentation -Force
+    $licenses = Join-Path $portable 'licenses'
     New-Item -ItemType Directory -Path $licenses -Force | Out-Null
-    Copy-Item -Path (Join-Path $PSScriptRoot 'licencas\*') -Destination $licenses -Force
+    Copy-Item -Path (Join-Path $PSScriptRoot 'licenses\*') -Destination $licenses -Force
     foreach ($notice in Get-ChildItem -LiteralPath (Split-Path -Parent $DotnetPath) -File |
         Where-Object { $_.Name -match '(?i)^license|^third.party.notices' }) {
         Copy-Item -LiteralPath $notice.FullName -Destination (Join-Path $licenses ('dotnet-' + $notice.Name)) -Force
@@ -57,18 +57,17 @@ try {
         }
     }
     $zip = Join-Path $folder ('DiscForge-CHD-' + $version + '-win-x64.zip')
-    $candidate = Join-Path $folder ('pacote-' + [Guid]::NewGuid().ToString('N') + '.zip')
+    $candidate = Join-Path $folder ('package-' + [Guid]::NewGuid().ToString('N') + '.zip')
     $sevenZip = Join-Path $PSScriptRoot 'tools\7z.exe'
     Push-Location $portable
     try {
         & $sevenZip a -tzip -mx=5 -ssw -sse $candidate '.\*' | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'Falha ao empacotar a distribuição.' }
+        if ($LASTEXITCODE -ne 0) { throw 'Failed to package the distribution.' }
         & $sevenZip t $candidate | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'Pacote ZIP inválido.' }
+        if ($LASTEXITCODE -ne 0) { throw 'Invalid ZIP package.' }
     } finally { Pop-Location }
     Move-Item -LiteralPath $candidate -Destination $zip -Force
     $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash
     [IO.File]::WriteAllText((Join-Path $folder 'SHA256.txt'), "$hash  $([IO.Path]::GetFileName($zip))`r`n")
-    Copy-Item -LiteralPath (Join-Path $folder 'SHA256.txt') -Destination (Join-Path $repo 'SHA256.txt') -Force
-    Write-Host "Pacote portátil: $zip"
+    Write-Host "Portable package: $zip"
 } finally { Pop-Location }
