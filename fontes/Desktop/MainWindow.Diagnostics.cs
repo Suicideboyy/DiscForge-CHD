@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -9,20 +9,31 @@ sealed partial class MainWindow
         try
         {
             await Task.Delay(4000);
-            Report("Entrada 1 / 1: diagnóstico da interface");
+            Report("Entrada 1 / 1: UI diagnostics");
             await Task.Delay(100);
-            await game.UpdateAsync(new GameInfo { Title = "Teste WinUI 3", Serial = "SLUS-21296", Type = "CD" }, true);
-            Report("Comprimindo: diagnóstico");
+            await game.UpdateAsync(new GameInfo { Title = "WinUI 3 test", Serial = "SLUS-21296", Type = "CD" }, true);
+            Report("Comprimindo: UI diagnostics");
             Report("Etapa: 42%");
             await RefreshTelemetry();
             await Task.Delay(2000);
             if (stage.Value != 42 || !clock.IsRunning || clock.Elapsed.TotalSeconds < 1)
-                throw new InvalidOperationException("Progresso ou cronômetro da interface falhou.");
+                throw new InvalidOperationException("UI progress or timer failed.");
             Report("Lote PS2: 100% (1/1)");
             await Task.Delay(200);
             if (clock.IsRunning || batch.Value != 100)
-                throw new InvalidOperationException("Conclusão do lote não atualizou a interface.");
-            if (helpButtons.Count < 10) throw new InvalidOperationException("Ajuda incompleta.");
+                throw new InvalidOperationException("Batch completion did not update the UI.");
+            if (helpButtons.Count < 13) throw new InvalidOperationException("Help buttons are missing.");
+            string previousInput = input.Text, previousOutput = output.Text;
+            output.Text = "";
+            input.Text = Path.Combine(Path.GetTempPath(), "DiscForgeSmoke");
+            await Task.Delay(150);
+            if (output.Text != Path.Combine(input.Text, "otimizados"))
+                throw new InvalidOperationException("Default output did not follow the input folder.");
+            input.Text = previousInput;
+            output.Text = previousOutput;
+            dvdCodecChoices[4].IsChecked = true;
+            if (dvdCodecChoices[4].IsChecked == true)
+                throw new InvalidOperationException("The four-codec limit was not enforced.");
             await SaveSnapshotAsync(destination + ".png");
             advanced.IsExpanded = true;
             await Task.Delay(300);
@@ -34,12 +45,12 @@ sealed partial class MainWindow
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".narrow.png");
             AppWindow.Resize(new Windows.Graphics.SizeInt32(1380, 1000));
-            tabs.SelectedIndex = 1;
+            tabs.SelectedIndex = 2;
             aboutChanges.IsExpanded = true;
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".about.png");
             await File.WriteAllTextAsync(destination, "WinUI3=OK\nWebView2=" + game.BrowserStatus
-                + "\nProgresso/Cronometro=OK\nThreads=" + threads.Value + "\nCPU=" + cpu.Text + "\nDiscos=" + disk.Text);
+                + "\nProgress/Timer=OK\nThreads=" + threads.Value + "\nCPU=" + cpu.Text + "\nDisk=" + disk.Text);
         }
         catch (Exception ex) { await File.WriteAllTextAsync(destination, ex.ToString()); }
         finally { Close(); }

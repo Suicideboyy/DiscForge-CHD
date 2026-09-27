@@ -64,7 +64,7 @@ sealed partial class ConversionSession
     public async Task<int> Run()
     {
         Say(AppInfo.DisplayName + " — " + DateTime.Now);
-        Say("Origem: " + _settings.Input + " | Saída: " + _settings.Output);
+        Say("Source: " + _settings.Input + " | Output: " + _settings.Output);
         var sources = Sources(_settings.Input).ToList();
         var images = MediaFiles.SelectDiscInputs(sources.Where(p => _settings.Platform == "PS2"
             ? MediaFiles.IsDiscImage(p) : MediaFiles.Extension(p) == ".chd"), _settings.Input, null);
@@ -73,6 +73,7 @@ sealed partial class ConversionSession
             : Enumerable.Empty<string>()).OrderBy(MediaFiles.NaturalSortKey, Paths).ToList();
         for (int i = 0; i < entries.Count; i++)
         {
+            Engine.ThrowIfCancelled();
             if (File.Exists(Engine.StopFile))
             {
                 return 2;
@@ -98,18 +99,6 @@ sealed partial class ConversionSession
                         continue;
                     }
 
-                    // Reject orphan tracks before extraction, including old partial CHDs.
-                    var orphan = preview.FirstOrDefault(m => MediaFiles.TrackGroup(m.Path) != null);
-                    if (orphan != null)
-                    {
-                        var game = Identify(source, orphan);
-                        game.Type = "CD";
-                        game.Status = "CUE AUSENTE";
-                        game.Detail = "Faixas BIN pertencem ao mesmo disco. Forneça o CUE original.";
-                        Show(game);
-                        throw new IOException(game.Detail);
-                    }
-
                     Say("Descompactando: " + Path.GetFileName(source));
                     Directory.CreateDirectory(unpacked);
                     await archiveReader.ExtractAsync(source, unpacked).ConfigureAwait(false);
@@ -124,10 +113,18 @@ sealed partial class ConversionSession
                         files = FileSystemPaths.EnumerateFiles(unpacked).ToList();
                     }
 
+                    var reconstructed = MediaFiles.ReconstructTrackCues(files, unpacked);
+                    if (reconstructed.Count > 0)
+                    {
+                        Say("Reconstructed CUE: pregaps and additional indices are unknown. "
+                            + "The original archive will be preserved.");
+                        files.AddRange(reconstructed);
+                    }
+
                     var media = MediaFiles.SelectDiscInputs(files, unpacked, null);
                     if (media.Count == 0)
                     {
-                        throw new IOException("Nenhuma imagem de disco encontrada.");
+                        throw new IOException("No disc image found.");
                     }
 
                     bool allNew = true;
@@ -156,17 +153,19 @@ sealed partial class ConversionSession
                         _existingEntries++;
                     }
 
-                    if (_settings.Delete && allNew && saved.Count == media.Count)
+                    if (_settings.Delete && allNew && reconstructed.Count == 0
+                        && saved.Count == media.Count)
                     {
+                        Engine.ThrowIfCancelled();
                         if (!snapshots.All(p => p.Unchanged()) || !saved.All(p => p.Unchanged()))
                         {
-                            throw new IOException("Arquivos mudaram durante o processamento; compactado preservado.");
+                            throw new IOException("Files changed during processing; original archive preserved.");
                         }
 
                         foreach (var part in snapshots)
                         {
                             File.Delete(part.Path);
-                            Say("Compactado removido após verificação: " + Path.GetFileName(part.Path));
+                            Say("Archive removed after verification: " + Path.GetFileName(part.Path));
                         }
                     }
                 }
@@ -185,10 +184,15 @@ sealed partial class ConversionSession
                     }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                Say("Conversion cancelled; original files preserved.");
+                return 2;
+            }
             catch (Exception ex)
             {
                 _failedEntries++;
-                Say("ERRO: " + ex.Message);
+                Say("ERROR: " + ex.Message);
             }
             finally
             {
@@ -198,14 +202,14 @@ sealed partial class ConversionSession
                 }
                 catch (Exception ex)
                 {
-                    Say("Aviso: limpeza temporária: " + ex.Message);
+                    Say("Warning: temporary cleanup: " + ex.Message);
                 }
 
                 _workingDirectory = null;
                 Say("Lote " + _settings.Platform + ": " + (100.0 * (i + 1) / Math.Max(1,
                     entries.Count)).ToString("F1") + "% (" + (i + 1) + "/" + entries.Count
-                    + ") | Sucessos: " + _successfulEntries + " | Já existentes: " + _existingEntries
-                    + " | Erros: " + _failedEntries);
+                    + ") | Successes: " + _successfulEntries + " | Existing: " + _existingEntries
+                    + " | Errors: " + _failedEntries);
             }
         }
 

@@ -69,7 +69,7 @@ sealed class GameDatabase
         }
         catch (Exception ex)
         {
-            report("Aviso: cache de mídia: " + ex.Message);
+            report("Warning: media cache: " + ex.Message);
         }
         finally
         {

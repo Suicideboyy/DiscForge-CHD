@@ -6,22 +6,25 @@ using Microsoft.UI.Xaml.Controls;
 
 sealed partial class MainWindow
 {
-    /// <summary>Concentra o ciclo de vida da janela e impede fechar no meio de uma entrada.</summary>
+    /// <summary>Wires window lifecycle and avoids closing during an active input.</summary>
     void ConnectEvents()
     {
         start.Click += async (_, _) => await StartAsync();
         stop.Click += (_, _) => RequestStop();
+        stopNow.Click += (_, _) => RequestStopNow();
+        input.TextChanged += (_, _) => FollowInputFolder();
         platform.SelectionChanged += (_, _) => { UpdatePlatform(); game.Reset(); };
         AppWindow.Closing += (_, args) =>
         {
             if (!running) return;
             args.Cancel = true;
             RequestStop();
-            status.Text = "Aguarde a entrada terminar antes de fechar.";
+            status.Text = "Wait for the current input before closing.";
         };
         Closed += (_, _) =>
         {
             closed = true;
+            SavePreferences();
             timer.Stop();
             performance.Dispose();
             game.Dispose();
@@ -34,7 +37,7 @@ sealed partial class MainWindow
 
     UIElement BuildProgress()
     {
-        var body = VisualTheme.Section("03", "Processamento");
+        var body = VisualTheme.Section("03", "Processing");
         stage.Foreground = VisualTheme.Accent;
         batch.Foreground = VisualTheme.Teal;
         body.Children.Add(status);
@@ -42,12 +45,20 @@ sealed partial class MainWindow
         body.Children.Add(batchStatus);
         body.Children.Add(batch);
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        actions.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection
+        {
+            new Microsoft.UI.Xaml.Media.Animation.AddDeleteThemeTransition()
+        };
         start.Style = (Style)Application.Current.Resources["AccentButtonStyle"];
         start.Background = VisualTheme.Accent;
-        ToolTipService.SetToolTip(start, HelpText("Valida as opções e inicia a fila. Cada CHD é verificado antes de ser salvo."));
+        start.Content = ActionLabel(Symbol.Play, "Start conversion");
+        stop.Content = ActionLabel(Symbol.Pause, "Stop after current");
+        stopNow.Content = ActionLabel(Symbol.Stop, "Stop now");
+        ToolTipService.SetToolTip(start, HelpText("Validates options and starts the queue. Every CHD is verified before saving."));
         ToolTipService.SetToolTip(stop, HelpText(OptionHelp.Stop));
-        var open = new Button { Content = "Abrir saída", MinHeight = 42 };
-        ToolTipService.SetToolTip(open, "Abre a pasta de destino no Explorador de Arquivos.");
+        var open = new Button { Content = "Open output", MinHeight = 42 };
+        open.Content = ActionLabel(Symbol.OpenFile, "Open output");
+        ToolTipService.SetToolTip(open, "Opens the output folder in File Explorer.");
         open.Click += (_, _) =>
         {
             try
@@ -55,18 +66,29 @@ sealed partial class MainWindow
                 if (Directory.Exists(output.Text))
                     Process.Start(new ProcessStartInfo(output.Text) { UseShellExecute = true });
             }
-            catch (Exception ex) { Append("Abrir saída: " + ex.Message); }
+            catch (Exception ex) { Append("Open output: " + ex.Message); }
         };
         actions.Children.Add(start);
         actions.Children.Add(stop);
+        stopNow.Background = VisualTheme.Brush(243, 213, 219);
+        ToolTipService.SetToolTip(stopNow, HelpText(OptionHelp.StopNow));
+        actions.Children.Add(stopNow);
         actions.Children.Add(open);
         body.Children.Add(actions);
         body.Children.Add(new Expander
         {
-            Header = "Registro da execução", Content = log,
+            Header = "Activity log", Content = log,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch
         });
         return VisualTheme.Card(body);
+    }
+
+    static StackPanel ActionLabel(Symbol symbol, string label)
+    {
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 7 };
+        row.Children.Add(new SymbolIcon(symbol));
+        row.Children.Add(VisualTheme.Text(label, 13, true));
+        return row;
     }
 }

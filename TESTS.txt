@@ -1,3 +1,13 @@
+2.2.0 — 2026-09-26
+PASS: .NET build without warnings or errors, WinUI 3 and WebView2 smoke.
+PASS: synthetic RAW2352 multi-track ZIP encoded to a verified CHD; reconstructed-CUE source retained even with deletion selected.
+PASS: two archives with the same cached serial and different revisions produce separate CHDs; a second run resumes both.
+PASS: Stop Now returns code 2, keeps the original archive, removes its working directory and creates no output.
+PASS: cached PS1 PNG is returned unchanged; valid custom tool paths stage and invalid paths fail.
+PASS: existing PS1/PS2, CUE, resume, stop and deletion regression. Five CHD hashes match the previous release.
+Process-local CPU/I/O and separate PS1/PS2 cover cache also passed isolated tests.
+The real Dance Factory archive and live PS1 cover download were unavailable in this environment.
+
 Verification history
 
 2.1.0 — 2026-09-26

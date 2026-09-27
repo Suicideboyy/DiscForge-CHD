@@ -1,40 +1,22 @@
-﻿/// <summary>Textos de ajuda do usuário, separados da construção dos controles.</summary>
+/// <summary>Explanations shared by tooltips and accessible help buttons.</summary>
 static class OptionHelp
 {
-    public const string Input = "Onde estão os jogos. PS2 aceita imagens e compactados; PS1 processa CHDs. "
-        + "Jogos já convertidos são conferidos antes de uma nova extração.";
-    public const string Output = "Pasta onde os CHDs verificados serão salvos. Deve ser diferente da entrada "
-        + "e não pode ficar dentro da pasta temporária. Os arquivos originais ficam preservados por padrão.";
-    public const string Platform = "PS1: otimiza CHDs existentes e pode manter o original se ele for menor. "
-        + "PS2: aceita compactados, ISO, BIN/CUE e CHD; usa createcd para CD e createdvd para DVD.";
-    public const string Threads = "Preenchido com os processadores lógicos desta máquina. Mais threads permitem "
-        + "maior paralelismo do chdman, mas o ganho depende da CPU, dos codecs e do disco. "
-        + "Reduza para deixar o computador mais disponível durante a conversão.";
-    public const string CdHunk = "Tamanho do bloco de CD, em bytes. Deve ser múltiplo de 2448. "
-        + "2448 usa blocos pequenos; blocos maiores podem comprimir melhor, mas aumentam o trabalho "
-        + "para acessar um trecho pequeno. O melhor tamanho depende do conteúdo.";
-    public const string DvdHunk = "Tamanho do bloco de DVD, em bytes. Deve ser múltiplo de 2048. "
-        + "2048 corresponde a um setor de dados. Blocos maiores podem melhorar a compressão, "
-        + "com maior custo de leitura/descompressão por bloco. Não há garantia de arquivo menor.";
-    public const string CdCodecs = "Até quatro codecs, separados por vírgula: cdlz (LZMA), cdzs (Zstandard), "
-        + "cdzl (zlib) e cdfl (FLAC para áudio), próprios para CD. O chdman escolhe a opção menor por bloco. "
-        + "Mais codecs podem aumentar o tempo de codificação.";
-    public const string DvdCodecs = "Até quatro codecs distintos: lzma, zstd, zlib, flac ou huff. "
-        + "LZMA costuma priorizar tamanho; Zstandard busca equilíbrio entre velocidade e tamanho. "
-        + "zlib é uma opção geral, FLAC é voltado a áudio e Huffman depende do padrão dos dados. "
-        + "O chdman escolhe o menor resultado por bloco; nem todo codec ajuda em todo DVD.";
-    public const string Lookup = "Consulta o serial para obter nome e tipo de mídia. Um resultado confirmado "
-        + "gera Nome [SERIAL].chd. Sem correspondência, usa a identificação local. "
-        + "A busca da capa funciona separadamente, mesmo com a mídia já reconhecida.";
-    public const string Delete = "Só remove o compactado e seus volumes quando todos os discos da entrada "
-        + "forem convertidos nesta execução e os CHDs forem verificados. Não apaga imagens avulsas, "
-        + "entradas com erro ou compactados ignorados porque o CHD já existia.";
-    public const string Stop = "Solicita uma parada segura: a entrada atual termina, incluindo a verificação. "
-        + "Os jogos seguintes não são iniciados.";
-    public const string Cpu = "Porcentagem de CPU usada por todo o sistema, incluindo outros programas. "
-        + "Atualizada aproximadamente a cada segundo. N/D indica contador indisponível.";
-    public const string Disk = "Leitura e escrita somadas dos discos físicos, em MiB/s; atividade média em %. "
-        + "Inclui outros aplicativos. Estes valores não representam apenas a velocidade do encoder.";
-    public const string Time = "Tempo da entrada atual: identificação, extração, compressão e verificação. "
-        + "Reinicia ao começar o próximo arquivo e para quando a entrada termina.";
+    public const string Input = "Folder containing your games. PS2 accepts images and archives; PS1 processes CHDs. Previously converted games are checked before extraction.";
+    public const string Output = "Verified CHDs are saved here. The default is the otimizados folder within the selected input folder. Originals are preserved unless removal is enabled.";
+    public const string Platform = "PS1 optimizes existing CHDs. PS2 accepts archives, ISO, BIN/CUE and CHD, using createcd for CDs and createdvd for DVDs.";
+    public const string Threads = "Defaults to this machine's logical processor count. More threads may speed up chdman, depending on the CPU, codecs and storage.";
+    public const string CdHunk = "CD block size in bytes, in multiples of 2448. Larger blocks may compress better but cost more to read a small section.";
+    public const string DvdHunk = "DVD block size in bytes, in multiples of 2048. Larger blocks may improve compression but increase work per read.";
+    public const string CdCodecs = "Select up to four CD codecs. cdlz uses LZMA, cdzs uses Zstandard, cdzl uses zlib and cdfl uses FLAC for audio. chdman chooses the smallest result per block.";
+    public const string DvdCodecs = "Select up to four codecs. LZMA favors size, Zstandard balances speed and size, zlib is general purpose, FLAC targets audio and Huffman suits some repeated patterns.";
+    public const string Lookup = "Looks up the game serial for its name and media type. A confirmed match uses Name [SERIAL].chd. Cover lookup runs independently.";
+    public const string Delete = "Removes an archive only when all its discs were converted and verified in this run. Existing outputs and failed inputs retain originals.";
+    public const string Stop = "Finishes the current input and verification, then stops before the next game.";
+    public const string StopNow = "Interrupts the current task, clears its temporary files and preserves the original input. Outputs completed earlier remain available.";
+    public const string ChdmanPath = "Path to a custom chdman.exe. Leave blank to use the bundled version.";
+    public const string SevenZipExePath = "Path to a custom 7z.exe for unsupported archives. Leave blank to use the bundled version.";
+    public const string SevenZipDllPath = "Path to the 7z.dll paired with the selected 7z.exe. Leave blank to use the bundled version.";
+    public const string Cpu = "CPU used by DiscForge and the converters it launched, sampled about once per second. N/A means unavailable.";
+    public const string Disk = "Bytes read and written by DiscForge and the converters it launched, shown in MiB/s. Windows caching can affect these values.";
+    public const string Time = "Elapsed time for the current input, including identification, extraction, encoding and verification.";
 }

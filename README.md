@@ -11,7 +11,9 @@ Download the portable ZIP from the [latest release](https://github.com/Suicidebo
 - PS2 CD: `createcd`, default hunk 2448. DVD: `createdvd`, default hunk 2048. Both are configurable.
 - SharpCompress extraction with 7-Zip fallback for unsupported formats, methods and split volumes.
 - Resume checks before extraction, CHD verification and optional deletion after success.
-- Per-entry timer, system CPU/disk metrics and automatic thread count.
+- Per-entry timer, application and encoder CPU/I/O metrics, and automatic thread count.
+- Immediate stop, last-used input folder, default optimized output folder and codec checkboxes.
+- Version-aware output names, safe multi-track BIN reconstruction and PS1 covers.
 
 ## Development
 

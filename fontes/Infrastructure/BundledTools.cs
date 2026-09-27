@@ -7,8 +7,26 @@ using System.Security.Cryptography;
 static class BundledTools
 {
     public static string Tools;
-    public static string Stage()
+    public static void ValidateSelectedTools(EncoderSettings settings)
     {
+        Validate(settings.ChdmanPath, ".exe");
+        Validate(settings.SevenZipExePath, ".exe");
+        Validate(settings.SevenZipDllPath, ".dll");
+    }
+
+    static void Validate(string path, string extension)
+    {
+        if (String.IsNullOrWhiteSpace(path)) return;
+        string full = Path.GetFullPath(path);
+        if (!File.Exists(full) || !Path.GetExtension(full).Equals(extension, StringComparison.OrdinalIgnoreCase))
+            throw new IOException("Invalid tool path: " + path);
+        FileSystemPaths.EnsureNoLinks(full);
+    }
+
+    // Copies selected tools to an isolated cache so 7z.exe can find 7z.dll beside it.
+    public static string Stage(EncoderSettings settings = null)
+    {
+        if (settings != null) ValidateSelectedTools(settings);
         var asm = Assembly.GetExecutingAssembly();
         string id;
         using (var f = File.OpenRead(asm.Location))
@@ -16,6 +34,23 @@ static class BundledTools
             {
                 id = BitConverter.ToString(sha.ComputeHash(f)).Replace("-", "").Substring(0, 16);
             }
+
+        string[] selected = settings == null
+            ? new[] { "", "", "" }
+            : new[] { settings.ChdmanPath, settings.SevenZipExePath, settings.SevenZipDllPath };
+        using (var hash = SHA256.Create())
+        using (var signature = new MemoryStream())
+        {
+            foreach (string path in selected)
+            {
+                if (String.IsNullOrWhiteSpace(path)) continue;
+                using var input = File.OpenRead(path);
+                byte[] digest = hash.ComputeHash(input);
+                signature.Write(digest, 0, digest.Length);
+            }
+            signature.Position = 0;
+            id += "-" + BitConverter.ToString(hash.ComputeHash(signature)).Replace("-", "").Substring(0, 12);
+        }
 
         string root = Environment.GetEnvironmentVariable("CHDOPT_TEST_CACHE");
         if (String.IsNullOrEmpty(root))
@@ -27,11 +62,15 @@ static class BundledTools
         Tools = Path.Combine(root, id);
         Directory.CreateDirectory(Tools);
         FileSystemPaths.EnsureNoLinks(Tools);
-        foreach (string name in new[]{"chdman.exe", "7z.exe", "7z.dll"})
+        string[] names = { "chdman.exe", "7z.exe", "7z.dll" };
+        for (int index = 0; index < names.Length; index++)
         {
+            string name = names[index];
             string file = Path.Combine(Tools, name);
             FileSystemPaths.EnsureNoLinks(file);
-            using (var resource = asm.GetManifestResourceStream(name))
+            using (var resource = String.IsNullOrWhiteSpace(selected[index])
+                ? asm.GetManifestResourceStream(name)
+                : File.OpenRead(selected[index]))
                 using (var memory = new MemoryStream())
                 {
                     if (resource == null)

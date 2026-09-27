@@ -6,6 +6,8 @@
 - SharpCompress 1.0.0: https://github.com/adamhathcock/sharpcompress — MIT.
 - chdman/MAME: https://github.com/mamedev/mame — licenses vary by MAME component. The user-provided custom 0.289 / Zen 3 binary, built on 2026-09-14, is preserved.
 - 7-Zip: https://www.7-zip.org/license.txt — GNU LGPL, BSD and unRAR restriction where applicable.
-- Covers: https://github.com/xlenore/ps2-covers — downloaded by serial and not distributed in the archive.
+- PS2 covers: https://github.com/xlenore/ps2-covers — downloaded by serial.
+- PS1 covers: https://github.com/xlenore/psx-covers — downloaded by serial as PNG.
+  Covers are not distributed in the archive.
 
 NuGet versions are locked in packages.lock.json. Component license texts and notices are included in the portable distribution's licenses directory. No game or real disc image belongs to this repository.

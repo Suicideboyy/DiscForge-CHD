@@ -14,31 +14,34 @@ class EncoderSettings
     public int Threads = MachineInfo.LogicalProcessors;
     public bool Delete = false;
     public bool Online = true;
+    public string ChdmanPath = "";
+    public string SevenZipExePath = "";
+    public string SevenZipDllPath = "";
     public void Validate()
     {
         Input = Path.GetFullPath(Input).TrimEnd('\\');
         Output = Path.GetFullPath(Output).TrimEnd('\\');
         if (!Directory.Exists(Input))
         {
-            throw new Exception("Escolha uma pasta de entrada existente.");
+            throw new Exception("Select an existing input folder.");
         }
 
         if (Input.Length < 3 || Output.Length < 3)
         {
-            throw new Exception("Use uma pasta, não a raiz de uma unidade.");
+            throw new Exception("Select a folder, not a drive root.");
         }
 
         if (Input.Equals(Output, StringComparison.OrdinalIgnoreCase) || Input.StartsWith(Output + "\\",
             StringComparison.OrdinalIgnoreCase))
         {
-            throw new Exception("A saída deve ser diferente da entrada e não pode conter a pasta de entrada.");
+            throw new Exception("Output must differ from input and must not contain the input folder.");
         }
 
         string temp = Input + "\\temp";
         if (Output.Equals(temp, StringComparison.OrdinalIgnoreCase) || Output.StartsWith(temp + "\\",
             StringComparison.OrdinalIgnoreCase))
         {
-            throw new Exception("A saída não pode ficar na pasta temporária da entrada.");
+            throw new Exception("Output cannot be inside the input temporary folder.");
         }
 
         foreach (string path in new[]{Input, Output})
@@ -47,14 +50,14 @@ class EncoderSettings
             {
                 if (d.Exists && (d.Attributes & FileAttributes.ReparsePoint) != 0)
                 {
-                    throw new Exception("Escolha pastas sem links ou junctions.");
+                    throw new Exception("Select folders without links or junctions.");
                 }
             }
         }
 
         if (Platform != "PS1" && Platform != "PS2")
         {
-            throw new Exception("Plataforma inválida.");
+            throw new Exception("Invalid platform.");
         }
 
         CheckCodecs(Cd, new[]{"cdlz", "cdzs", "cdzl", "cdfl"});
@@ -62,13 +65,14 @@ class EncoderSettings
         if (CdHunk < 2448 || CdHunk > 1048576 || CdHunk % 2448 != 0 || DvdHunk < 2048 || DvdHunk > 1048576
             || DvdHunk % 2048 != 0)
         {
-            throw new Exception("Hunk inválido para a mídia.");
+            throw new Exception("Invalid hunk size for the media.");
         }
 
         if (Threads < 1 || Threads > MachineInfo.LogicalProcessors)
         {
-            throw new Exception("Quantidade de threads inválida.");
+            throw new Exception("Invalid thread count.");
         }
+        BundledTools.ValidateSelectedTools(this);
     }
 
     static void CheckCodecs(string codecs, string[] allowed)
@@ -78,13 +82,13 @@ class EncoderSettings
         {
             if (Array.IndexOf(allowed, c) < 0 || !set.Add(c))
             {
-                throw new Exception("Selecione codecs válidos, sem repetição.");
+                throw new Exception("Select valid codecs without duplicates.");
             }
         }
 
         if (set.Count > 4)
         {
-            throw new Exception("Selecione no máximo quatro codecs por mídia.");
+            throw new Exception("Select up to four codecs per media type.");
         }
     }
 }

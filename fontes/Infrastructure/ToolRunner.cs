@@ -39,7 +39,23 @@ sealed class ToolRunner
             StartInfo = start
         })
         {
+            Engine.ThrowIfCancelled();
             process.Start();
+            AppProcessRegistry.Register(process);
+            // Cancel the whole native process tree so chdman/7-Zip cannot continue writing.
+            using var cancellation = Engine.Token.Register(() =>
+            {
+                try
+                {
+                    if (!process.HasExited)
+                    {
+                        process.Kill(entireProcessTree: true);
+                    }
+                }
+                catch (Exception) { } // The process may have exited concurrently.
+            });
+            try
+            {
             process.StandardInput.Close();
             var text = new StringBuilder();
             object gate = new object();
@@ -71,12 +87,13 @@ sealed class ToolRunner
             ;
             await Task.WhenAll(ReadLinesAsync(process.StandardOutput, line),
                 ReadLinesAsync(process.StandardError, line)).ConfigureAwait(false);
-            await process.WaitForExitAsync().ConfigureAwait(false);
+            await process.WaitForExitAsync(Engine.Token).ConfigureAwait(false);
+            Engine.ThrowIfCancelled();
             if (truncated)
             {
                 throw new IOException(
-                    "Saída da ferramenta excedeu o limite; " +
-                    "operação cancelada para evitar listagem incompleta.");
+                    "Tool output exceeded the limit; " +
+                    "operation stopped to prevent an incomplete listing.");
             }
 
             if (progress && process.ExitCode == 0)
@@ -89,6 +106,11 @@ sealed class ToolRunner
                 Code = process.ExitCode,
                 Text = text.ToString()
             };
+            }
+            finally
+            {
+                AppProcessRegistry.Unregister(process.Id);
+            }
         }
     }
 
@@ -128,7 +150,7 @@ sealed class ToolRunner
         var r = await RunAsync(name, args, progress).ConfigureAwait(false);
         if (r.Code != 0)
         {
-            throw new IOException(name + " (código " + r.Code + "): " + r.Text.Substring(Math.Max(0,
+            throw new IOException(name + " (exit code " + r.Code + "): " + r.Text.Substring(Math.Max(0,
                 r.Text.Length - 3000)));
         }
 

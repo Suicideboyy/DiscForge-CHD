@@ -13,6 +13,12 @@ sealed class OutputNaming
     public string Build(GameInfo g, string source, DiscInput media, int index, int total)
     {
         string name = g.Title;
+        string revision = SourceRevision(source);
+        if (revision.Length > 0 && !Regex.IsMatch(name, @"(?i)(?:^|\s)[\[(]?" +
+            Regex.Escape(revision) + @"[\])]?(?:\s|$)"))
+        {
+            name += " [" + revision + "]";
+        }
         if (name.Length > 120)
         {
             name = name.Substring(0, 120).TrimEnd(' ', '.');
@@ -46,5 +52,20 @@ sealed class OutputNaming
         }
 
         return Path.Combine(outputDirectory, name + ".chd");
+    }
+
+    // The revision in the archive name distinguishes dumps sharing a Redump serial.
+    public static string SourceRevision(string source)
+    {
+        string stem = MediaFiles.OutputStem(source);
+        var match = Regex.Match(stem, @"(?i)(?<![a-z0-9])(?:v(?:er(?:sion)?)?|rev(?:ision)?)\.?\s*[-_ ]*(\d+(?:[._]\d+)*)\b");
+        if (!match.Success)
+        {
+            return "";
+        }
+
+        string digits = match.Groups[1].Value.Replace('_', '.');
+        return match.Value.TrimStart('(', '[', ' ').StartsWith("rev", StringComparison.OrdinalIgnoreCase)
+            ? "Rev " + digits : "v" + digits;
     }
 }

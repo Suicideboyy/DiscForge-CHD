@@ -1,35 +1,48 @@
 ﻿using System;
 using Microsoft.UI.Xaml;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Storage.Pickers;
 
 sealed partial class MainWindow
 {
-    /// <summary>Agrupa os campos comuns e mantém os ajustes técnicos em uma seção expansível.</summary>
+    /// <summary>Groups common fields and keeps technical choices in one expandable section.</summary>
     void BuildSettings()
     {
-        var library = VisualTheme.Section("01", "Biblioteca");
-        library.Children.Add(Field("Entrada", PathRow(input), OptionHelp.Input));
-        library.Children.Add(Field("Saída", PathRow(output), OptionHelp.Output));
+        BuildCodecChoices(cdCodecs, cdCodecChoices, new[]
+        {
+            ("cdlz", "LZMA: favors size"), ("cdzs", "Zstandard: balanced"),
+            ("cdzl", "zlib: general purpose"), ("cdfl", "FLAC: CD audio")
+        });
+        BuildCodecChoices(dvdCodecs, dvdCodecChoices, new[]
+        {
+            ("lzma", "LZMA: favors size"), ("zstd", "Zstandard: balanced"),
+            ("zlib", "zlib: general purpose"), ("flac", "FLAC: audio"),
+            ("huff", "Huffman: repeated patterns")
+        });
+        var library = VisualTheme.Section("01", "Library");
+        library.Children.Add(Field("Input", PathRow(input), OptionHelp.Input));
+        library.Children.Add(Field("Output", PathRow(output), OptionHelp.Output));
         var libraryCard = VisualTheme.Card(library);
 
-        var encoder = VisualTheme.Section("02", "Conversão");
+        var encoder = VisualTheme.Section("02", "Conversion");
         encoder.Children.Add(VisualTheme.Pair(
-            Field("Plataforma", platform, OptionHelp.Platform),
-            Field("Threads · automático", threads, OptionHelp.Threads)));
+            Field("Platform", platform, OptionHelp.Platform),
+            Field("Threads · automatic", threads, OptionHelp.Threads)));
         var tuning = new StackPanel { Spacing = 14 };
         tuning.Children.Add(VisualTheme.Pair(
-            Field("Bloco CD · bytes", cdHunk, OptionHelp.CdHunk),
-            Field("Bloco DVD · bytes", dvdHunk, OptionHelp.DvdHunk)));
+            Field("CD hunk · bytes", cdHunk, OptionHelp.CdHunk),
+            Field("DVD hunk · bytes", dvdHunk, OptionHelp.DvdHunk)));
         tuning.Children.Add(Field("Codecs CD", cdCodecs, OptionHelp.CdCodecs));
         tuning.Children.Add(Field("Codecs DVD", dvdCodecs, OptionHelp.DvdCodecs));
         advanced.Content = tuning;
         advanced.HorizontalAlignment = HorizontalAlignment.Stretch;
         advanced.HorizontalContentAlignment = HorizontalAlignment.Stretch;
         encoder.Children.Add(advanced);
-        encoder.Children.Add(WithHelp(online, "Consulta do jogo", OptionHelp.Lookup));
-        encoder.Children.Add(WithHelp(delete, "Remoção do original", OptionHelp.Delete));
+        encoder.Children.Add(WithHelp(online, "Game lookup", OptionHelp.Lookup));
+        encoder.Children.Add(WithHelp(delete, "Remove original", OptionHelp.Delete));
         var encoderCard = VisualTheme.Card(encoder);
         var panels = VisualTheme.Pair(libraryCard, encoderCard);
         panels.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -46,6 +59,32 @@ sealed partial class MainWindow
         settings.Children.Add(panels);
     }
 
+    // Preserve the displayed codec order and enforce the four-codec limit.
+    static void BuildCodecChoices(StackPanel panel, List<CheckBox> choices,
+        IEnumerable<(string Name, string Description)> codecs)
+    {
+        foreach (var (name, description) in codecs)
+        {
+            var choice = new CheckBox
+            {
+                Content = name + " — " + description,
+                Tag = name,
+                IsChecked = name != "huff"
+            };
+            ToolTipService.SetToolTip(choice, description);
+            choice.Checked += (_, _) =>
+            {
+                if (choices.Count(c => c.IsChecked == true) > 4)
+                    choice.IsChecked = false;
+            };
+            choices.Add(choice);
+            panel.Children.Add(choice);
+        }
+    }
+
+    static string SelectedCodecs(List<CheckBox> choices) =>
+        string.Join(',', choices.Where(c => c.IsChecked == true).Select(c => (string)c.Tag));
+
     FrameworkElement Field(string label, FrameworkElement control, string explanation)
     {
         var field = new StackPanel { Spacing = 6 };
@@ -58,7 +97,7 @@ sealed partial class MainWindow
         return field;
     }
 
-    /// <summary>A mesma ajuda pode ser aberta por mouse, toque ou teclado, sem depender de hover.</summary>
+    /// <summary>Help opens by mouse, touch or keyboard without relying on hover.</summary>
     Grid WithHelp(FrameworkElement control, string label, string explanation)
     {
         var help = new Button
@@ -68,8 +107,8 @@ sealed partial class MainWindow
             CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(0),
             Flyout = new Flyout { Content = HelpText(explanation) }
         };
-        AutomationProperties.SetName(help, "Ajuda: " + label);
-        ToolTipService.SetToolTip(help, "Entenda esta opção");
+        AutomationProperties.SetName(help, "Help: " + label);
+        ToolTipService.SetToolTip(help, "Explain this option");
         helpButtons.Add(help);
         var row = VisualTheme.Pair(control, help);
         row.ColumnDefinitions[1].Width = GridLength.Auto;
@@ -81,20 +120,34 @@ sealed partial class MainWindow
         Text = text, TextWrapping = TextWrapping.Wrap, MaxWidth = 340, FontSize = 13
     };
 
-    Grid PathRow(TextBox box)
+    Grid PathRow(TextBox box, bool file = false)
     {
-        var choose = new Button { Content = "Escolher…", MinHeight = 34 };
+        var choose = new Button { Content = "Browse…", MinHeight = 34 };
         choose.Click += async (_, _) =>
         {
             try
             {
-                var picker = new FolderPicker();
-                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
-                picker.FileTypeFilter.Add("*");
-                var folder = await picker.PickSingleFolderAsync();
-                if (folder != null) box.Text = folder.Path;
+                if (file)
+                {
+                    var picker = new FileOpenPicker();
+                    WinRT.Interop.InitializeWithWindow.Initialize(picker,
+                        WinRT.Interop.WindowNative.GetWindowHandle(this));
+                    picker.FileTypeFilter.Add(".exe");
+                    picker.FileTypeFilter.Add(".dll");
+                    var selected = await picker.PickSingleFileAsync();
+                    if (selected != null) box.Text = selected.Path;
+                }
+                else
+                {
+                    var picker = new FolderPicker();
+                    WinRT.Interop.InitializeWithWindow.Initialize(picker,
+                        WinRT.Interop.WindowNative.GetWindowHandle(this));
+                    picker.FileTypeFilter.Add("*");
+                    var folder = await picker.PickSingleFolderAsync();
+                    if (folder != null) box.Text = folder.Path;
+                }
             }
-            catch (Exception ex) { Append("Seleção de pasta: " + ex.Message); }
+            catch (Exception ex) { Append("Browse: " + ex.Message); }
         };
         var row = VisualTheme.Pair(box, choose);
         row.ColumnDefinitions[1].Width = GridLength.Auto;
@@ -104,12 +157,14 @@ sealed partial class MainWindow
     void UpdatePlatform()
     {
         bool ps2 = (string)platform.SelectedItem == "PS2";
-        dvdHunk.IsEnabled = dvdCodecs.IsEnabled = online.IsEnabled = delete.IsEnabled = ps2;
+        dvdHunk.IsEnabled = online.IsEnabled = delete.IsEnabled = ps2;
+        foreach (var choice in dvdCodecChoices) choice.IsEnabled = ps2;
     }
 
     void SetSettingsEnabled(bool enabled)
     {
         start.IsEnabled = settingsHost.IsEnabled = enabled;
+        chdmanPath.IsEnabled = sevenZipExePath.IsEnabled = sevenZipDllPath.IsEnabled = enabled;
         if (enabled) UpdatePlatform();
     }
 }

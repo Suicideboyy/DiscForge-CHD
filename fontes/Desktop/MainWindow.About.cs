@@ -7,15 +7,15 @@ sealed partial class MainWindow
     {
         var page = new StackPanel { Padding = new Thickness(28), Spacing = 20 };
         page.Children.Add(BuildHeader());
-        var info = VisualTheme.Section("", "Sobre o DiscForge CHD");
-        info.Children.Add(VisualTheme.Text("Organize imagens de PS1 e PS2 em CHD, com verificação de integridade."));
+        var info = VisualTheme.Section("", "About DiscForge CHD");
+        info.Children.Add(VisualTheme.Text("Convert PS1 and PS2 disc images to verified CHDs."));
         info.Children.Add(VisualTheme.Text(
-            "Compilação: " + BuildInfo.Date + "\nC# 14 • .NET 10 • Windows x64"
+            "Built: " + BuildInfo.Date + "\nC# 14 • .NET 10 • Windows x64"
             + "\nWinUI 3 / Windows App SDK 2.5.1 • WebView2 1.0.4191.47"
-            + "\nSharpCompress 1.0.0 • 7-Zip de reserva"
+            + "\nSharpCompress 1.0.0 • 7-Zip fallback"
             + "\n\nCHDman: MAME 0.289 (unknown), 14/09/2026"
-            + "\nC++20 / GCC 16.2 / Zen 3 / LTO. Binário preservado."
-            + "\nCapas: xlenore/ps2-covers. Componentes dos respectivos autores."));
+            + "\nC++20 / GCC 16.2 / Zen 3 / LTO. Original binary preserved."
+            + "\nCovers: xlenore/ps2-covers and xlenore/psx-covers. Third-party components remain with their authors."));
         page.Children.Add(VisualTheme.Card(info));
         aboutChanges.HorizontalAlignment = HorizontalAlignment.Stretch;
         aboutChanges.HorizontalContentAlignment = HorizontalAlignment.Stretch;

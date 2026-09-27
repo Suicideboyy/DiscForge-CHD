@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Text;
 
 static class MediaFiles
 {
@@ -41,6 +42,96 @@ static class MediaFiles
         return m.Success ? m.Groups[1].Value : null;
     }
 
+    // Rebuild only track start indices. Without the original CUE, pregaps and additional
+    // indices cannot be recovered, so this is for playback rather than archival use.
+    public static List<string> ReconstructTrackCues(IEnumerable<string> files, string root)
+    {
+        var created = new List<string>();
+        var all = files.ToList();
+        var referenced = new HashSet<string>(Paths);
+        foreach (string originalCue in all.Where(p => Extension(p) == ".cue"))
+        {
+            foreach (string file in ReadCueReferences(File.ReadAllText(originalCue), originalCue, root))
+            {
+                referenced.Add(file);
+            }
+        }
+
+        var groups = all.Select(p => new
+        {
+            Path = p,
+            Match = Regex.Match(Path.GetFileName(p), @"(?i)^(.*)\(Track\s+(\d+)\)\.bin$")
+        }).Where(x => x.Match.Success).GroupBy(x =>
+            Path.Combine(Path.GetDirectoryName(x.Path), x.Match.Groups[1].Value), Paths);
+
+        foreach (var group in groups)
+        {
+            if (group.Any(x => referenced.Contains(x.Path)))
+            {
+                continue;
+            }
+
+            var tracks = group.Select(x => new
+            {
+                x.Path,
+                Number = Int32.Parse(x.Match.Groups[2].Value)
+            }).OrderBy(x => x.Number).ToList();
+            if (tracks[0].Number != 1 || tracks.Select((x, i) => x.Number == i + 1).Any(ok => !ok))
+            {
+                throw new IOException("BIN tracks are not consecutively numbered: " + group.Key);
+            }
+
+            var cue = new StringBuilder();
+            foreach (var track in tracks)
+            {
+                var info = new FileInfo(track.Path);
+                if (info.Length == 0 || info.Length % 2352 != 0)
+                {
+                    throw new IOException("BIN track does not use 2352-byte RAW sectors: " + info.Name);
+                }
+
+                byte[] header = new byte[16];
+                int mode = 0;
+                using (var stream = File.OpenRead(track.Path))
+                {
+                    for (long sector = 0; sector < Math.Min(info.Length / 2352, 300); sector++)
+                    {
+                        stream.Position = sector * 2352;
+                        stream.ReadExactly(header);
+                        if (header[0] == 0 && header[11] == 0
+                            && header.Skip(1).Take(10).All(b => b == 255)
+                            && (header[15] == 1 || header[15] == 2))
+                        {
+                            mode = header[15];
+                            break;
+                        }
+                    }
+                }
+
+                string kind = mode > 0 ? "MODE" + mode + "/2352" : "AUDIO";
+                if (track.Number == 1 && kind == "AUDIO")
+                {
+                    throw new IOException("First track has no RAW data sector; original CUE required.");
+                }
+
+                cue.Append("FILE \"").Append(info.Name).Append("\" BINARY\r\n")
+                    .Append("  TRACK ").Append(track.Number.ToString("D2")).Append(' ').Append(kind)
+                    .Append("\r\n    INDEX 01 00:00:00\r\n");
+            }
+
+            string path = group.Key.TrimEnd(' ', '.') + " (reconstructed).cue";
+            if (File.Exists(path))
+            {
+                throw new IOException("Reconstructed CUE already exists: " + path);
+            }
+
+            File.WriteAllText(path, cue.ToString(), new UTF8Encoding(false));
+            created.Add(path);
+        }
+
+        return created;
+    }
+
     public static List<string> ReadCueReferences(string text, string cue, string root)
     {
         var refs = new List<string>();
@@ -49,13 +140,13 @@ static class MediaFiles
             string relative = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value;
             if (Path.IsPathRooted(relative) || relative.Contains(':'))
             {
-                throw new IOException("Referência CUE absoluta não suportada.");
+                throw new IOException("Absolute CUE references are not supported.");
             }
 
             string p = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(cue), relative));
             if (!FileSystemPaths.IsInside(p, root))
             {
-                throw new IOException("Referência CUE fora da entrada.");
+                throw new IOException("CUE reference is outside the input directory.");
             }
 
             FileSystemPaths.EnsureNoLinks(p);
@@ -67,7 +158,7 @@ static class MediaFiles
 
         if (refs.Count == 0)
         {
-            throw new IOException("CUE sem arquivos FILE.");
+            throw new IOException("CUE contains no FILE entries.");
         }
 
         return refs;
@@ -87,7 +178,7 @@ static class MediaFiles
             {
                 if (!list.Contains(p, Paths))
                 {
-                    throw new IOException("Faixa referenciada não encontrada: " + Path.GetFileName(p));
+                    throw new IOException("Referenced track not found: " + Path.GetFileName(p));
                 }
 
                 companions.Add(p);

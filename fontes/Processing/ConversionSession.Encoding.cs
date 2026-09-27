@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 sealed partial class ConversionSession
 {
-    // Publica a saída somente depois de codificar e verificar sua integridade.
+    // Publish the output only after encoding and verifying its integrity.
     async Task<string> Convert(string source, DiscInput media, string root, int index, int total,
         long packed, HashSet<string> outputs)
     {
@@ -17,20 +17,20 @@ sealed partial class ConversionSession
         {
             if (MediaFiles.TrackGroup(media.Path) != null)
             {
-                throw new IOException("CUE AUSENTE: forneça o CUE original para o conjunto de faixas BIN.");
+                throw new IOException("MISSING CUE: provide the original CUE for these BIN tracks.");
             }
 
             string output = outputNaming.Build(game, source, media, index, total);
             if (!outputs.Add(output))
             {
-                throw new IOException("Dois discos resultaram no mesmo nome de saída.");
+                throw new IOException("Two discs produced the same output name.");
             }
 
             if (await ValidExisting(output).ConfigureAwait(false))
             {
-                game.Status = "JÁ EXISTENTE";
+                game.Status = "ALREADY EXISTS";
                 Show(game);
-                Say("Já existente: " + Path.GetFileName(output));
+                Say("Already exists: " + Path.GetFileName(output));
                 return null;
             }
 
@@ -49,11 +49,11 @@ sealed partial class ConversionSession
                     || info.Contains("DVD ") ? "DVD" : "";
                 if (game.Type.Length == 0)
                 {
-                    throw new IOException("Tipo de CHD não reconhecido como CD/DVD.");
+                    throw new IOException("CHD type is not recognized as CD/DVD.");
                 }
 
-                game.Detection = "Metadados CHD";
-                Say("Extraindo: " + Path.GetFileName(input));
+                game.Detection = "CHD metadata";
+                Say("Extracting: " + Path.GetFileName(input));
                 if (game.Type == "CD")
                 {
                     input = Path.Combine(folder, "disc.cue");
@@ -77,14 +77,14 @@ sealed partial class ConversionSession
                     var f = new FileInfo(p);
                     if (!f.Exists || f.Length == 0)
                     {
-                        throw new IOException("Faixa ausente/vazia: " + p);
+                        throw new IOException("Missing or empty track: " + p);
                     }
 
                     original += f.Length;
                 }
 
                 game.Type = "CD";
-                game.Detection = "Descritor CUE original";
+                game.Detection = "Original CUE descriptor";
             }
             else
             {
@@ -101,7 +101,7 @@ sealed partial class ConversionSession
                 {
                     game.Type = "CD";
                     mode = "MODE" + header[15] + "/2352";
-                    game.Detection = "Cabeçalho RAW de CD: " + mode;
+                    game.Detection = "RAW CD header: " + mode;
                 }
                 else if (original > 0 && original % 2048 == 0)
                 {
@@ -109,7 +109,7 @@ sealed partial class ConversionSession
                     if (game.Type.Length == 0)
                     {
                         game.Type = original <= 400L * 1024 * 1024 ? "CD" : "DVD";
-                        game.Detection = "Heurística: imagem de 2048 bytes/setor; limite de 400 MiB";
+                        game.Detection = "Heuristic: 2048-byte sectors; 400 MiB threshold";
                     }
                     else
                     {
@@ -118,8 +118,8 @@ sealed partial class ConversionSession
                 }
                 else
                 {
-                    throw new IOException(("Imagem sem setores de 2048/2352 reconhecíveis. Para BIN "
-                        + "multifaixa/áudio, forneça o CUE original."));
+                    throw new IOException(("Image has no recognizable 2048/2352-byte sectors. For "
+                        + "multitrack/audio BIN images, provide the original CUE."));
                 }
 
                 if (game.Type == "CD")
@@ -134,7 +134,7 @@ sealed partial class ConversionSession
 
             if (_settings.Platform == "PS1" && game.Type != "CD")
             {
-                throw new IOException("A plataforma PS1 aceita apenas CHDs de CD.");
+                throw new IOException("PS1 accepts only CD CHDs.");
             }
 
             int hunk = game.Type == "CD" ? _settings.CdHunk : _settings.DvdHunk;
@@ -142,7 +142,7 @@ sealed partial class ConversionSession
             Say("Tipo: " + game.Type + " | Hunk: " + hunk + " | Codecs: " + codecs);
             Show(game);
             string candidate = Path.Combine(folder, "encoded.chd");
-            Say("Comprimindo: " + game.Title);
+            Say("Compressing: " + game.Title);
             await toolRunner.RequireSuccessAsync("chdman.exe", true, game.Type == "CD" ? "createcd"
                 : "createdvd", "-i", input, "-o", candidate, "-hs", hunk.ToString(), "-c", codecs, "-np",
                 _settings.Threads.ToString()).ConfigureAwait(false);
@@ -150,17 +150,19 @@ sealed partial class ConversionSession
                 && (_settings.Platform == "PS1" || oldHunk == hunk))
             {
                 candidate = media.Path;
-                Say("Original CHD menor: mantido.");
+                Say("Original CHD is smaller; keeping it.");
             }
 
             // Copy into the destination volume, verify there, then publish without overwrite.
             string pending = Path.Combine(_settings.Output, ".chdopt-" + Guid.NewGuid().ToString("N") + ".tmp");
             try
             {
+                Engine.ThrowIfCancelled();
                 File.Copy(candidate, pending, false);
-                Say("Verificando: " + game.Title);
+                Say("Verifying: " + game.Title);
                 await toolRunner.RequireSuccessAsync("chdman.exe", true, "verify", "-i",
                     pending).ConfigureAwait(false);
+                Engine.ThrowIfCancelled();
                 FileSystemPaths.EnsureNoLinks(output);
                 File.Move(pending, output);
             }
@@ -173,16 +175,23 @@ sealed partial class ConversionSession
             }
 
             long final = new FileInfo(output).Length;
-            Say("Salvo: " + output + " | Original: " + original + " bytes | CHD: " + final + " bytes"
-                + (packed > 0 ? " | Compactado: " + packed + " bytes" : ""));
-            game.Status = "CONCLUÍDO";
-            game.Detail = "CHD verificado; " + final + " bytes";
+            Say("Saved: " + output + " | Original: " + original + " bytes | CHD: " + final + " bytes"
+                + (packed > 0 ? " | Archive: " + packed + " bytes" : ""));
+            game.Status = "COMPLETED";
+            game.Detail = "Verified CHD; " + final + " bytes";
             Show(game);
             return output;
         }
+        catch (OperationCanceledException)
+        {
+            game.Status = "CANCELLED";
+            game.Detail = "Conversion stopped; original files preserved.";
+            Show(game);
+            throw;
+        }
         catch (Exception ex)
         {
-            game.Status = "ERRO";
+            game.Status = "ERROR";
             game.Detail = ex.Message;
             Show(game);
             throw;

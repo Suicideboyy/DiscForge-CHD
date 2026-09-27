@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 
-/// <summary>Paleta e componentes básicos compartilhados pelas páginas nativas.</summary>
+/// <summary>Shared palette and controls for native pages.</summary>
 static class VisualTheme
 {
     public static SolidColorBrush Canvas => Brush(242, 245, 250);

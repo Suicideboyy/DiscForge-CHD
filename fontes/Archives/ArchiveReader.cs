@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -35,9 +35,10 @@ sealed class ArchiveReader
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var entry in archive.Entries)
         {
+            Engine.ThrowIfCancelled();
             if (!string.IsNullOrEmpty(entry.LinkTarget)
                 || entry is SharpCompress.Common.Zip.ZipEntry zip && ((zip.Attrib.GetValueOrDefault() >> 16) & 0xF000) == 0xA000)
-                throw new IOException("Arquivo compactado contém links.");
+                throw new IOException("Archive contains links.");
             if (entry.IsEncrypted)
                 throw new IOException("Compactado protegido por senha.");
             string target = FileSystemPaths.ResolveArchivePath(destination, entry.Key);
@@ -53,8 +54,9 @@ sealed class ArchiveReader
 
     public async Task<List<ArchiveEntry>> ListAsync(string path, string destination)
     {
+        Engine.ThrowIfCancelled();
         if (GetVolumes(path).Skip(1).Any())
-            SelectFallback(path, "arquivo em múltiplos volumes");
+            SelectFallback(path, "split-volume archive");
         if (!useFallback.Contains(path))
         {
             try
@@ -69,6 +71,7 @@ sealed class ArchiveReader
 
     public async Task<List<DiscInput>> PreviewAsync(string path, string destination, List<ArchiveEntry> entries)
     {
+        Engine.ThrowIfCancelled();
         if (useFallback.Contains(path))
             return await fallback.PreviewAsync(path, destination, entries).ConfigureAwait(false);
         try
@@ -80,6 +83,7 @@ sealed class ArchiveReader
                 Validate(archive, destination);
                 foreach (var entry in archive.Entries.Where(e => MediaFiles.Extension(e.Key) == ".cue"))
                 {
+                    Engine.ThrowIfCancelled();
                     if (entry.Size > 1048576)
                         throw new IOException("Descritor CUE muito grande.");
                     using var stream = entry.OpenEntryStream();
@@ -101,9 +105,10 @@ sealed class ArchiveReader
         }
     }
 
-    // Valida caminhos antes da escrita e só usa a reserva para incompatibilidades conhecidas.
+    // Validate paths before writing; use the fallback only for known incompatibilities.
     public async Task ExtractAsync(string path, string destination)
     {
+        Engine.ThrowIfCancelled();
         if (!useFallback.Contains(path))
         {
             try
@@ -120,10 +125,11 @@ sealed class ArchiveReader
                 byte[] buffer = new byte[131072];
                 while (reader.MoveToNextEntry())
                 {
+                    Engine.ThrowIfCancelled();
                     if (reader.Entry.IsDirectory)
                         continue;
                     if (!string.IsNullOrEmpty(reader.Entry.LinkTarget))
-                        throw new IOException("Link não permitido.");
+                        throw new IOException("Link not allowed.");
                     string target = FileSystemPaths.ResolveArchivePath(destination, reader.Entry.Key);
                     Directory.CreateDirectory(Path.GetDirectoryName(target));
                     FileSystemPaths.EnsureNoLinks(target);
@@ -132,12 +138,12 @@ sealed class ArchiveReader
                         FileShare.None, buffer.Length, FileOptions.Asynchronous | FileOptions.SequentialScan);
                     long written = 0;
                     int count;
-                    while ((count = await input.ReadAsync(buffer).ConfigureAwait(false)) > 0)
+                    while ((count = await input.ReadAsync(buffer.AsMemory(), Engine.Token).ConfigureAwait(false)) > 0)
                     {
                         written += count;
                         if (written > reader.Entry.Size)
-                            throw new IOException("Tamanho extraído difere da listagem.");
-                        await output.WriteAsync(buffer.AsMemory(0, count)).ConfigureAwait(false);
+                            throw new IOException("Extracted size differs from archive listing.");
+                        await output.WriteAsync(buffer.AsMemory(0, count), Engine.Token).ConfigureAwait(false);
                         done += count;
                         int percent = (int)(100.0 * done / Math.Max(1, total));
                         if (percent != lastPercent)
@@ -147,7 +153,7 @@ sealed class ArchiveReader
                         }
                     }
                     if (written != reader.Entry.Size)
-                        throw new IOException("Extração incompleta.");
+                        throw new IOException("Incomplete extraction.");
                 }
                 return;
             }

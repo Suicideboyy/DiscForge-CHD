@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -8,27 +8,30 @@ using Microsoft.Web.WebView2.Core;
 sealed class GamePanel : Grid, IDisposable
 {
     readonly WebView2 browser = new();
-    readonly TextBlock fallback = new() { Text = "Carregando painel do jogo…", TextWrapping = TextWrapping.Wrap };
-    GameInfo current = new() { Status = "Aguardando entrada" };
+    readonly TextBlock fallback = new() { Text = "Loading game details…", TextWrapping = TextWrapping.Wrap };
+    GameInfo current = new() { Status = "Waiting for input" };
     byte[] cover;
+    bool currentPs2 = true;
     bool ready;
+    bool initializing;
     bool disposed;
     bool loading;
     int generation;
     DateTime attempted;
     string expectedDocument = "";
-    public string BrowserStatus { get; private set; } = "Inicializando";
+    public string BrowserStatus { get; private set; } = "Initializing";
 
     public GamePanel()
     {
         Children.Add(browser);
         Children.Add(fallback);
-        Loaded += async (_, _) => await InitializeAsync();
+        browser.Loaded += async (_, _) => await InitializeAsync();
     }
 
     async Task InitializeAsync()
     {
-        if (ready || disposed) return;
+        if (ready || disposed || initializing) return;
+        initializing = true;
         try
         {
             var environment = await CoreWebView2Environment.CreateWithOptionsAsync(null,
@@ -36,6 +39,10 @@ sealed class GamePanel : Grid, IDisposable
                     "CHD Optimizer", "WebView2"), null);
             await browser.EnsureCoreWebView2Async(environment);
             if (disposed) return;
+            for (int attempt = 0; attempt < 20 && browser.CoreWebView2 == null; attempt++)
+                await Task.Delay(100);
+            if (browser.CoreWebView2 == null)
+                throw new InvalidOperationException("WebView2 did not initialize.");
             browser.CoreWebView2.Settings.IsScriptEnabled = false;
             browser.CoreWebView2.Settings.AreHostObjectsAllowed = false;
             browser.CoreWebView2.Settings.IsWebMessageEnabled = false;
@@ -43,10 +50,10 @@ sealed class GamePanel : Grid, IDisposable
             browser.CoreWebView2.NavigationStarting += (_, args) =>
             {
                 args.Cancel = args.Uri != "about:blank" && args.Uri != expectedDocument;
-                BrowserStatus = args.Cancel ? "Navegação externa bloqueada" : "Carregando conteúdo";
+                BrowserStatus = args.Cancel ? "External navigation blocked" : "Loading content";
             };
             browser.CoreWebView2.NavigationCompleted += (_, args) =>
-                BrowserStatus = args.IsSuccess ? "OK" : "Falha de navegação: " + args.WebErrorStatus;
+                BrowserStatus = args.IsSuccess ? "OK" : "Navigation failed: " + args.WebErrorStatus;
             browser.CoreWebView2.DownloadStarting += (_, args) => args.Cancel = true;
             ready = true;
             BrowserStatus = "OK";
@@ -55,10 +62,11 @@ sealed class GamePanel : Grid, IDisposable
         }
         catch (Exception ex)
         {
-            BrowserStatus = "Indisponível: " + ex.Message;
+            BrowserStatus = "Unavailable: " + ex.Message;
             browser.Visibility = Visibility.Collapsed;
-            fallback.Text = "Instale o Microsoft Edge WebView2 Runtime para exibir capas.\n" + current.Title;
+            fallback.Text = "Install Microsoft Edge WebView2 Runtime to display covers.\n" + current.Title;
         }
+        finally { initializing = false; }
     }
 
     public void Reset()
@@ -66,15 +74,16 @@ sealed class GamePanel : Grid, IDisposable
         generation++;
         loading = false;
         cover = null;
-        current = new GameInfo { Status = "Aguardando entrada" };
+        current = new GameInfo { Status = "Waiting for input" };
         Render();
     }
 
     public async Task UpdateAsync(GameInfo info, bool ps2)
     {
-        string serial = ps2 ? MediaFiles.NormalizeSerial(info.Serial) : "";
-        if (ps2 && serial.Length == 0) serial = MediaFiles.NormalizeSerial(info.Image + " " + info.Source);
-        if (current.Serial != serial) { generation++; cover = null; loading = false; }
+        string serial = MediaFiles.NormalizeSerial(info.Serial);
+        if (serial.Length == 0) serial = MediaFiles.NormalizeSerial(info.Image + " " + info.Source);
+        if (current.Serial != serial || currentPs2 != ps2) { generation++; cover = null; loading = false; }
+        currentPs2 = ps2;
         info.Serial = serial;
         current = info;
         Render();
@@ -84,13 +93,13 @@ sealed class GamePanel : Grid, IDisposable
     public Task RetryAsync() => cover == null && !loading && current.Serial.Length > 0
         && DateTime.UtcNow - attempted > TimeSpan.FromSeconds(30) ? LoadCoverAsync() : Task.CompletedTask;
 
-    // Descarta respostas atrasadas para não mostrar a capa de uma entrada anterior.
+    // Ignore late replies so a previous game cover is never shown.
     async Task LoadCoverAsync()
     {
         int request = generation;
         loading = true;
         attempted = DateTime.UtcNow;
-        byte[] result = await CoverService.Load(current.Serial);
+        byte[] result = await CoverService.Load(current.Serial, currentPs2);
         if (disposed || request != generation) return;
         loading = false;
         if (result != null) cover = result;
@@ -101,10 +110,10 @@ sealed class GamePanel : Grid, IDisposable
     {
         if (disposed) return;
         fallback.Text = current.Title + "\n" + current.Serial + " • " + current.Type + "\n" + current.Status
-            + "\n" + current.Detail + (BrowserStatus.StartsWith("Indisponível") ? "\nWebView2 Runtime indisponível." : "");
+            + "\n" + current.Detail + (BrowserStatus.StartsWith("Unavailable") ? "\nWebView2 Runtime unavailable." : "");
         if (ready)
         {
-            string html = GameHtml.Render(current, cover);
+            string html = GameHtml.Render(current, cover, currentPs2);
             expectedDocument = "data:text/html;charset=utf-8;base64,"
                 + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(html));
             browser.NavigateToString(html);

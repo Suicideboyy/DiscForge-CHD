@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -16,12 +16,14 @@ sealed class SevenZipArchive
 
     public async Task<List<ArchiveEntry>> ListAsync(string archive, string destination)
     {
+        Engine.ThrowIfCancelled();
         string listing = await toolRunner.RequireSuccessAsync("7z.exe", false, "l", "-slt", "-ba",
             "-sccUTF-8", "-p", "--", archive).ConfigureAwait(false);
         var entries = new List<ArchiveEntry>();
         var seen = new HashSet<string>(Paths);
         foreach (string block in Regex.Split(listing, @"\r?\n\s*\r?\n"))
         {
+            Engine.ThrowIfCancelled();
             var p = Regex.Match(block, @"(?m)^Path = (.+)\r?$");
             if (!p.Success)
             {
@@ -30,7 +32,7 @@ sealed class SevenZipArchive
 
             if (Regex.IsMatch(block, @"(?im)^(Symbolic Link|Hard Link) = .+|^Attributes = .*\bl[rwx-]{9}"))
             {
-                throw new IOException("Arquivo compactado contém links.");
+                throw new IOException("Archive contains links.");
             }
 
             string target = FileSystemPaths.ResolveArchivePath(destination, p.Groups[1].Value.TrimEnd('\r'));
@@ -59,7 +61,7 @@ sealed class SevenZipArchive
 
         if (entries.Count == 0)
         {
-            throw new IOException("Compactado vazio ou listagem não reconhecida.");
+            throw new IOException("Empty archive or unrecognized listing.");
         }
 
         return entries;
@@ -68,9 +70,11 @@ sealed class SevenZipArchive
     public async Task<List<DiscInput>> PreviewAsync(string archive, string destination,
         List<ArchiveEntry> entries)
     {
+        Engine.ThrowIfCancelled();
         var cues = new Dictionary<string, string>(Paths);
         foreach (var e in entries.Where(e => MediaFiles.Extension(e.Path) == ".cue"))
         {
+            Engine.ThrowIfCancelled();
             if (e.Size > 1048576)
             {
                 throw new IOException("Descritor CUE muito grande.");
@@ -86,6 +90,7 @@ sealed class SevenZipArchive
 
     public Task<string> ExtractAsync(string archive, string destination)
     {
+        Engine.ThrowIfCancelled();
         return toolRunner.RequireSuccessAsync("7z.exe", true, "x", "-y", "-p", "-bsp1",
             "-sccUTF-8", "-o" + destination, "--", archive);
     }

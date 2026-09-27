@@ -14,7 +14,7 @@ static class FileSystemPaths
             if ((File.Exists(d.FullName) || Directory.Exists(d.FullName))
                 && (File.GetAttributes(d.FullName) & FileAttributes.ReparsePoint) != 0)
             {
-                throw new IOException("Link/junction não permitido: " + d.FullName);
+                throw new IOException("Link/junction not allowed: " + d.FullName);
             }
         }
     }
@@ -29,7 +29,7 @@ static class FileSystemPaths
     {
         if (String.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative) || relative.Contains(':'))
         {
-            throw new IOException("Caminho absoluto ou inválido no arquivo: " + relative);
+            throw new IOException("Absolute or invalid archive path: " + relative);
         }
 
         string p = Path.GetFullPath(Path.Combine(root, relative.Replace('/', '\\')));
@@ -65,7 +65,7 @@ static class FileSystemPaths
     {
         if (!IsInside(directory, parent))
         {
-            throw new IOException("Pasta temporária fora do local esperado.");
+            throw new IOException("Temporary folder is outside the expected location.");
         }
 
         EnsureNoLinks(directory);

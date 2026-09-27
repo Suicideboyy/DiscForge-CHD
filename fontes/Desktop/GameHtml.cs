@@ -1,14 +1,16 @@
-﻿using System;
+using System;
 using System.Net;
 
 static class GameHtml
 {
     static string Escape(string text) => WebUtility.HtmlEncode(text ?? "");
 
-    public static string Render(GameInfo game, byte[] cover)
+    public static string Render(GameInfo game, byte[] cover, bool ps2 = true)
     {
-        string image = cover == null || cover.Length > 1048576 ? "<div class='placeholder'>Capa indisponível</div>"
-            : "<img alt='Capa do jogo' src='data:image/jpeg;base64," + Convert.ToBase64String(cover) + "'>";
+        string mime = ps2 ? "image/jpeg" : "image/png";
+        string covers = ps2 ? "xlenore/ps2-covers" : "xlenore/psx-covers";
+        string image = cover == null || cover.Length > 1048576 ? "<div class='placeholder'>Cover unavailable</div>"
+            : "<img alt='Capa do jogo' src='data:" + mime + ";base64," + Convert.ToBase64String(cover) + "'>";
         return "<!doctype html><html lang='pt-BR'><meta charset='utf-8'>"
             + "<meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; img-src data:; style-src 'unsafe-inline'\">"
             + "<style>body{font:15px 'Segoe UI',sans-serif;background:#fff;color:#1c2a42;margin:0;padding:24px}"
@@ -21,6 +23,6 @@ static class GameHtml
             + "</p><p>" + Escape(game.Detection) + "</p><p>" + Escape(game.Lookup)
             + "</p><p>" + Escape(game.Detail) + "</p><small>" + Escape(game.Source)
             + "<br>" + Escape(game.Image) + "<br>" + Escape(game.DatabaseUrl)
-            + "<br>Capas: xlenore/ps2-covers</small></html>";
+            + "<br>Capas: " + covers + "</small></html>";
     }
 }

@@ -14,7 +14,18 @@ static class Program
         try
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            if (args.Length == 3 && args[0] == "--archive-test")
+            if (args.Length == 4 && args[0] == "--tools-test")
+            {
+                BundledTools.Stage(new EncoderSettings
+                {
+                    ChdmanPath = args[1],
+                    SevenZipExePath = args[2],
+                    SevenZipDllPath = args[3]
+                });
+                return File.Exists(Path.Combine(BundledTools.Tools, "chdman.exe"))
+                    && File.Exists(Path.Combine(BundledTools.Tools, "7z.exe"))
+                    && File.Exists(Path.Combine(BundledTools.Tools, "7z.dll")) ? 0 : 1;
+            }            if (args.Length == 3 && args[0] == "--archive-test")
             {
                 BundledTools.Stage();
                 Directory.CreateDirectory(args[2]);
@@ -25,11 +36,11 @@ static class Program
                 File.WriteAllLines(args[2] + ".log", messages);
                 return 0;
             }
-            if (args.Length == 4 && args[0] is "--run-test" or "--stop-test" or "--delete-test")
+            if (args.Length == 4 && (args[0] is "--run-test" or "--stop-test" or "--delete-test" or "--cancel-test"))
                 return RunTest(args);
-            if (args.Length == 3 && args[0] == "--cover-test")
+            if (args.Length == 3 && (args[0] is "--cover-test" or "--cover-test-ps1"))
             {
-                byte[] image = CoverService.Load(args[1]).GetAwaiter().GetResult();
+                byte[] image = CoverService.Load(args[1], args[0] != "--cover-test-ps1").GetAwaiter().GetResult();
                 if (image == null)
                     return 3;
                 File.WriteAllBytes(args[2], image);
@@ -70,7 +81,9 @@ static class Program
         {
             lock (lines)
                 lines.Add(line);
-            if (args[0] == "--stop-test" && line.StartsWith("Tipo:") && Engine.StopFile != null)
+            if (args[0] == "--cancel-test" && (line.StartsWith("Stage:") || line.StartsWith("Etapa:")))
+                Engine.CancelNow();
+            if (args[0] == "--stop-test" && (line.StartsWith("Type:") || line.StartsWith("Tipo:")) && Engine.StopFile != null)
                 File.WriteAllText(Engine.StopFile, "");
         }).GetAwaiter().GetResult();
         File.WriteAllLines(Path.Combine(settings.Input, "app-test.log"), lines, Encoding.UTF8);

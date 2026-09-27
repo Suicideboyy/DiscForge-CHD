@@ -1,3 +1,11 @@
+2.2.0 — 2026-09-26
+- Corrected process-local CPU and I/O indicators, including encoder/extractor children.
+- Safe multi-track BIN conversion and distinct output names for game revisions.
+- Immediate cancellation with temporary cleanup and source preservation.
+- Remembered input folder, optimized default output, codec checkboxes and tool settings.
+- PS1 covers and refreshed visual controls.
+- Internal: cancellation and process tracking organized around explicit task ownership.
+
 2.1.0 — 2026-09-26
 - Modern card-based interface, adaptive layout and collapsible advanced options.
 - Contextual help for conversion settings and performance indicators.

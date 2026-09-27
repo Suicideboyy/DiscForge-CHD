@@ -11,7 +11,7 @@ sealed partial class MainWindow
     readonly DispatcherTimer timer = new();
     bool sampling;
 
-    // Evita amostragens sobrepostas; a coleta dos contadores não bloqueia a janela.
+    // Avoid overlapping samples; counter collection stays off the UI thread.
     async Task RefreshTelemetry()
     {
         elapsed.Text = $"{(int)clock.Elapsed.TotalHours:00}:{clock.Elapsed.Minutes:00}:{clock.Elapsed.Seconds:00}";
@@ -21,15 +21,14 @@ sealed partial class MainWindow
         {
             var sample = await Task.Run(performance.Read);
             if (closed) return;
-            cpu.Text = sample.CpuPercent.HasValue ? $"{sample.CpuPercent:N1}%" : "N/D";
-            disk.Text = $"Leitura: {Rate(sample.ReadBytesPerSecond)}\nEscrita: {Rate(sample.WriteBytesPerSecond)}"
-                + (sample.DiskBusyPercent.HasValue ? $"\nAtividade: {sample.DiskBusyPercent:N1}%" : "\nAtividade: N/D");
+            cpu.Text = sample.CpuPercent.HasValue ? $"{sample.CpuPercent:N1}%" : "N/A";
+            disk.Text = $"Read: {Rate(sample.ReadBytesPerSecond)}\nWrite: {Rate(sample.WriteBytesPerSecond)}";
             if (running) await game.RetryAsync();
         }
-        catch (Exception ex) { if (!closed) disk.Text = "Métricas indisponíveis: " + ex.Message; }
+        catch (Exception ex) { if (!closed) disk.Text = "Metrics unavailable: " + ex.Message; }
         finally { sampling = false; }
     }
 
-    static string Rate(double? bytes) => bytes.HasValue ? $"{bytes.Value / 1048576:N1} MiB/s" : "N/D";
+    static string Rate(double? bytes) => bytes.HasValue ? $"{bytes.Value / 1048576:N1} MiB/s" : "N/A";
 
 }

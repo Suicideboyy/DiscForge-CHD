@@ -27,13 +27,13 @@ sealed partial class ConversionSession
 
         if (_settings.Platform == "PS2")
         {
-            // A capa pode começar a carregar enquanto a consulta de mídia está em andamento.
-            game.Status = "IDENTIFICANDO";
+            // Start loading the cover while the media lookup is still running.
+            game.Status = "IDENTIFYING";
             Show(game);
             GameRecord hit = database.Lookup(game.Serial);
             game.Lookup = hit == null ? (_settings.Online
-                ? "Base indisponível ou sem correspondência inequívoca" : "Consulta online desativada")
-                : "Serial confirmado / " + hit.Provider;
+                ? "Database unavailable or no unambiguous match" : "Online lookup disabled")
+                : "Serial confirmed / " + hit.Provider;
             if (hit != null)
             {
                 if (!String.IsNullOrWhiteSpace(hit.Title))
@@ -47,10 +47,10 @@ sealed partial class ConversionSession
         }
         else
         {
-            game.Lookup = "Plataforma PS1";
+            game.Lookup = "PS1 platform";
         }
 
-        game.Status = "PROCESSANDO";
+        game.Status = "PROCESSING";
         Show(game);
         return game;
     }
@@ -67,7 +67,7 @@ sealed partial class ConversionSession
             false).ConfigureAwait(false);
         if (result.Code != 0)
         {
-            throw new IOException("CHD existente inválido; preservado para revisão: " + path);
+            throw new IOException("Existing CHD is invalid and was preserved for review: " + path);
         }
 
         return true;
@@ -86,24 +86,12 @@ sealed partial class ConversionSession
         {
             var game = Identify(source, media[i]);
             string output = outputNaming.Build(game, source, media[i], i, media.Count);
-            if (!File.Exists(output) && game.Serial.Length > 0)
-            {
-                string suffix = " [" + game.Serial + "]" + (media.Count > 1 ? " - Disco " + (i
-                    + 1).ToString("D2") : "") + ".chd";
-                var matches = Directory.GetFiles(_settings.Output, "*.chd").Where(p => p.EndsWith(suffix,
-                    StringComparison.OrdinalIgnoreCase)).ToArray();
-                if (matches.Length == 1)
-                {
-                    output = matches[0];
-                }
-            }
-
             if (!used.Add(output) || !await ValidExisting(output).ConfigureAwait(false))
             {
                 return false;
             }
 
-            game.Status = "JÁ EXISTENTE";
+            game.Status = "ALREADY EXISTS";
             games.Add(game);
         }
 
@@ -112,7 +100,7 @@ sealed partial class ConversionSession
             Show(game);
         }
 
-        Say("Já existente: " + Path.GetFileName(source) + " — extração dispensada.");
+        Say("Already exists: " + Path.GetFileName(source) + " — extraction skipped.");
         return true;
     }
 }
