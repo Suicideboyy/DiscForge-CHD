@@ -36,6 +36,9 @@ try {
     & $DotnetPath $hostDll $template (Join-Path $portable 'DiscForge-CHD.exe') 'app/DiscForge.Launcher.dll' (Join-Path $application 'DiscForge.Launcher.exe')
     if ($LASTEXITCODE -ne 0) { throw 'Failed to generate the root executable.' }
     Copy-Item -LiteralPath 'USER-GUIDE.txt' -Destination $portable -Force
+    $portugueseDocs = Join-Path $documentation 'pt-BR'
+    New-Item -ItemType Directory -Path $portugueseDocs -Force | Out-Null
+    Copy-Item -Path 'docs\pt-BR\*' -Destination $portugueseDocs -Force
     Copy-Item -LiteralPath 'CHANGELOG.txt','TESTS.txt','THIRD-PARTY.md' -Destination $documentation -Force
     $licenses = Join-Path $portable 'licenses'
     New-Item -ItemType Directory -Path $licenses -Force | Out-Null

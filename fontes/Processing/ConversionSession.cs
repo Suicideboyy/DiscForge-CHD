@@ -40,11 +40,6 @@ sealed partial class ConversionSession
             yield return f;
         }
 
-        if (_settings.Platform == "PS1")
-        {
-            yield break;
-        }
-
         foreach (string d in Directory.GetDirectories(root))
         {
             if (Paths.Equals(d, _settings.Output) || FileSystemPaths.IsInside(d, _settings.Output)
@@ -66,11 +61,10 @@ sealed partial class ConversionSession
         Say(AppInfo.DisplayName + " — " + DateTime.Now);
         Say("Source: " + _settings.Input + " | Output: " + _settings.Output);
         var sources = Sources(_settings.Input).ToList();
-        var images = MediaFiles.SelectDiscInputs(sources.Where(p => _settings.Platform == "PS2"
-            ? MediaFiles.IsDiscImage(p) : MediaFiles.Extension(p) == ".chd"), _settings.Input, null);
-        var entries = images.Select(m => m.Path).Concat(_settings.Platform == "PS2"
-            ? sources.Where(MediaFiles.IsArchive)
-            : Enumerable.Empty<string>()).OrderBy(MediaFiles.NaturalSortKey, Paths).ToList();
+        var images = MediaFiles.SelectDiscInputs(sources.Where(MediaFiles.IsDiscImage),
+            _settings.Input, null);
+        var entries = images.Select(m => m.Path).Concat(sources.Where(MediaFiles.IsArchive))
+            .OrderBy(MediaFiles.NaturalSortKey, Paths).ToList();
         for (int i = 0; i < entries.Count; i++)
         {
             Engine.ThrowIfCancelled();
@@ -90,15 +84,6 @@ sealed partial class ConversionSession
                     var snapshots = ArchiveReader.GetVolumes(source).Select(p => new FileSnapshot(p)).ToList();
                     long packed = snapshots.Sum(p => p.Size);
                     string unpacked = Path.Combine(_workingDirectory, "unpacked");
-                    var listed = await archiveReader.ListAsync(source, unpacked).ConfigureAwait(false);
-                    var preview = await archiveReader.PreviewAsync(source, unpacked,
-                        listed).ConfigureAwait(false);
-                    if (await Already(source, preview).ConfigureAwait(false))
-                    {
-                        _existingEntries++;
-                        continue;
-                    }
-
                     Say("Descompactando: " + Path.GetFileName(source));
                     Directory.CreateDirectory(unpacked);
                     await archiveReader.ExtractAsync(source, unpacked).ConfigureAwait(false);
@@ -172,7 +157,31 @@ sealed partial class ConversionSession
                 else
                 {
                     var media = images.First(m => Paths.Equals(m.Path, source));
-                    var output = await Convert(source, media, _settings.Input, 0, 1, 0,
+                    string conversionRoot = _settings.Input;
+                    if (MediaFiles.TrackGroup(media.Path) is string group)
+                    {
+                        // A generated CUE references copies in temporary storage; originals stay untouched.
+                        string tracksDirectory = Path.Combine(_workingDirectory, "tracks");
+                        Directory.CreateDirectory(tracksDirectory);
+                        foreach (string track in sources.Where(p => Paths.Equals(MediaFiles.TrackGroup(p), group)))
+                        {
+                            FileSystemPaths.EnsureNoLinks(track);
+                            File.Copy(track, Path.Combine(tracksDirectory, Path.GetFileName(track)));
+                        }
+
+                        var cues = MediaFiles.ReconstructTrackCues(
+                            Directory.GetFiles(tracksDirectory), tracksDirectory);
+                        if (cues.Count != 1)
+                        {
+                            throw new IOException("Unable to reconstruct track list.");
+                        }
+
+                        media = new DiscInput { Path = cues[0], CueText = File.ReadAllText(cues[0]) };
+                        conversionRoot = tracksDirectory;
+                        Say("Reconstructed CUE: pregaps and extra indices are unknown; originals preserved.");
+                    }
+
+                    var output = await Convert(source, media, conversionRoot, 0, 1, 0,
                         new HashSet<string>(Paths)).ConfigureAwait(false);
                     if (output == null)
                     {
@@ -206,7 +215,8 @@ sealed partial class ConversionSession
                 }
 
                 _workingDirectory = null;
-                Say("Lote " + _settings.Platform + ": " + (100.0 * (i + 1) / Math.Max(1,
+                Say("Lote " + (_settings.AutoDetectSystem ? "Auto" : _settings.Platform) + ": "
+                    + (100.0 * (i + 1) / Math.Max(1,
                     entries.Count)).ToString("F1") + "% (" + (i + 1) + "/" + entries.Count
                     + ") | Successes: " + _successfulEntries + " | Existing: " + _existingEntries
                     + " | Errors: " + _failedEntries);

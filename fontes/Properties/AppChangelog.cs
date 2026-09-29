@@ -5,6 +5,12 @@ static class AppChangelog
     // User-visible features and fixes since the first C# version.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.3.0 — 29/09/2026", "",
+        "• Multi-file BIN discs without CUE can be reconstructed when their track layout is identifiable.",
+        "• RAR extraction handles valid hard links and retries CRC errors with 7-Zip.",
+        "• Automatic system detection distinguishes PS1 and PS2; selected-platform filtering remains available.",
+        "• English and Brazilian Portuguese interface, clearer encoding help and a reset button.",
+        "• Crash logs and a report issue action are available.", "",
         "2.2.0 — 26/09/2026", "",
         "• CPU and disk readings now reflect the application and converters it starts.",
         "• Multi-track PS2 CDs can be converted when their layout can be identified.",
@@ -30,5 +36,40 @@ static class AppChangelog
         "• Folder, platform, codec, hunk and thread settings.",
         "• Serial lookup, game names and PS2 covers.",
         "• Resume skips games already converted; CHDs are verified before optional archive removal."
+    });
+
+    public static readonly string PortugueseText = String.Join("\r\n", new[]
+    {
+        "2.3.0 — 29/09/2026", "",
+        "• Discos BIN com várias faixas e sem CUE podem ser reconstruídos quando o arranjo é identificável.",
+        "• Extração RAR aceita links válidos e tenta novamente com 7-Zip após erros de CRC.",
+        "• A detecção automática distingue PS1 e PS2; o filtro pela plataforma escolhida continua disponível.",
+        "• Interface em inglês e português brasileiro, ajuda de codificação mais clara e botão de restauração.",
+        "• Registro de falhas e ação para relatar problemas.", "",
+        "2.2.0 — 26/09/2026", "",
+        "• As leituras de CPU e disco consideram o aplicativo e os conversores iniciados por ele.",
+        "• CDs de PS2 com várias faixas são convertidos quando o arranjo é identificável.",
+        "• Revisões diferentes do mesmo jogo recebem saídas separadas.",
+        "• Parar agora cancela a tarefa e limpa os arquivos temporários.",
+        "• A última pasta de entrada é lembrada; a saída padrão é otimizados.",
+        "• Codecs podem ser marcados e as ferramentas têm uma página de configurações.",
+        "• Suporte a capas de PS1.", "",
+        "2.1.0 — 26/09/2026", "",
+        "• Interface com cartões, opções avançadas recolhíveis e ajudas contextuais.",
+        "• Nome, ícone e data de compilação do DiscForge CHD no aplicativo.",
+        "• O painel do jogo se adapta a janelas estreitas.", "",
+        "2.0.0 — 25/09/2026", "",
+        "• Interface WinUI 3 com detalhes e capas no WebView2.",
+        "• Extração SharpCompress com 7-Zip de reserva.",
+        "• Pacote portátil com os componentes necessários.", "",
+        "1.3.0 — 21/09/2026", "",
+        "• Capas carregadas durante a identificação, com novas tentativas após falhas temporárias.",
+        "• Cronômetro da entrada atual e indicadores de CPU e disco.",
+        "• Quantidade de threads definida conforme o computador.", "",
+        "1.2.0 — 20/09/2026", "",
+        "• Imagens e arquivos de PS1/PS2 convertidos para CHD.",
+        "• Opções de pasta, plataforma, codecs, hunk e threads.",
+        "• Consulta por serial, nomes de jogos e capas de PS2.",
+        "• Retomada ignora jogos convertidos; CHDs são verificados antes da remoção opcional do arquivo."
     });
 }

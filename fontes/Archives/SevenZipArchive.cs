@@ -30,7 +30,8 @@ sealed class SevenZipArchive
                 continue;
             }
 
-            if (Regex.IsMatch(block, @"(?im)^(Symbolic Link|Hard Link) = .+|^Attributes = .*\bl[rwx-]{9}"))
+            // 7-Zip emits empty link fields for regular RAR files; CRLF must not count as a target.
+            if (Regex.IsMatch(block, @"(?im)^(?:Symbolic Link|Hard Link) = [^\r\n]*\S[^\r\n]*\r?$|^Attributes = .*\bl[rwx-]{9}"))
             {
                 throw new IOException("Archive contains links.");
             }

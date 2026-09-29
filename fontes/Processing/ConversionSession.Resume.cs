@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 sealed partial class ConversionSession
@@ -25,34 +23,33 @@ sealed partial class ConversionSession
             game.Serial = MediaFiles.NormalizeSerial(Path.GetFileName(source));
         }
 
-        if (_settings.Platform == "PS2")
+        return game;
+    }
+
+    void Enrich(GameInfo game)
+    {
+        game.Status = "IDENTIFYING";
+        Show(game);
+        if (game.System == "PS2")
         {
-            // Start loading the cover while the media lookup is still running.
-            game.Status = "IDENTIFYING";
-            Show(game);
             GameRecord hit = database.Lookup(game.Serial);
             game.Lookup = hit == null ? (_settings.Online
                 ? "Database unavailable or no unambiguous match" : "Online lookup disabled")
                 : "Serial confirmed / " + hit.Provider;
             if (hit != null)
             {
-                if (!String.IsNullOrWhiteSpace(hit.Title))
-                {
-                    game.Title = hit.Title;
-                }
-
+                if (!String.IsNullOrWhiteSpace(hit.Title)) game.Title = hit.Title;
                 game.Type = hit.Type;
                 game.DatabaseUrl = hit.Url;
             }
         }
         else
         {
-            game.Lookup = "PS1 platform";
+            game.Lookup = "PS1 disc header";
         }
 
         game.Status = "PROCESSING";
         Show(game);
-        return game;
     }
 
     async Task<bool> ValidExisting(string path)
@@ -73,34 +70,4 @@ sealed partial class ConversionSession
         return true;
     }
 
-    async Task<bool> Already(string source, List<DiscInput> media)
-    {
-        if (media.Count == 0 || media.Any(m => MediaFiles.TrackGroup(m.Path) != null))
-        {
-            return false;
-        }
-
-        var used = new HashSet<string>(Paths);
-        var games = new List<GameInfo>();
-        for (int i = 0; i < media.Count; i++)
-        {
-            var game = Identify(source, media[i]);
-            string output = outputNaming.Build(game, source, media[i], i, media.Count);
-            if (!used.Add(output) || !await ValidExisting(output).ConfigureAwait(false))
-            {
-                return false;
-            }
-
-            game.Status = "ALREADY EXISTS";
-            games.Add(game);
-        }
-
-        foreach (var game in games)
-        {
-            Show(game);
-        }
-
-        Say("Already exists: " + Path.GetFileName(source) + " — extraction skipped.");
-        return true;
-    }
 }

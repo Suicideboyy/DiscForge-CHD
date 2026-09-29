@@ -43,7 +43,7 @@ static class VisualTheme
     public static StackPanel Section(string number, string title)
     {
         var body = new StackPanel { Spacing = 14 };
-        var heading = Text(number + "   " + title, 17, true);
+        var heading = Text(number + "   " + Localization.T(title), 17, true);
         body.Children.Add(heading);
         return body;
     }

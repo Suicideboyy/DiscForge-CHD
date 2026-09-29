@@ -1,22 +1,26 @@
-/// <summary>Explanations shared by tooltips and accessible help buttons.</summary>
+/// <summary>Option explanations shared by tooltips and accessible help buttons.</summary>
 static class OptionHelp
 {
-    public const string Input = "Folder containing your games. PS2 accepts images and archives; PS1 processes CHDs. Previously converted games are checked before extraction.";
-    public const string Output = "Verified CHDs are saved here. The default is the otimizados folder within the selected input folder. Originals are preserved unless removal is enabled.";
-    public const string Platform = "PS1 optimizes existing CHDs. PS2 accepts archives, ISO, BIN/CUE and CHD, using createcd for CDs and createdvd for DVDs.";
-    public const string Threads = "Defaults to this machine's logical processor count. More threads may speed up chdman, depending on the CPU, codecs and storage.";
-    public const string CdHunk = "CD block size in bytes, in multiples of 2448. Larger blocks may compress better but cost more to read a small section.";
-    public const string DvdHunk = "DVD block size in bytes, in multiples of 2048. Larger blocks may improve compression but increase work per read.";
-    public const string CdCodecs = "Select up to four CD codecs. cdlz uses LZMA, cdzs uses Zstandard, cdzl uses zlib and cdfl uses FLAC for audio. chdman chooses the smallest result per block.";
-    public const string DvdCodecs = "Select up to four codecs. LZMA favors size, Zstandard balances speed and size, zlib is general purpose, FLAC targets audio and Huffman suits some repeated patterns.";
-    public const string Lookup = "Looks up the game serial for its name and media type. A confirmed match uses Name [SERIAL].chd. Cover lookup runs independently.";
-    public const string Delete = "Removes an archive only when all its discs were converted and verified in this run. Existing outputs and failed inputs retain originals.";
-    public const string Stop = "Finishes the current input and verification, then stops before the next game.";
-    public const string StopNow = "Interrupts the current task, clears its temporary files and preserves the original input. Outputs completed earlier remain available.";
-    public const string ChdmanPath = "Path to a custom chdman.exe. Leave blank to use the bundled version.";
-    public const string SevenZipExePath = "Path to a custom 7z.exe for unsupported archives. Leave blank to use the bundled version.";
-    public const string SevenZipDllPath = "Path to the 7z.dll paired with the selected 7z.exe. Leave blank to use the bundled version.";
-    public const string Cpu = "CPU used by DiscForge and the converters it launched, sampled about once per second. N/A means unavailable.";
-    public const string Disk = "Bytes read and written by DiscForge and the converters it launched, shown in MiB/s. Windows caching can affect these values.";
-    public const string Time = "Elapsed time for the current input, including identification, extraction, encoding and verification.";
+    static string Choose(string english, string portuguese) => Localization.IsPortuguese ? portuguese : english;
+
+    public static string Input => Choose("Folder containing your games. Converted games are checked before extraction.", "Pasta dos jogos. Jogos já convertidos são verificados antes da extração.");
+    public static string Output => Choose("Verified CHDs are saved here. The default is otimizados inside the input folder. Originals are preserved unless removal is enabled.", "CHDs verificados são salvos aqui. O padrão é otimizados dentro da pasta de entrada. Os originais são preservados, salvo se a remoção estiver ativa.");
+    public static string Platform => Choose("With automatic detection off, only the selected system is converted. PS1 uses CD; PS2 uses CD or DVD according to the disc.", "Sem detecção automática, apenas o sistema selecionado é convertido. PS1 usa CD; PS2 usa CD ou DVD conforme o disco.");
+    public static string AutoDetect => Choose("Inspect each disc and automatically choose PS1 or PS2 and CD or DVD encoding. Turn off to enforce the selected platform.", "Examina cada disco e escolhe PS1 ou PS2 e a codificação CD ou DVD. Desmarque para exigir a plataforma selecionada.");
+    public static string Threads => Choose("Defaults to the logical processor count. More threads can accelerate encoding but use more CPU and disk bandwidth.", "O padrão é o número de processadores lógicos. Mais threads podem acelerar a codificação, mas consomem mais CPU e disco.");
+    public static string CdHunk => Choose("CD block size in bytes; use multiples of 2448. Larger blocks may compress better but make small random reads slower. Default: 2448.", "Bloco de CD em bytes; use múltiplos de 2448. Blocos maiores podem comprimir melhor, mas retardam leituras pequenas. Padrão: 2448.");
+    public static string DvdHunk => Choose("DVD block size in bytes; use multiples of 2048. Larger blocks can improve compression at the expense of random access. Default: 2048.", "Bloco de DVD em bytes; use múltiplos de 2048. Blocos maiores podem melhorar a compressão, mas prejudicam o acesso aleatório. Padrão: 2048.");
+    public static string CdCodecs => Choose("Select up to four: cdlz uses LZMA for size, cdzs uses Zstandard for speed, cdzl uses zlib, and cdfl uses FLAC for audio. CHD keeps the smallest result per block.", "Selecione até quatro: cdlz usa LZMA para tamanho; cdzs usa Zstandard para velocidade; cdzl usa zlib; cdfl usa FLAC para áudio. O CHD mantém o menor resultado por bloco.");
+    public static string DvdCodecs => Choose("Select up to four: LZMA favors size, Zstandard balances speed and size, zlib is general purpose, FLAC suits audio, and Huffman repeated patterns. CHD picks the smallest block result.", "Selecione até quatro: LZMA prioriza tamanho; Zstandard equilibra velocidade e tamanho; zlib é geral; FLAC serve áudio; Huffman, padrões repetidos. O CHD escolhe o menor bloco.");
+    public static string Lookup => Choose("Look up the serial for game name and media type. Covers are fetched independently.", "Consulta o serial para obter nome e tipo de mídia. As capas são buscadas separadamente.");
+    public static string Delete => Choose("Remove an archive only when every disc was converted and verified in this run. Existing outputs and failures keep their originals.", "Remove o arquivo apenas quando todos os discos forem convertidos e verificados nesta execução. Saídas existentes e falhas preservam originais.");
+    public static string Stop => Choose("Finish and verify the current input, then stop.", "Conclui e verifica a entrada atual antes de parar.");
+    public static string StopNow => Choose("Interrupt the current task, remove its temporary files and preserve the source.", "Interrompe a tarefa, remove temporários e preserva a origem.");
+    public static string ChdmanPath => Choose("Path to a custom chdman.exe; blank uses the bundled version.", "Caminho de chdman.exe personalizado; vazio usa a versão incluída.");
+    public static string SevenZipExePath => Choose("Path to a custom 7z.exe for fallback extraction; blank uses the bundled version.", "Caminho de 7z.exe para extração de reserva; vazio usa a versão incluída.");
+    public static string SevenZipDllPath => Choose("7z.dll paired with 7z.exe; blank uses the bundled version.", "7z.dll correspondente ao 7z.exe; vazio usa a versão incluída.");
+    public static string Cpu => Choose("CPU used by this app and its converters, sampled every second.", "CPU usada pelo aplicativo e seus conversores, medida a cada segundo.");
+    public static string Disk => Choose("Read and write rates of this app and its converters in MiB/s. Windows caching affects results.", "Taxas de leitura e gravação do aplicativo e conversores em MiB/s. O cache do Windows afeta os valores.");
+    public static string Time => Choose("Elapsed time for the current input, including extraction, encoding and verification.", "Tempo da entrada atual, incluindo extração, codificação e verificação.");
+    public static string Reset => Choose("Restore conversion options and tool paths. Keep input and output folders.", "Restaura opções de conversão e ferramentas. Mantém as pastas de entrada e saída.");
 }

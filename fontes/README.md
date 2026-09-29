@@ -16,8 +16,8 @@
 
 The active project is `DiscForge-CHD.csproj`. `Desktop` separates layout, controls, settings, events, processing, telemetry, About and diagnostics. `VisualTheme` centralizes appearance and `OptionHelp` centralizes explanations. `BuildTools` at repository root contains the portable launcher and host generator. There is no WinForms or System.Web dependency in the compiled application.
 
-Diagnostic commands: `--run-test input output PS2`, `--stop-test`, `--delete-test`, `--archive-test archive destination`, `--cover-test serial file`, `--ui-smoke report`. Use disposable directories for deletion tests.
+Diagnostic commands: `--run-test input output PS2`, `--auto-test input output PS2`, `--stop-test`, `--delete-test`, `--archive-test archive destination`, `--cover-test serial file`, `--report-test input zip`, `--ui-smoke report`. Use disposable directories for deletion tests.
 
 `build.ps1` creates the versioned package. Update AppInfo.cs and AssemblyInfo.cs together for a new application release. BuildInfo.cs is generated during compilation.
 
-Version 2.2: process-local I/O includes registered child tools; cancellation owns only the current work directory. Preferences store the last input and optional tool paths. A generated CUE never authorizes deletion of the source archive.
+Version 2.3: disc boot data classifies PS1/PS2; archive extraction precedes the existing-output check. `Localization` owns visible strings, `CrashReporter` bounds session logs, and `IssueReport` creates a small ZIP for user-reviewed email drafts. A generated CUE never authorizes deletion of the source archive.

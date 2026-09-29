@@ -7,6 +7,7 @@ class EncoderSettings
     public string Input;
     public string Output;
     public string Platform = "PS2";
+    public bool AutoDetectSystem = false;
     public string Cd = "cdlz,cdzs,cdzl,cdfl";
     public string Dvd = "lzma,zstd,zlib,flac";
     public int CdHunk = 2448;

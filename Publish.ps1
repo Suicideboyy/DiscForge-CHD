@@ -26,7 +26,7 @@ if (-not $BuildOnly) {
 if ($BuildOnly) { return }
 # Application code, documentation and tools only; exclude games and caches.
 Git add -u -- .
-Git add -- fontes BuildTools Publish.ps1 global.json .gitignore .editorconfig AGENTS.md README.md PUBLISHING.md USER-GUIDE.txt CHANGELOG.txt TESTS.txt THIRD-PARTY.md RELEASE.md
+Git add -- fontes BuildTools docs Publish.ps1 global.json .gitignore .editorconfig AGENTS.md README.md PUBLISHING.md USER-GUIDE.txt CHANGELOG.txt TESTS.txt THIRD-PARTY.md RELEASE.md
 Git commit -m "DiscForge CHD $tag"
 Git tag $tag
 $sources = Join-Path $folder ('DiscForge-CHD-' + $version + '-source.zip')

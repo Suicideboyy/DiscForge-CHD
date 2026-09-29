@@ -37,7 +37,9 @@ sealed partial class MainWindow
             try
             {
                 var info = JsonData.Read<GameInfo>(Encoding.UTF8.GetString(Convert.FromBase64String(line[9..])));
-                _ = game.UpdateAsync(info, (string)platform.SelectedItem == "PS2");
+                bool ps2 = info.System == "PS2" ||
+                    (info.System != "PS1" && (string)platform.SelectedItem == "PS2");
+                _ = game.UpdateAsync(info, ps2);
             }
             catch (Exception ex) { Append("Game data: " + ex.Message); }
             return;
@@ -85,7 +87,7 @@ sealed partial class MainWindow
             ("ERRO:", "ERROR:"), ("Já existente:", "Already exists:")
         })
             if (line.StartsWith(source, StringComparison.OrdinalIgnoreCase))
-                return target + line[source.Length..];
+                return Localization.T(target) + line[source.Length..];
         return line;
     }
 
@@ -110,7 +112,8 @@ sealed partial class MainWindow
                 SevenZipExePath = sevenZipExePath.Text.Trim(),
                 SevenZipDllPath = sevenZipDllPath.Text.Trim(),
                 Online = online.IsChecked == true,
-                Delete = delete.IsChecked == true
+                Delete = delete.IsChecked == true,
+                AutoDetectSystem = autoDetect.IsChecked == true
             };
             options.Validate();
             SavePreferences();
@@ -126,10 +129,10 @@ sealed partial class MainWindow
             int result = await Task.Run(() => Engine.Run(options, Report));
             status.Text = result switch
             {
-                0 => "Conversion complete",
-                2 => cancelRequested ? "Stopped now; temporary files removed"
-                    : "Stopped after the current input",
-                _ => "Completed with errors; see the log"
+                0 => Localization.T("Conversion complete"),
+                2 => cancelRequested ? Localization.T("Stopped now; temporary files removed")
+                    : Localization.T("Stopped after the current input"),
+                _ => Localization.T("Completed with errors; see the log")
             };
             if (result == 0)
                 batch.Value = 100;
@@ -151,7 +154,7 @@ sealed partial class MainWindow
         if (Engine.StopFile != null)
             File.WriteAllText(Engine.StopFile, "");
         stop.IsEnabled = false;
-        status.Text = "Stop requested; finishing the current input…";
+        status.Text = Localization.T("Stop requested; finishing the current input…");
     }
 
     // Cancel the current operation; the engine removes temporary files and preserves the source.
@@ -161,6 +164,6 @@ sealed partial class MainWindow
         cancelRequested = true;
         Engine.CancelNow();
         stopNow.IsEnabled = stop.IsEnabled = false;
-        status.Text = "Canceling and removing temporary files…";
+        status.Text = Localization.T("Canceling and removing temporary files…");
     }
 }

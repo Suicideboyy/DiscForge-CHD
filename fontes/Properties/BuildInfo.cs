@@ -1,1 +1,1 @@
-static class BuildInfo { public const string Date = "26/09/2026"; }
+static class BuildInfo { public const string Date = "29/09/2026"; }

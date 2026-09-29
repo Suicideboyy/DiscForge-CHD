@@ -23,6 +23,15 @@ sealed partial class MainWindow
             if (clock.IsRunning || batch.Value != 100)
                 throw new InvalidOperationException("Batch completion did not update the UI.");
             if (helpButtons.Count < 13) throw new InvalidOperationException("Help buttons are missing.");
+            int previousLanguage = language.SelectedIndex;
+            language.SelectedIndex = 1;
+            await Task.Delay(150);
+            if (Localization.Language != "pt-BR" ||
+                (string)((Microsoft.UI.Xaml.Controls.TabViewItem)tabs.TabItems[1]).Header != "Configurações")
+                throw new InvalidOperationException("Portuguese UI did not load.");
+            language.SelectedIndex = previousLanguage;
+            await Task.Delay(150);
+            tabs.SelectedIndex = 0;
             string previousInput = input.Text, previousOutput = output.Text;
             output.Text = "";
             input.Text = Path.Combine(Path.GetTempPath(), "DiscForgeSmoke");

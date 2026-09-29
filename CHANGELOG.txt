@@ -1,3 +1,9 @@
+2.3.0 — 2026-09-29
+- Fixed RAR fallback link detection for empty fields, with the real archive tested from a copy.
+- Classified PS1/PS2 from disc boot information before conversion; automatic and manual modes now enforce the detected system.
+- Safe multi-track BIN reconstruction, English/Portuguese UI, settings reset, codec/hunk help and diagnostic email draft.
+- Internal: bounded crash/session logs and a 10 MB report bundle. Existing outputs are checked after extraction to validate the system.
+
 2.2.0 — 2026-09-26
 - Corrected process-local CPU and I/O indicators, including encoder/extractor children.
 - Safe multi-track BIN conversion and distinct output names for game revisions.

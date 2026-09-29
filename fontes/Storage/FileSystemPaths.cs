@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 static class FileSystemPaths
 {
@@ -68,12 +69,32 @@ static class FileSystemPaths
             throw new IOException("Temporary folder is outside the expected location.");
         }
 
-        EnsureNoLinks(directory);
-        if (!Directory.Exists(directory))
+        // Native tools can release their final directory handle shortly after exit.
+        // Retry only temporary cleanup; every pass checks the boundary and links again.
+        for (int attempt = 0; attempt < 4; attempt++)
         {
-            return;
+            try
+            {
+                DeleteWorkDirectoryOnce(directory, parent);
+                return;
+            }
+            catch (Exception ex) when (attempt < 3
+                && (ex is IOException || ex is UnauthorizedAccessException))
+            {
+                Thread.Sleep(125 * (attempt + 1));
+            }
+        }
+    }
+
+    static void DeleteWorkDirectoryOnce(string directory, string parent)
+    {
+        if (!IsInside(directory, parent))
+        {
+            throw new IOException("Temporary folder is outside the expected location.");
         }
 
+        EnsureNoLinks(directory);
+        if (!Directory.Exists(directory)) return;
         foreach (string f in Directory.GetFiles(directory))
         {
             EnsureNoLinks(f);
@@ -82,7 +103,7 @@ static class FileSystemPaths
 
         foreach (string d in Directory.GetDirectories(directory))
         {
-            DeleteWorkDirectory(d, parent);
+            DeleteWorkDirectoryOnce(d, parent);
         }
 
         Directory.Delete(directory, false);

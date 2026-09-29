@@ -14,12 +14,24 @@ sealed partial class MainWindow
         stopNow.Click += (_, _) => RequestStopNow();
         input.TextChanged += (_, _) => FollowInputFolder();
         platform.SelectionChanged += (_, _) => { UpdatePlatform(); game.Reset(); };
+        autoDetect.Checked += (_, _) => UpdatePlatform();
+        autoDetect.Unchecked += (_, _) => UpdatePlatform();
+        resetDefaults.Click += (_, _) => RestoreDefaults();
+        language.SelectionChanged += (_, _) =>
+        {
+            if (running) return;
+            bool portuguese = language.SelectedIndex == 1;
+            if (Localization.IsPortuguese == portuguese) return;
+            Localization.SetLanguage(portuguese ? "pt-BR" : "en");
+            BuildTabs(1);
+            SavePreferences();
+        };
         AppWindow.Closing += (_, args) =>
         {
             if (!running) return;
             args.Cancel = true;
             RequestStop();
-            status.Text = "Wait for the current input before closing.";
+            status.Text = Localization.T("Wait for the current input before closing.");
         };
         Closed += (_, _) =>
         {
@@ -51,14 +63,14 @@ sealed partial class MainWindow
         };
         start.Style = (Style)Application.Current.Resources["AccentButtonStyle"];
         start.Background = VisualTheme.Accent;
-        start.Content = ActionLabel(Symbol.Play, "Start conversion");
-        stop.Content = ActionLabel(Symbol.Pause, "Stop after current");
-        stopNow.Content = ActionLabel(Symbol.Stop, "Stop now");
+        start.Content = ActionLabel(Symbol.Play, Localization.T("Start conversion"));
+        stop.Content = ActionLabel(Symbol.Pause, Localization.T("Stop after current"));
+        stopNow.Content = ActionLabel(Symbol.Stop, Localization.T("Stop now"));
         ToolTipService.SetToolTip(start, HelpText("Validates options and starts the queue. Every CHD is verified before saving."));
         ToolTipService.SetToolTip(stop, HelpText(OptionHelp.Stop));
-        var open = new Button { Content = "Open output", MinHeight = 42 };
-        open.Content = ActionLabel(Symbol.OpenFile, "Open output");
-        ToolTipService.SetToolTip(open, "Opens the output folder in File Explorer.");
+        var open = new Button { Content = Localization.T("Open output"), MinHeight = 42 };
+        open.Content = ActionLabel(Symbol.OpenFile, Localization.T("Open output"));
+        ToolTipService.SetToolTip(open, Localization.IsPortuguese ? "Abre a pasta de saída no Explorador de Arquivos." : "Opens the output folder in File Explorer.");
         open.Click += (_, _) =>
         {
             try
@@ -77,7 +89,7 @@ sealed partial class MainWindow
         body.Children.Add(actions);
         body.Children.Add(new Expander
         {
-            Header = "Activity log", Content = log,
+            Header = Localization.T("Activity log"), Content = log,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch
         });

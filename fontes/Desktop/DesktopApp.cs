@@ -12,8 +12,7 @@ public sealed partial class DesktopApp : Application
     {
         this.arguments = arguments;
         RequestedTheme = ApplicationTheme.Light;
-        UnhandledException += (_, e) => System.IO.File.WriteAllText(
-            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "chd-winui-error.txt"), e.Exception.ToString());
+        UnhandledException += (_, e) => CrashReporter.Record(e.Exception, "WinUI.UnhandledException");
         InitializeComponent();
     }
 

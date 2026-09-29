@@ -13,6 +13,7 @@ sealed partial class ConversionSession
             {
                 File.AppendAllText(Path.Combine(_temporaryDirectory, "log.txt"), text + Environment.NewLine,
                     Encoding.UTF8);
+                CrashReporter.Write(text);
             }
         }
     }

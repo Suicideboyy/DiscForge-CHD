@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -12,17 +13,64 @@ sealed partial class MainWindow : Window
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1380, 1000));
         string icon = Path.Combine(AppContext.BaseDirectory, "Assets", "discforge.ico");
         if (File.Exists(icon)) AppWindow.SetIcon(icon);
-        tabs.Background = VisualTheme.Canvas;
-        tabs.TabItems.Add(new TabViewItem { Header = "Conversion", IsClosable = false,
-            IconSource = new SymbolIconSource { Symbol = Symbol.Play }, Content = BuildConversion() });
-        tabs.TabItems.Add(new TabViewItem { Header = "Settings", IsClosable = false,
-            IconSource = new SymbolIconSource { Symbol = Symbol.Setting }, Content = BuildToolSettings() });
-        tabs.TabItems.Add(new TabViewItem { Header = "About", IsClosable = false,
-            IconSource = new SymbolIconSource { Symbol = Symbol.Help }, Content = BuildAbout() });
-        Content = tabs;
         LoadPreferences();
+        BuildTabs();
+        Content = tabs;
         ConnectEvents();
         if (args.Length == 2 && args[0] == "--ui-smoke") RunSmoke(args[1]);
+    }
+
+    /// <summary>Rebuilds only UI chrome when the user changes language.</summary>
+    void BuildTabs(int selected = 0)
+    {
+        foreach (var old in tabs.TabItems.OfType<TabViewItem>())
+        {
+            DetachTree(old.Content as UIElement);
+            old.Content = null;
+        }
+        tabs.TabItems.Clear();
+        settings.Children.Clear();
+        cdCodecs.Children.Clear();
+        dvdCodecs.Children.Clear();
+        cdCodecChoices.Clear();
+        dvdCodecChoices.Clear();
+        helpButtons.Clear();
+        ApplyControlLabels();
+        tabs.Background = VisualTheme.Canvas;
+        tabs.TabItems.Add(new TabViewItem { Header = Localization.T("Conversion"), IsClosable = false,
+            IconSource = new SymbolIconSource { Symbol = Symbol.Play }, Content = BuildConversion() });
+        tabs.TabItems.Add(new TabViewItem { Header = Localization.T("Settings"), IsClosable = false,
+            IconSource = new SymbolIconSource { Symbol = Symbol.Setting }, Content = BuildToolSettings() });
+        tabs.TabItems.Add(new TabViewItem { Header = Localization.T("About"), IsClosable = false,
+            IconSource = new SymbolIconSource { Symbol = Symbol.Help }, Content = BuildAbout() });
+        tabs.SelectedIndex = selected;
+        game.RefreshLanguage();
+    }
+
+    // Shared controls must leave their old parents before language rebuilds the pages.
+    void DetachTree(UIElement element)
+    {
+        if (element == null || ReferenceEquals(element, game)) return;
+        if (element is Panel panel)
+        {
+            foreach (var child in panel.Children.ToArray()) DetachTree(child);
+            panel.Children.Clear();
+        }
+        else if (element is Border border)
+        {
+            DetachTree(border.Child);
+            border.Child = null;
+        }
+        else if (element is ScrollViewer scroll)
+        {
+            DetachTree(scroll.Content as UIElement);
+            scroll.Content = null;
+        }
+        else if (element is ContentControl content)
+        {
+            DetachTree(content.Content as UIElement);
+            content.Content = null;
+        }
     }
 
     /// <summary>Builds the workspace and stacks the game panel in narrow windows.</summary>
@@ -81,14 +129,14 @@ sealed partial class MainWindow : Window
         var title = VisualTheme.Text(AppInfo.Name, 29, true);
         title.Foreground = VisualTheme.White;
         name.Children.Add(title);
-        var subtitle = VisualTheme.Text("Your collection. Less space. Every experience.", 13);
+        var subtitle = VisualTheme.Text(Localization.T("Your collection. Less space. Every experience."), 13);
         subtitle.Foreground = VisualTheme.Brush(183, 199, 222);
         name.Children.Add(subtitle);
         brand.Children.Add(name);
         var version = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Spacing = 6 };
-        var release = VisualTheme.Text("VERSION " + AppInfo.Version, 12, true);
+        var release = VisualTheme.Text(Localization.T("VERSION ") + AppInfo.Version, 12, true);
         release.Foreground = VisualTheme.Brush(153, 234, 217);
-        var date = VisualTheme.Text("Built on " + BuildInfo.Date, 12);
+        var date = VisualTheme.Text(Localization.T("Built on ") + BuildInfo.Date, 12);
         date.Foreground = VisualTheme.Brush(206, 217, 236);
         version.Children.Add(release);
         version.Children.Add(date);
@@ -106,9 +154,9 @@ sealed partial class MainWindow : Window
         var row = new Grid { ColumnSpacing = 10 };
         var cards = new[]
         {
-            Metric("CURRENT INPUT", elapsed, OptionHelp.Time, VisualTheme.Accent),
-            Metric("CPU · APP", cpu, OptionHelp.Cpu, VisualTheme.Teal),
-            Metric("DISK · APP", disk, OptionHelp.Disk, VisualTheme.Brush(222, 133, 42))
+            Metric(Localization.T("CURRENT INPUT"), elapsed, OptionHelp.Time, VisualTheme.Accent),
+            Metric(Localization.T("CPU · APP"), cpu, OptionHelp.Cpu, VisualTheme.Teal),
+            Metric(Localization.T("DISK · APP"), disk, OptionHelp.Disk, VisualTheme.Brush(222, 133, 42))
         };
         foreach (var card in cards)
         {

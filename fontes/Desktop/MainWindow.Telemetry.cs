@@ -22,7 +22,8 @@ sealed partial class MainWindow
             var sample = await Task.Run(performance.Read);
             if (closed) return;
             cpu.Text = sample.CpuPercent.HasValue ? $"{sample.CpuPercent:N1}%" : "N/A";
-            disk.Text = $"Read: {Rate(sample.ReadBytesPerSecond)}\nWrite: {Rate(sample.WriteBytesPerSecond)}";
+            disk.Text = $"{Localization.T("Read: ")}{Rate(sample.ReadBytesPerSecond)}\n"
+                + $"{Localization.T("Write: ")}{Rate(sample.WriteBytesPerSecond)}";
             if (running) await game.RetryAsync();
         }
         catch (Exception ex) { if (!closed) disk.Text = "Metrics unavailable: " + ex.Message; }

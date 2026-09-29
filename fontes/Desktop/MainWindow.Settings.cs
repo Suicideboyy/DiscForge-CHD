@@ -27,7 +27,7 @@ sealed partial class MainWindow
         library.Children.Add(Field("Output", PathRow(output), OptionHelp.Output));
         var libraryCard = VisualTheme.Card(library);
 
-        var encoder = VisualTheme.Section("02", "Conversion");
+        var encoder = VisualTheme.Section("02", "Conversion settings");
         encoder.Children.Add(VisualTheme.Pair(
             Field("Platform", platform, OptionHelp.Platform),
             Field("Threads · automatic", threads, OptionHelp.Threads)));
@@ -41,6 +41,7 @@ sealed partial class MainWindow
         advanced.HorizontalAlignment = HorizontalAlignment.Stretch;
         advanced.HorizontalContentAlignment = HorizontalAlignment.Stretch;
         encoder.Children.Add(advanced);
+        encoder.Children.Add(WithHelp(autoDetect, "Auto-detect system", OptionHelp.AutoDetect));
         encoder.Children.Add(WithHelp(online, "Game lookup", OptionHelp.Lookup));
         encoder.Children.Add(WithHelp(delete, "Remove original", OptionHelp.Delete));
         var encoderCard = VisualTheme.Card(encoder);
@@ -67,11 +68,11 @@ sealed partial class MainWindow
         {
             var choice = new CheckBox
             {
-                Content = name + " — " + description,
+                Content = name + " — " + Localization.T(description),
                 Tag = name,
                 IsChecked = name != "huff"
             };
-            ToolTipService.SetToolTip(choice, description);
+            ToolTipService.SetToolTip(choice, Localization.T(description));
             choice.Checked += (_, _) =>
             {
                 if (choices.Count(c => c.IsChecked == true) > 4)
@@ -88,10 +89,10 @@ sealed partial class MainWindow
     FrameworkElement Field(string label, FrameworkElement control, string explanation)
     {
         var field = new StackPanel { Spacing = 6 };
-        field.Children.Add(WithHelp(VisualTheme.Text(label, 12, true), label, explanation));
+        field.Children.Add(WithHelp(VisualTheme.Text(Localization.T(label), 12, true), label, explanation));
         control.HorizontalAlignment = HorizontalAlignment.Stretch;
         ToolTipService.SetToolTip(control, HelpText(explanation));
-        AutomationProperties.SetName(control, label);
+        AutomationProperties.SetName(control, Localization.T(label));
         AutomationProperties.SetHelpText(control, explanation);
         field.Children.Add(control);
         return field;
@@ -107,8 +108,8 @@ sealed partial class MainWindow
             CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(0),
             Flyout = new Flyout { Content = HelpText(explanation) }
         };
-        AutomationProperties.SetName(help, "Help: " + label);
-        ToolTipService.SetToolTip(help, "Explain this option");
+        AutomationProperties.SetName(help, (Localization.IsPortuguese ? "Ajuda: " : "Help: ") + Localization.T(label));
+        ToolTipService.SetToolTip(help, Localization.IsPortuguese ? "Explicar esta opção" : "Explain this option");
         helpButtons.Add(help);
         var row = VisualTheme.Pair(control, help);
         row.ColumnDefinitions[1].Width = GridLength.Auto;
@@ -122,7 +123,7 @@ sealed partial class MainWindow
 
     Grid PathRow(TextBox box, bool file = false)
     {
-        var choose = new Button { Content = "Browse…", MinHeight = 34 };
+        var choose = new Button { Content = Localization.T("Browse…"), MinHeight = 34 };
         choose.Click += async (_, _) =>
         {
             try
@@ -157,13 +158,15 @@ sealed partial class MainWindow
     void UpdatePlatform()
     {
         bool ps2 = (string)platform.SelectedItem == "PS2";
-        dvdHunk.IsEnabled = online.IsEnabled = delete.IsEnabled = ps2;
+        dvdHunk.IsEnabled = ps2 || autoDetect.IsChecked == true;
+        online.IsEnabled = delete.IsEnabled = ps2 || autoDetect.IsChecked == true;
         foreach (var choice in dvdCodecChoices) choice.IsEnabled = ps2;
     }
 
     void SetSettingsEnabled(bool enabled)
     {
         start.IsEnabled = settingsHost.IsEnabled = enabled;
+        language.IsEnabled = resetDefaults.IsEnabled = enabled;
         chdmanPath.IsEnabled = sevenZipExePath.IsEnabled = sevenZipDllPath.IsEnabled = enabled;
         if (enabled) UpdatePlatform();
     }

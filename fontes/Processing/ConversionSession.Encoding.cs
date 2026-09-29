@@ -15,30 +15,16 @@ sealed partial class ConversionSession
         var game = Identify(source, media);
         try
         {
-            if (MediaFiles.TrackGroup(media.Path) != null)
-            {
-                throw new IOException("MISSING CUE: provide the original CUE for these BIN tracks.");
-            }
-
-            string output = outputNaming.Build(game, source, media, index, total);
-            if (!outputs.Add(output))
-            {
-                throw new IOException("Two discs produced the same output name.");
-            }
-
-            if (await ValidExisting(output).ConfigureAwait(false))
-            {
-                game.Status = "ALREADY EXISTS";
-                Show(game);
-                Say("Already exists: " + Path.GetFileName(output));
-                return null;
-            }
-
             string input = media.Path;
             bool chd = MediaFiles.Extension(input) == ".chd";
             long original = new FileInfo(input).Length, oldHunk = 0;
             string folder = Path.Combine(_workingDirectory, "disc-" + (index + 1));
             Directory.CreateDirectory(folder);
+            if (!chd)
+            {
+                ClassifyAndEnrich(game, input, media.CueText, root);
+            }
+
             if (chd)
             {
                 string info = await toolRunner.RequireSuccessAsync("chdman.exe", false, "info", "-i",
@@ -66,6 +52,7 @@ sealed partial class ConversionSession
                     await toolRunner.RequireSuccessAsync("chdman.exe", true, "extractdvd", "-i", media.Path,
                         "-o", input).ConfigureAwait(false);
                 }
+                ClassifyAndEnrich(game, input, null, folder);
             }
             else if (MediaFiles.Extension(input) == ".cue")
             {
@@ -84,7 +71,9 @@ sealed partial class ConversionSession
                 }
 
                 game.Type = "CD";
-                game.Detection = "Original CUE descriptor";
+                game.Detection = media.Path.EndsWith(" (reconstructed).cue",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "Reconstructed CUE descriptor" : "Original CUE descriptor";
             }
             else
             {
@@ -132,9 +121,23 @@ sealed partial class ConversionSession
                 }
             }
 
-            if (_settings.Platform == "PS1" && game.Type != "CD")
+            if (game.System == "PS1" && game.Type != "CD")
             {
                 throw new IOException("PS1 accepts only CD CHDs.");
+            }
+
+            string output = outputNaming.Build(game, source, media, index, total);
+            if (!outputs.Add(output))
+            {
+                throw new IOException("Two discs produced the same output name.");
+            }
+
+            if (await ValidExisting(output).ConfigureAwait(false))
+            {
+                game.Status = "ALREADY EXISTS";
+                Show(game);
+                Say("Already exists: " + Path.GetFileName(output));
+                return null;
             }
 
             int hunk = game.Type == "CD" ? _settings.CdHunk : _settings.DvdHunk;
@@ -147,7 +150,7 @@ sealed partial class ConversionSession
                 : "createdvd", "-i", input, "-o", candidate, "-hs", hunk.ToString(), "-c", codecs, "-np",
                 _settings.Threads.ToString()).ConfigureAwait(false);
             if (chd && new FileInfo(media.Path).Length <= new FileInfo(candidate).Length
-                && (_settings.Platform == "PS1" || oldHunk == hunk))
+                && (game.System == "PS1" || oldHunk == hunk))
             {
                 candidate = media.Path;
                 Say("Original CHD is smaller; keeping it.");
@@ -196,5 +199,22 @@ sealed partial class ConversionSession
             Show(game);
             throw;
         }
+    }
+
+    void ClassifyAndEnrich(GameInfo game, string path, string cue, string root)
+    {
+        game.System = SystemClassifier.Detect(path, cue, root);
+        if (game.System.Length == 0)
+        {
+            throw new IOException("PS1/PS2 system is unknown; SYSTEM.CNF could not be verified.");
+        }
+
+        if (!_settings.AutoDetectSystem && game.System != _settings.Platform)
+        {
+            throw new IOException("Disc is " + game.System + ", but " + _settings.Platform
+                + " was selected. Enable automatic system detection to convert both.");
+        }
+
+        Enrich(game);
     }
 }
