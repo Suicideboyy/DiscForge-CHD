@@ -23,6 +23,23 @@ sealed partial class MainWindow
             if (clock.IsRunning || batch.Value != 100)
                 throw new InvalidOperationException("Batch completion did not update the UI.");
             if (helpButtons.Count < 13) throw new InvalidOperationException("Help buttons are missing.");
+            const ulong gib = 1073741824;
+            if (MemoryStatus.IsEligible(12 * gib, 5 * gib) ||
+                MemoryStatus.IsEligible(16 * gib, 5 * gib - 1) ||
+                !MemoryStatus.IsEligible(16 * gib, 5 * gib))
+                throw new InvalidOperationException("RAM thresholds failed.");
+            string previousRamPath = ramDiskPath.Text;
+            bool? previousRamChoice = ramExtraction.IsChecked;
+            ramDiskPath.Text = Path.GetTempPath();
+            RefreshRamAvailability();
+            if (ramExtraction.IsEnabled)
+                throw new InvalidOperationException("RAM extraction accepted an ordinary disk.");
+            SetSettingsEnabled(false);
+            if (ramDiskPath.IsEnabled || ramExtraction.IsEnabled || toolSettingsPage.IsEnabled)
+                throw new InvalidOperationException("RAM settings remained enabled during conversion.");
+            SetSettingsEnabled(true);
+            ramDiskPath.Text = previousRamPath;
+            ramExtraction.IsChecked = previousRamChoice;
             int previousLanguage = language.SelectedIndex;
             language.SelectedIndex = 1;
             await Task.Delay(150);
@@ -59,7 +76,8 @@ sealed partial class MainWindow
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".about.png");
             await File.WriteAllTextAsync(destination, "WinUI3=OK\nWebView2=" + game.BrowserStatus
-                + "\nProgress/Timer=OK\nThreads=" + threads.Value + "\nCPU=" + cpu.Text + "\nDisk=" + disk.Text);
+                + "\nProgress/Timer=OK\nRAM eligibility/settings=OK\nThreads=" + threads.Value
+                + "\nCPU=" + cpu.Text + "\nDisk=" + disk.Text);
         }
         catch (Exception ex) { await File.WriteAllTextAsync(destination, ex.ToString()); }
         finally { Close(); }

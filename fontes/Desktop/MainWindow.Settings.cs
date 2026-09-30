@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.UI.Xaml;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +42,8 @@ sealed partial class MainWindow
         advanced.HorizontalContentAlignment = HorizontalAlignment.Stretch;
         encoder.Children.Add(advanced);
         encoder.Children.Add(WithHelp(autoDetect, "Auto-detect system", OptionHelp.AutoDetect));
+        encoder.Children.Add(WithHelp(ramExtraction, "Use RAM extraction", OptionHelp.RamExtraction));
+        encoder.Children.Add(ramStatus);
         encoder.Children.Add(WithHelp(online, "Game lookup", OptionHelp.Lookup));
         encoder.Children.Add(WithHelp(delete, "Remove original", OptionHelp.Delete));
         var encoderCard = VisualTheme.Card(encoder);
@@ -167,7 +169,9 @@ sealed partial class MainWindow
     {
         start.IsEnabled = settingsHost.IsEnabled = enabled;
         language.IsEnabled = resetDefaults.IsEnabled = enabled;
-        chdmanPath.IsEnabled = sevenZipExePath.IsEnabled = sevenZipDllPath.IsEnabled = enabled;
+        if (toolSettingsPage != null) toolSettingsPage.IsEnabled = enabled;
+        chdmanPath.IsEnabled = ramDiskPath.IsEnabled = enabled;
+        RefreshRamAvailability();
         if (enabled) UpdatePlatform();
     }
 }

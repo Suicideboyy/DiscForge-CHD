@@ -1,9 +1,8 @@
-﻿DiscForge CHD 2.3.0
+﻿DiscForge CHD 2.4.0
 
-- Fixed RAR extraction when empty 7-Zip link fields were incorrectly treated as links.
-- Safely numbered multi-track BIN sets without CUE now use a temporary CUE; the source is retained.
-- PS1/PS2 identification reads disc boot information. Automatic mode chooses the system; manual mode rejects mismatches.
-- English and Brazilian Portuguese UI, improved codec/hunk help, and Reset defaults.
-- Bounded crash logs and a report button that opens an email draft with a diagnostic ZIP for review.
+- Removed the 7-Zip executable and DLL from the application and build workflow. SharpCompress handles supported archive formats, including .7z.
+- Added optional extraction to an existing verified RAM disk. Requires more than 12 GiB total physical memory and at least 5 GiB available.
+- Per-game capacity checks preserve a memory reserve; unavailable or insufficient RAM uses disk with a logged reason. The final CHD is written to disk.
+- RAM workspace cleanup deletes only the application's own temporary folder and never unmounts the user's drive. No driver is installed.
 
-Download DiscForge-CHD-2.3.0-win-x64.zip, extract it completely and run DiscForge-CHD.exe. Windows 10 2004+ x64 is required. .NET 10 and Windows App SDK are included. WebView2 powers the cover panel. Report bugs to andrethiesen@live.com.
+Extract the complete DiscForge-CHD-2.4.0-win-x64.zip and run DiscForge-CHD.exe. Windows 10 2004+ x64 is required. Report bugs: andrethiesen@live.com.

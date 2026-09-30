@@ -1,3 +1,9 @@
+2.4.0 — 2026-09-30
+- Removed the 7-Zip application/DLL and its packaging dependency.
+- Optional archive extraction to an existing verified RAM disk, gated by >12 GiB total and >=5 GiB available memory.
+- Per-archive memory/capacity checks, disk fallback with reason, owned-workspace cleanup and final CHD output on disk.
+- Internal: extraction, memory policy and RAM volume checks remain separate modules.
+
 2.3.0 — 2026-09-29
 - Fixed RAR fallback link detection for empty fields, with the real archive tested from a copy.
 - Classified PS1/PS2 from disc boot information before conversion; automatic and manual modes now enforce the detected system.

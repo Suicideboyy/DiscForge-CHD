@@ -25,8 +25,9 @@ sealed partial class MainWindow
     readonly Button stop = new() { Content = "Stop after current", IsEnabled = false, MinHeight = 42 };
     readonly Button stopNow = new() { Content = "Stop now", IsEnabled = false, MinHeight = 42 };
     readonly TextBox chdmanPath = new() { PlaceholderText = "Automatic (bundled)" };
-    readonly TextBox sevenZipExePath = new() { PlaceholderText = "Automatic (bundled)" };
-    readonly TextBox sevenZipDllPath = new() { PlaceholderText = "Automatic (bundled)" };
+    readonly CheckBox ramExtraction = new() { IsChecked = false };
+    readonly TextBox ramDiskPath = new();
+    readonly TextBlock ramStatus = VisualTheme.Text("", 12);
     readonly ProgressBar stage = new() { Minimum = 0, Maximum = 100 };
     readonly ProgressBar batch = new() { Minimum = 0, Maximum = 100 };
     readonly TextBlock status = VisualTheme.Text("Ready to start");

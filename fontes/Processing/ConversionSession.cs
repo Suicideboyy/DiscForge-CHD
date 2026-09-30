@@ -27,7 +27,7 @@ sealed partial class ConversionSession
         _report = report;
         _temporaryDirectory = temporaryDirectory;
         toolRunner = new ToolRunner(Say, () => _workingDirectory ?? _temporaryDirectory);
-        archiveReader = new ArchiveReader(toolRunner, Say);
+        archiveReader = new ArchiveReader(Say);
         database = new GameDatabase(settings.Online, temporaryDirectory, Say);
         outputNaming = new OutputNaming(settings.Output);
     }
@@ -76,6 +76,7 @@ sealed partial class ConversionSession
             string source = entries[i];
             _workingDirectory = Path.Combine(_temporaryDirectory, "native-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(_workingDirectory);
+            RamWorkspace ramWorkspace = null;
             Say("Entrada " + (i + 1) + " / " + entries.Count + ": " + Path.GetFileName(source));
             try
             {
@@ -84,6 +85,19 @@ sealed partial class ConversionSession
                     var snapshots = ArchiveReader.GetVolumes(source).Select(p => new FileSnapshot(p)).ToList();
                     long packed = snapshots.Sum(p => p.Size);
                     string unpacked = Path.Combine(_workingDirectory, "unpacked");
+                    if (_settings.UseRamExtraction)
+                    {
+                        var listing = await archiveReader.ListAsync(source, unpacked).ConfigureAwait(false);
+                        long extractedSize = listing.Sum(e => e.Size);
+                        ramWorkspace = RamWorkspace.TryCreate(_settings.RamDiskPath, extractedSize,
+                            out string reason);
+                        if (ramWorkspace != null)
+                        {
+                            unpacked = Path.Combine(ramWorkspace.Root, "unpacked");
+                            Say("RAM extraction: " + unpacked + ". CHD output remains on disk.");
+                        }
+                        else Say("RAM extraction unavailable; using disk: " + reason);
+                    }
                     Say("Descompactando: " + Path.GetFileName(source));
                     Directory.CreateDirectory(unpacked);
                     await archiveReader.ExtractAsync(source, unpacked).ConfigureAwait(false);
@@ -91,7 +105,13 @@ sealed partial class ConversionSession
                     if (files.Count == 1 && MediaFiles.Extension(files[0]) == ".tar")
                     {
                         string nested = Path.Combine(_workingDirectory, "tar");
-                        await archiveReader.ListAsync(files[0], nested).ConfigureAwait(false);
+                        var nestedListing = await archiveReader.ListAsync(files[0], nested).ConfigureAwait(false);
+                        if (ramWorkspace != null)
+                        {
+                            if (ramWorkspace.CanFit(nestedListing.Sum(e => e.Size), out string reason))
+                                nested = Path.Combine(ramWorkspace.Root, "tar");
+                            else Say("Nested TAR extraction uses disk: " + reason);
+                        }
                         Directory.CreateDirectory(nested);
                         await archiveReader.ExtractAsync(files[0], nested).ConfigureAwait(false);
                         unpacked = nested;
@@ -205,6 +225,8 @@ sealed partial class ConversionSession
             }
             finally
             {
+                try { ramWorkspace?.Dispose(); }
+                catch (Exception ex) { Say("Warning: RAM temporary cleanup: " + ex.Message); }
                 try
                 {
                     FileSystemPaths.DeleteWorkDirectory(_workingDirectory, _temporaryDirectory);

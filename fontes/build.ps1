@@ -1,4 +1,4 @@
-﻿param([string]$DotnetPath)
+param([string]$DotnetPath)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 if (-not $DotnetPath) {
@@ -61,14 +61,17 @@ try {
     }
     $zip = Join-Path $folder ('DiscForge-CHD-' + $version + '-win-x64.zip')
     $candidate = Join-Path $folder ('package-' + [Guid]::NewGuid().ToString('N') + '.zip')
-    $sevenZip = Join-Path $PSScriptRoot 'tools\7z.exe'
-    Push-Location $portable
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::CreateFromDirectory($portable, $candidate,
+        [IO.Compression.CompressionLevel]::Optimal, $false)
+    $package = [IO.Compression.ZipFile]::OpenRead($candidate)
     try {
-        & $sevenZip a -tzip -mx=5 -ssw -sse $candidate '.\*' | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'Failed to package the distribution.' }
-        & $sevenZip t $candidate | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'Invalid ZIP package.' }
-    } finally { Pop-Location }
+        if ($package.Entries.Count -eq 0) { throw 'Empty ZIP package.' }
+        foreach ($entry in $package.Entries) {
+            $stream = $entry.Open()
+            try { $stream.CopyTo([IO.Stream]::Null) } finally { $stream.Dispose() }
+        }
+    } finally { $package.Dispose() }
     Move-Item -LiteralPath $candidate -Destination $zip -Force
     $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash
     [IO.File]::WriteAllText((Join-Path $folder 'SHA256.txt'), "$hash  $([IO.Path]::GetFileName($zip))`r`n")

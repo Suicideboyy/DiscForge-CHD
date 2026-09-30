@@ -1,4 +1,4 @@
-DiscForge CHD 2.3.0 — Windows x64 — 29/09/2026
+DiscForge CHD 2.4.0 — Windows x64 — 30/09/2026
 
 Extraia o ZIP completo e execute DiscForge-CHD.exe. Mantenha juntas as pastas app, documentation e licenses. O aplicativo exige Windows 10 2004 (19041) ou superior. WebView2 exibe capas, mas não é necessário para converter.
 
@@ -6,8 +6,12 @@ Selecione pasta de entrada, destino, plataforma e opções de compressão. A sa�
 
 Com Detecção automática ativada, o programa lê informações de inicialização do disco para escolher PS1 ou PS2. Desativada, ele valida se o disco corresponde à plataforma escolhida e recusa discos não identificados. A consulta online pode obter nome, serial e capa; uma falha de capa não interrompe a conversão.
 
-Arquivos ZIP/RAR e outros formatos são extraídos com SharpCompress; 7-Zip atua como reserva. Links, caminhos inseguros e arquivos corrompidos são rejeitados. Faixas BIN numeradas sem CUE recebem um CUE temporário quando a estrutura é segura de inferir. Como pregaps e índices originais podem ser desconhecidos, o arquivo comprimido original é mantido. A validação do sistema acontece após extração, inclusive ao retomar uma conversão existente.
+Arquivos ZIP/RAR e outros formatos são extraídos somente com SharpCompress. O aplicativo e a DLL do 7-Zip foram removidos; formatos não suportados ou corrompidos falham com segurança. Links, caminhos inseguros e arquivos corrompidos são rejeitados. Faixas BIN numeradas sem CUE recebem um CUE temporário quando a estrutura é segura de inferir. Como pregaps e índices originais podem ser desconhecidos, o arquivo comprimido original é mantido. A validação do sistema acontece após extração, inclusive ao retomar uma conversão existente.
 
 O aplicativo verifica o CHD antes de remover opcionalmente arquivos comprimidos. A exclusão fica desligada por padrão. Parar agora cancela a tarefa atual, remove temporários e mantém os originais. CPU e leitura/escrita representam o aplicativo e seus processos auxiliares.
 
 Logs ficam em pasta-de-entrada/temp/log.txt e em %LOCALAPPDATA%/DiscForge CHD/logs. Relatar erro gera ZIP de até 10 MB e abre um rascunho com anexo para revisão; nada é enviado automaticamente. E-mail: andrethiesen@live.com. Restaure as configurações padrão pela aba Configurações.
+
+Versão 2.4: escolha uma pasta de unidade RAM já instalada em Configurações e marque a extração em RAM. Exige mais de 12 GiB totais e pelo menos 5 GiB livres. Antes de cada arquivo, o aplicativo confere tamanho descompactado e capacidade da unidade, reservando memória para Windows e chdman. Se faltar memória ou a unidade não estiver disponível, usa disco e registra o motivo. Apaga somente sua pasta temporária e nunca desmonta a unidade do usuário. O CHD é gravado em disco. O aplicativo não instala drivers.
+
+São reconhecidas unidades Windows do tipo RAM e unidades ImDisk de memória. As configurações da unidade e do Windows podem permitir paginação; a redução de gravações intermediárias não garante ausência total de acesso ao disco.

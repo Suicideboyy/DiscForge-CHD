@@ -11,7 +11,8 @@ Download the portable ZIP from the [latest release](https://github.com/Suicidebo
 - WinUI 3 interface with cards, expandable advanced settings and contextual help.
 - WebView2 game panel, serial-based covers, custom icon and build date.
 - PS2 CD: `createcd`, default hunk 2448. DVD: `createdvd`, default hunk 2048. Both are configurable.
-- SharpCompress extraction with 7-Zip fallback for unsupported formats, methods and split volumes.
+- SharpCompress extraction for supported archives, without the 7-Zip application or DLL.
+- Optional extraction to an existing RAM disk when total RAM exceeds 12 GiB and at least 5 GiB is available; the final CHD is written to disk.
 - PS1/PS2 classification from disc boot information before conversion; existing outputs are checked after extraction.
 - CHD verification and optional deletion after success.
 - Per-entry timer, application and encoder CPU/I/O metrics, and automatic thread count.

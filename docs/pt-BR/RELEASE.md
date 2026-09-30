@@ -1,9 +1,8 @@
-# DiscForge CHD 2.3.0
+﻿# DiscForge CHD 2.4.0
 
-- Corrigida a falsa detecção de links ao extrair arquivos RAR.
-- Faixas BIN numeradas sem CUE podem usar um CUE temporário; o arquivo original é mantido.
-- Identificação PS1/PS2 pelo disco, com seleção automática ou validação da plataforma escolhida.
-- Interface em inglês e português do Brasil, mais explicações para codecs/hunk e opção de restaurar padrões.
-- Logs de falhas e botão que abre um rascunho de e-mail com relatório anexado para revisão.
+- Removidos o aplicativo e a DLL do 7-Zip, inclusive da compilação. SharpCompress mantém os formatos suportados, incluindo .7z.
+- Extração opcional em unidade RAM existente e verificada. Exige mais de 12 GiB de RAM total e pelo menos 5 GiB livres.
+- Verificação por jogo mantém uma reserva de memória. Se faltar RAM ou espaço, usa disco e registra o motivo. O CHD é gravado em disco.
+- A limpeza remove apenas a pasta temporária do aplicativo; a unidade RAM nunca é desmontada e nenhum driver é instalado.
 
-Baixe o ZIP portátil da versão 2.3.0, extraia tudo e execute `DiscForge-CHD.exe`. Erros: andrethiesen@live.com.
+Extraia o ZIP completo da versão 2.4.0 e execute DiscForge-CHD.exe. Erros: andrethiesen@live.com.

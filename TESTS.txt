@@ -1,3 +1,12 @@
+2.4.0 — 2026-09-30
+PASS: portable build with zero warnings/errors; .NET ZIP creation and readable package entries, no 7z.exe/7z.dll.
+PASS: real six-track RAR copied to work, extracted with SharpCompress CRC/size checks, converted and verified; CHD SHA-256 matches 2.3.0.
+PASS: ZIP and multipart 7z extraction; reject path traversal and symlink archives before file writes.
+PASS: ten RAM policy/native-query checks, including exact 12 GiB rejection, 5 GiB boundary, capacity reserve and ordinary-disk refusal.
+PASS: RAM request on an ordinary drive logs disk fallback, converts successfully and retains the original.
+PASS: WinUI3/WebView2, EN/PT language switch, RAM checkbox eligibility and settings lock during work.
+LIMIT: no existing RAM drive was present; real extraction on a RAM filesystem remains untested. No driver was installed.
+
 2.3.0 — 2026-09-29
 PASS: portable .NET 10/WinUI 3 build with zero warnings and errors; UI smoke includes English/Portuguese switching and WebView2.
 PASS: copied real RAR with six BIN tracks falls back to 7-Zip, reconstructs a CUE, creates/verifies one PS2 CHD and preserves the archive. Re-run reports Existing.

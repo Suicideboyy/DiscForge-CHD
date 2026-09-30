@@ -14,8 +14,8 @@ sealed partial class MainWindow
     {
         public string Input { get; set; } = "";
         public string ChdmanPath { get; set; } = "";
-        public string SevenZipExePath { get; set; } = "";
-        public string SevenZipDllPath { get; set; } = "";
+        public bool UseRamExtraction { get; set; }
+        public string RamDiskPath { get; set; } = "";
         public string Language { get; set; } = "en";
         public bool AutoDetectSystem { get; set; }
     }
@@ -32,6 +32,7 @@ sealed partial class MainWindow
     }
 
     string defaultOutput = "";
+    ScrollViewer toolSettingsPage;
 
     void LoadPreferences()
     {
@@ -46,8 +47,8 @@ sealed partial class MainWindow
             input.Text = saved.Input;
             FollowInputFolder();
             chdmanPath.Text = saved.ChdmanPath;
-            sevenZipExePath.Text = saved.SevenZipExePath;
-            sevenZipDllPath.Text = saved.SevenZipDllPath;
+            ramExtraction.IsChecked = saved.UseRamExtraction;
+            ramDiskPath.Text = saved.RamDiskPath;
         }
         catch (Exception ex) { Append("Preferences: " + ex.Message); }
     }
@@ -61,8 +62,8 @@ sealed partial class MainWindow
             {
                 Input = input.Text.Trim(),
                 ChdmanPath = chdmanPath.Text.Trim(),
-                SevenZipExePath = sevenZipExePath.Text.Trim(),
-                SevenZipDllPath = sevenZipDllPath.Text.Trim(),
+                UseRamExtraction = ramExtraction.IsChecked == true,
+                RamDiskPath = ramDiskPath.Text.Trim(),
                 Language = Localization.Language,
                 AutoDetectSystem = autoDetect.IsChecked == true
             };
@@ -81,13 +82,13 @@ sealed partial class MainWindow
             Localization.IsPortuguese ? "Idioma da interface. A escolha é salva automaticamente." :
                 "Interface language. Your choice is saved automatically."));
         body.Children.Add(Field("chdman.exe", PathRow(chdmanPath, true), OptionHelp.ChdmanPath));
-        body.Children.Add(Field("7z.exe", PathRow(sevenZipExePath, true), OptionHelp.SevenZipExePath));
-        body.Children.Add(Field("7z.dll", PathRow(sevenZipDllPath, true), OptionHelp.SevenZipDllPath));
+        body.Children.Add(Field("Existing RAM drive", PathRow(ramDiskPath), OptionHelp.RamDisk));
         ToolTipService.SetToolTip(resetDefaults, OptionHelp.Reset);
         body.Children.Add(resetDefaults);
         var page = new StackPanel { Padding = new Thickness(24), Spacing = 16 };
         page.Children.Add(VisualTheme.Card(body));
-        return new ScrollViewer { Content = page, Background = VisualTheme.Canvas };
+        toolSettingsPage = new ScrollViewer { Content = page, Background = VisualTheme.Canvas };
+        return toolSettingsPage;
     }
 
     /// <summary>Restore encoding and tool choices while leaving the user's folders intact.</summary>
@@ -102,7 +103,9 @@ sealed partial class MainWindow
         foreach (var choice in dvdCodecChoices) choice.IsChecked = (string)choice.Tag != "huff";
         online.IsChecked = true;
         delete.IsChecked = false;
-        chdmanPath.Text = sevenZipExePath.Text = sevenZipDllPath.Text = "";
+        chdmanPath.Text = ramDiskPath.Text = "";
+        ramExtraction.IsChecked = false;
+        RefreshRamAvailability();
         UpdatePlatform();
         SavePreferences();
     }
@@ -111,8 +114,10 @@ sealed partial class MainWindow
     {
         input.PlaceholderText = Localization.T("Folder containing your games");
         output.PlaceholderText = Localization.T("CHD destination");
-        chdmanPath.PlaceholderText = sevenZipExePath.PlaceholderText = sevenZipDllPath.PlaceholderText =
+        chdmanPath.PlaceholderText =
             Localization.T("Automatic (bundled)");
+        ramDiskPath.PlaceholderText = Localization.T("Select an existing RAM drive");
+        ramExtraction.Content = Localization.T("Use RAM extraction");
         online.Content = Localization.T("Identify games by serial");
         delete.Content = Localization.T("Remove archive after success");
         autoDetect.Content = Localization.T("Auto-detect system");

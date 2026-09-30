@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -109,8 +109,8 @@ sealed partial class MainWindow
                 Cd = SelectedCodecs(cdCodecChoices),
                 Dvd = SelectedCodecs(dvdCodecChoices),
                 ChdmanPath = chdmanPath.Text.Trim(),
-                SevenZipExePath = sevenZipExePath.Text.Trim(),
-                SevenZipDllPath = sevenZipDllPath.Text.Trim(),
+                UseRamExtraction = ramExtraction.IsChecked == true && ramExtraction.IsEnabled,
+                RamDiskPath = ramDiskPath.Text.Trim(),
                 Online = online.IsChecked == true,
                 Delete = delete.IsChecked == true,
                 AutoDetectSystem = autoDetect.IsChecked == true

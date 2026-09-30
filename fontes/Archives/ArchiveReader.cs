@@ -8,27 +8,19 @@ using SharpCompress.Common;
 
 sealed class ArchiveReader
 {
-    readonly SevenZipArchive fallback;
     readonly Action<string> report;
-    readonly HashSet<string> useFallback = new(StringComparer.OrdinalIgnoreCase);
 
-    public ArchiveReader(ToolRunner tools, Action<string> report)
+    public ArchiveReader(Action<string> report) => this.report = report;
+
+    public static IEnumerable<string> GetVolumes(string path) => ArchiveVolumes.GetVolumes(path);
+
+    static IArchive OpenArchive(string path)
     {
-        fallback = new SevenZipArchive(tools);
-        this.report = report;
+        var volumes = GetVolumes(path).Select(p => new FileInfo(p)).ToArray();
+        return volumes.Length > 1 ? ArchiveFactory.Open(volumes) : ArchiveFactory.Open(path);
     }
 
-    public static IEnumerable<string> GetVolumes(string path) => SevenZipArchive.GetVolumes(path);
-
-    static bool Unsupported(Exception error) => error is NotSupportedException
-        || error.GetType().Name is "InvalidFormatException" or "IncompleteArchiveException";
-
-    void SelectFallback(string archive, string reason)
-    {
-        useFallback.Add(archive);
-        report("7-Zip de reserva: " + reason);
-    }
-
+    // Validate paths before creating files; archives may not contain links or duplicate names.
     static List<ArchiveEntry> Validate(IArchive archive, string destination)
     {
         var entries = new List<ArchiveEntry>();
@@ -37,134 +29,90 @@ sealed class ArchiveReader
         {
             Engine.ThrowIfCancelled();
             if (!string.IsNullOrEmpty(entry.LinkTarget)
-                || entry is SharpCompress.Common.Zip.ZipEntry zip && ((zip.Attrib.GetValueOrDefault() >> 16) & 0xF000) == 0xA000)
+                || entry is SharpCompress.Common.Zip.ZipEntry zip
+                && ((zip.Attrib.GetValueOrDefault() >> 16) & 0xF000) == 0xA000)
                 throw new IOException("Archive contains links.");
             if (entry.IsEncrypted)
-                throw new IOException("Compactado protegido por senha.");
+                throw new IOException("Archive requires a password.");
             string target = FileSystemPaths.ResolveArchivePath(destination, entry.Key);
             if (!seen.Add(target))
-                throw new IOException("Caminhos duplicados no compactado.");
+                throw new IOException("Duplicate archive paths.");
             if (!entry.IsDirectory)
                 entries.Add(new ArchiveEntry { Path = target, Size = entry.Size });
         }
         if (entries.Count == 0)
-            throw new IOException("Compactado vazio.");
+            throw new IOException("Empty archive.");
         return entries;
     }
 
-    public async Task<List<ArchiveEntry>> ListAsync(string path, string destination)
+    public Task<List<ArchiveEntry>> ListAsync(string path, string destination)
     {
         Engine.ThrowIfCancelled();
-        if (GetVolumes(path).Skip(1).Any())
-            SelectFallback(path, "split-volume archive");
-        if (!useFallback.Contains(path))
-        {
-            try
-            {
-                using var archive = ArchiveFactory.Open(path);
-                return Validate(archive, destination);
-            }
-            catch (Exception ex) when (Unsupported(ex)) { SelectFallback(path, ex.Message); }
-        }
-        return await fallback.ListAsync(path, destination).ConfigureAwait(false);
+        using var archive = OpenArchive(path);
+        return Task.FromResult(Validate(archive, destination));
     }
 
-    public async Task<List<DiscInput>> PreviewAsync(string path, string destination, List<ArchiveEntry> entries)
-    {
-        Engine.ThrowIfCancelled();
-        if (useFallback.Contains(path))
-            return await fallback.PreviewAsync(path, destination, entries).ConfigureAwait(false);
-        try
-        {
-            var cues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            if (entries.Any(e => MediaFiles.Extension(e.Path) == ".cue"))
-            {
-                using var archive = ArchiveFactory.Open(path);
-                Validate(archive, destination);
-                foreach (var entry in archive.Entries.Where(e => MediaFiles.Extension(e.Key) == ".cue"))
-                {
-                    Engine.ThrowIfCancelled();
-                    if (entry.Size > 1048576)
-                        throw new IOException("Descritor CUE muito grande.");
-                    using var stream = entry.OpenEntryStream();
-                    using var reader = new StreamReader(stream);
-                    char[] buffer = new char[1048577];
-                    int count = await reader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-                    if (count > 1048576)
-                        throw new IOException("Descritor CUE muito grande.");
-                    cues[FileSystemPaths.ResolveArchivePath(destination, entry.Key)] = new string(buffer, 0, count);
-                }
-            }
-            return MediaFiles.SelectDiscInputs(entries.Select(e => e.Path), destination, cues);
-        }
-        catch (Exception ex) when (Unsupported(ex))
-        {
-            SelectFallback(path, ex.Message);
-            await fallback.ListAsync(path, destination).ConfigureAwait(false);
-            return await fallback.PreviewAsync(path, destination, entries).ConfigureAwait(false);
-        }
-    }
-
-    // Validate paths before writing; use the fallback only for known incompatibilities.
+    // Solid and 7z formats require a sequential reader; ordinary RARs use independent entries.
     public async Task ExtractAsync(string path, string destination)
     {
         Engine.ThrowIfCancelled();
-        if (!useFallback.Contains(path))
+        using var archive = OpenArchive(path);
+        var listed = Validate(archive, destination);
+        long total = listed.Sum(e => e.Size), done = 0;
+        int lastPercent = -1;
+        byte[] buffer = new byte[131072];
+        report("Extracting with SharpCompress...");
+        if (archive.IsSolid || archive.Type == ArchiveType.SevenZip)
         {
-            try
+            using var reader = archive.ExtractAllEntries();
+            while (reader.MoveToNextEntry())
             {
-                using var archive = ArchiveFactory.Open(path);
-                var listed = Validate(archive, destination);
-                long total = listed.Sum(e => e.Size), done = 0;
-                int lastPercent = -1;
-                report("Descompactando com SharpCompress…");
-                using var reader = archive.IsSolid || archive.Type == ArchiveType.SevenZip
-                    ? archive.ExtractAllEntries()
-                    : SharpCompress.Readers.ReaderFactory.Open(File.OpenRead(path),
-                        new SharpCompress.Readers.ReaderOptions { LeaveStreamOpen = false });
-                byte[] buffer = new byte[131072];
-                while (reader.MoveToNextEntry())
-                {
-                    Engine.ThrowIfCancelled();
-                    if (reader.Entry.IsDirectory)
-                        continue;
-                    if (!string.IsNullOrEmpty(reader.Entry.LinkTarget))
-                        throw new IOException("Link not allowed.");
-                    string target = FileSystemPaths.ResolveArchivePath(destination, reader.Entry.Key);
-                    Directory.CreateDirectory(Path.GetDirectoryName(target));
-                    FileSystemPaths.EnsureNoLinks(target);
-                    using var input = reader.OpenEntryStream();
-                    await using var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write,
-                        FileShare.None, buffer.Length, FileOptions.Asynchronous | FileOptions.SequentialScan);
-                    long written = 0;
-                    int count;
-                    while ((count = await input.ReadAsync(buffer.AsMemory(), Engine.Token).ConfigureAwait(false)) > 0)
-                    {
-                        written += count;
-                        if (written > reader.Entry.Size)
-                            throw new IOException("Extracted size differs from archive listing.");
-                        await output.WriteAsync(buffer.AsMemory(0, count), Engine.Token).ConfigureAwait(false);
-                        done += count;
-                        int percent = (int)(100.0 * done / Math.Max(1, total));
-                        if (percent != lastPercent)
-                        {
-                            report("Etapa: " + percent + "%");
-                            lastPercent = percent;
-                        }
-                    }
-                    if (written != reader.Entry.Size)
-                        throw new IOException("Incomplete extraction.");
-                }
-                return;
-            }
-            catch (Exception ex) when (Unsupported(ex))
-            {
-                SelectFallback(path, ex.Message);
-                FileSystemPaths.DeleteWorkDirectory(destination, Path.GetDirectoryName(destination));
-                Directory.CreateDirectory(destination);
+                Engine.ThrowIfCancelled();
+                if (reader.Entry.IsDirectory) continue;
+                using var input = reader.OpenEntryStream();
+                await CopyEntryAsync(reader.Entry, input).ConfigureAwait(false);
             }
         }
-        await fallback.ListAsync(path, destination).ConfigureAwait(false);
-        await fallback.ExtractAsync(path, destination).ConfigureAwait(false);
+        else
+        {
+            foreach (var entry in archive.Entries.Where(e => !e.IsDirectory))
+            {
+                Engine.ThrowIfCancelled();
+                using var input = entry.OpenEntryStream();
+                await CopyEntryAsync(entry, input).ConfigureAwait(false);
+            }
+        }
+
+        // Read to EOF so SharpCompress performs integrity checks before encoding begins.
+        async Task CopyEntryAsync(IEntry entry, Stream input)
+        {
+            if (!string.IsNullOrEmpty(entry.LinkTarget))
+                throw new IOException("Link not allowed.");
+            string target = FileSystemPaths.ResolveArchivePath(destination, entry.Key);
+            Directory.CreateDirectory(Path.GetDirectoryName(target));
+            FileSystemPaths.EnsureNoLinks(target);
+            await using var output = new FileStream(target, FileMode.CreateNew, FileAccess.Write,
+                FileShare.None, buffer.Length, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            long written = 0;
+            int count;
+            // SharpCompress RAR async reads can overrun entry boundaries; use checked sync reads.
+            while ((count = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                Engine.ThrowIfCancelled();
+                written += count;
+                if (written > entry.Size)
+                    throw new IOException("Extracted size differs from archive listing.");
+                await output.WriteAsync(buffer.AsMemory(0, count), Engine.Token).ConfigureAwait(false);
+                done += count;
+                int percent = (int)(100.0 * done / Math.Max(1, total));
+                if (percent != lastPercent)
+                {
+                    report("Etapa: " + percent + "%");
+                    lastPercent = percent;
+                }
+            }
+            if (written != entry.Size)
+                throw new IOException("Incomplete extraction.");
+        }
     }
 }

@@ -10,8 +10,6 @@ static class BundledTools
     public static void ValidateSelectedTools(EncoderSettings settings)
     {
         Validate(settings.ChdmanPath, ".exe");
-        Validate(settings.SevenZipExePath, ".exe");
-        Validate(settings.SevenZipDllPath, ".dll");
     }
 
     static void Validate(string path, string extension)
@@ -23,7 +21,7 @@ static class BundledTools
         FileSystemPaths.EnsureNoLinks(full);
     }
 
-    // Copies selected tools to an isolated cache so 7z.exe can find 7z.dll beside it.
+    // Stages chdman in an isolated, integrity-checked cache.
     public static string Stage(EncoderSettings settings = null)
     {
         if (settings != null) ValidateSelectedTools(settings);
@@ -36,8 +34,8 @@ static class BundledTools
             }
 
         string[] selected = settings == null
-            ? new[] { "", "", "" }
-            : new[] { settings.ChdmanPath, settings.SevenZipExePath, settings.SevenZipDllPath };
+            ? new[] { "" }
+            : new[] { settings.ChdmanPath };
         using (var hash = SHA256.Create())
         using (var signature = new MemoryStream())
         {
@@ -62,7 +60,7 @@ static class BundledTools
         Tools = Path.Combine(root, id);
         Directory.CreateDirectory(Tools);
         FileSystemPaths.EnsureNoLinks(Tools);
-        string[] names = { "chdman.exe", "7z.exe", "7z.dll" };
+        string[] names = { "chdman.exe" };
         for (int index = 0; index < names.Length; index++)
         {
             string name = names[index];

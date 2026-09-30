@@ -12,8 +12,7 @@ sealed partial class MainWindow
         var technologies = Localization.T("Built: ") + BuildInfo.Date
             + "\nC# 14 • .NET 10 • Windows x64"
             + "\nWinUI 3 / Windows App SDK 2.5.1 • WebView2 1.0.4191.47"
-            + "\nSharpCompress 1.0.0 • 7-Zip "
-            + (Localization.IsPortuguese ? "de reserva" : "fallback")
+            + "\nSharpCompress 1.0.0"
             + "\n\nCHDman: MAME 0.289, 14/09/2026"
             + "\nC++20 / GCC 16.2 / Zen 3 / LTO. "
             + (Localization.IsPortuguese ? "Binário original preservado." : "Original binary preserved.")

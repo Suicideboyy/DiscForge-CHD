@@ -5,9 +5,13 @@ static class AppChangelog
     // User-visible features and fixes since the first C# version.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.4.0 — 30/09/2026", "",
+        "• Archives are extracted with SharpCompress without the 7-Zip application or DLL.",
+        "• Optional extraction to an existing RAM disk, with memory and capacity checks.",
+        "• RAM extraction requires more than 12 GiB total and at least 5 GiB available; CHD output stays on disk.", "",
         "2.3.0 — 29/09/2026", "",
         "• Multi-file BIN discs without CUE can be reconstructed when their track layout is identifiable.",
-        "• RAR extraction handles valid hard links and retries CRC errors with 7-Zip.",
+        "• Fixed false link detection in the former 7-Zip RAR fallback.",
         "• Automatic system detection distinguishes PS1 and PS2; selected-platform filtering remains available.",
         "• English and Brazilian Portuguese interface, clearer encoding help and a reset button.",
         "• Crash logs and a report issue action are available.", "",
@@ -40,9 +44,13 @@ static class AppChangelog
 
     public static readonly string PortugueseText = String.Join("\r\n", new[]
     {
+        "2.4.0 — 30/09/2026", "",
+        "• Extração com SharpCompress sem o aplicativo ou a DLL do 7-Zip.",
+        "• Extração opcional em unidade RAM já instalada, com verificações de memória e capacidade.",
+        "• Exige mais de 12 GiB totais e pelo menos 5 GiB livres; o CHD permanece em disco.", "",
         "2.3.0 — 29/09/2026", "",
         "• Discos BIN com várias faixas e sem CUE podem ser reconstruídos quando o arranjo é identificável.",
-        "• Extração RAR aceita links válidos e tenta novamente com 7-Zip após erros de CRC.",
+        "• Corrigida a falsa detecção de links na antiga extração RAR de reserva.",
         "• A detecção automática distingue PS1 e PS2; o filtro pela plataforma escolhida continua disponível.",
         "• Interface em inglês e português brasileiro, ajuda de codificação mais clara e botão de restauração.",
         "• Registro de falhas e ação para relatar problemas.", "",

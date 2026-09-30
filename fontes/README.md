@@ -6,7 +6,7 @@
 |---|---|
 | Desktop | WinUI layout, settings, contextual help, conversion events, telemetry and WebView2 panel |
 | Processing | Batch control, encoding, verification, resume and reports |
-| Archives | SharpCompress extraction and 7-Zip fallback |
+| Archives | SharpCompress extraction and volume discovery |
 | Infrastructure | Processes, JSON, HTTP, system counters and bundled tools |
 | Services | Database lookup, cache and covers without UI dependencies |
 | Media / Storage | Disc images, CUE, serials, output names and file integrity |
@@ -21,3 +21,5 @@ Diagnostic commands: `--run-test input output PS2`, `--auto-test input output PS
 `build.ps1` creates the versioned package. Update AppInfo.cs and AssemblyInfo.cs together for a new application release. BuildInfo.cs is generated during compilation.
 
 Version 2.3: disc boot data classifies PS1/PS2; archive extraction precedes the existing-output check. `Localization` owns visible strings, `CrashReporter` bounds session logs, and `IssueReport` creates a small ZIP for user-reviewed email drafts. A generated CUE never authorizes deletion of the source archive.
+
+Version 2.4: MemoryStatus reads physical RAM; RamWorkspace verifies an existing memory drive, applies capacity limits and owns only a unique temporary folder. ArchiveReader uses SharpCompress alone. --ram-test exercises disk fallback with an ordinary input drive.

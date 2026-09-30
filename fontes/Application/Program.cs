@@ -15,24 +15,17 @@ static class Program
         {
             CrashReporter.Initialize();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            if (args.Length == 4 && args[0] == "--tools-test")
+            if (args.Length == 2 && args[0] == "--tools-test")
             {
-                BundledTools.Stage(new EncoderSettings
-                {
-                    ChdmanPath = args[1],
-                    SevenZipExePath = args[2],
-                    SevenZipDllPath = args[3]
-                });
-                return File.Exists(Path.Combine(BundledTools.Tools, "chdman.exe"))
-                    && File.Exists(Path.Combine(BundledTools.Tools, "7z.exe"))
-                    && File.Exists(Path.Combine(BundledTools.Tools, "7z.dll")) ? 0 : 1;
+                BundledTools.Stage(new EncoderSettings { ChdmanPath = args[1] });
+                return File.Exists(Path.Combine(BundledTools.Tools, "chdman.exe")) ? 0 : 1;
             }
             if (args.Length == 3 && args[0] == "--archive-test")
             {
                 BundledTools.Stage();
                 Directory.CreateDirectory(args[2]);
                 var messages = new List<string>();
-                var reader = new ArchiveReader(new ToolRunner(messages.Add, () => args[2]), messages.Add);
+                var reader = new ArchiveReader(messages.Add);
                 reader.ListAsync(args[1], args[2]).GetAwaiter().GetResult();
                 reader.ExtractAsync(args[1], args[2]).GetAwaiter().GetResult();
                 File.WriteAllLines(args[2] + ".log", messages);
@@ -43,7 +36,7 @@ static class Program
                 File.Copy(IssueReport.Create(args[1]), args[2], true);
                 return new FileInfo(args[2]).Length <= IssueReport.MaxBytes ? 0 : 1;
             }
-            if (args.Length == 4 && (args[0] is "--run-test" or "--stop-test" or "--delete-test" or "--cancel-test" or "--auto-test"))
+            if (args.Length == 4 && (args[0] is "--run-test" or "--stop-test" or "--delete-test" or "--cancel-test" or "--auto-test" or "--ram-test"))
                 return RunTest(args);
             if (args.Length == 3 && (args[0] is "--cover-test" or "--cover-test-ps1"))
             {
@@ -80,6 +73,8 @@ static class Program
             Output = args[2],
             Platform = args[3],
             AutoDetectSystem = args[0] == "--auto-test",
+            UseRamExtraction = args[0] == "--ram-test",
+            RamDiskPath = args[0] == "--ram-test" ? args[1] : "",
             Online = false,
             Delete = args[0] == "--delete-test",
             Threads = Math.Min(4, Environment.ProcessorCount)
