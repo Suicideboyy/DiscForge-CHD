@@ -32,7 +32,10 @@ sealed partial class MainWindow
             bool? previousRamChoice = ramExtraction.IsChecked;
             ramDiskPath.Text = Path.GetTempPath();
             RefreshRamAvailability();
-            if (ramExtraction.IsEnabled)
+            if (MemoryStatus.TryRead(out var currentMemory) &&
+                ramExtraction.IsEnabled != currentMemory.Eligible)
+                throw new InvalidOperationException("RAM checkbox must depend on physical memory, not the drive path.");
+            if (RamWorkspace.TryValidateDrive(ramDiskPath.Text, out _, out _))
                 throw new InvalidOperationException("RAM extraction accepted an ordinary disk.");
             SetSettingsEnabled(false);
             if (ramDiskPath.IsEnabled || ramExtraction.IsEnabled || toolSettingsPage.IsEnabled)
@@ -60,6 +63,18 @@ sealed partial class MainWindow
             dvdCodecChoices[4].IsChecked = true;
             if (dvdCodecChoices[4].IsChecked == true)
                 throw new InvalidOperationException("The four-codec limit was not enforced.");
+            bool?[] previousCd = cdCodecChoices.ConvertAll(choice => choice.IsChecked).ToArray();
+            bool? previousLegacy = legacyCompatibility.IsChecked;
+            legacyCompatibility.IsChecked = false;
+            foreach (var choice in cdCodecChoices) choice.IsChecked = false;
+            if (CodecSelectionError() is not string codecMessage || !codecMessage.Contains("CD"))
+                throw new InvalidOperationException("Missing CD codecs were not explained.");
+            legacyCompatibility.IsChecked = true;
+            if (cdHunk.IsEnabled || dvdHunk.IsEnabled || cdCodecChoices[0].IsEnabled ||
+                dvdCodecChoices[0].IsEnabled || CodecSelectionError() != null)
+                throw new InvalidOperationException("Legacy profile did not override modern encoding options.");
+            legacyCompatibility.IsChecked = previousLegacy;
+            for (int i = 0; i < cdCodecChoices.Count; i++) cdCodecChoices[i].IsChecked = previousCd[i];
             await SaveSnapshotAsync(destination + ".png");
             advanced.IsExpanded = true;
             await Task.Delay(300);

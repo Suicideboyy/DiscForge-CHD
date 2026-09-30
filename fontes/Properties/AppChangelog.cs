@@ -5,6 +5,11 @@ static class AppChangelog
     // User-visible features and fixes since the first C# version.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.5.0 — 30/09/2026", "",
+        "• RAM extraction can be selected when physical memory is sufficient; missing RAM drive guidance is clearer.",
+        "• Missing codecs are explained before conversion starts.",
+        "• PS1 covers can fall back to Libretro thumbnails.",
+        "• Compatibility with older devices saves CHD version 4 with zlib.", "",
         "2.4.0 — 30/09/2026", "",
         "• Archives are extracted with SharpCompress without the 7-Zip application or DLL.",
         "• Optional extraction to an existing RAM disk, with memory and capacity checks.",
@@ -44,6 +49,11 @@ static class AppChangelog
 
     public static readonly string PortugueseText = String.Join("\r\n", new[]
     {
+        "2.5.0 — 30/09/2026", "",
+        "• A extração em RAM pode ser marcada com memória suficiente; orientação da unidade RAM mais clara.",
+        "• Codecs ausentes são explicados antes da conversão.",
+        "• Capas de PS1 podem usar miniaturas Libretro como reserva.",
+        "• Compatibilidade com dispositivos antigos salva CHD versão 4 com zlib.", "",
         "2.4.0 — 30/09/2026", "",
         "• Extração com SharpCompress sem o aplicativo ou a DLL do 7-Zip.",
         "• Extração opcional em unidade RAM já instalada, com verificações de memória e capacidade.",

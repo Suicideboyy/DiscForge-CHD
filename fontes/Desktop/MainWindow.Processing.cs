@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml.Controls;
 
 sealed partial class MainWindow
 {
@@ -96,7 +97,21 @@ sealed partial class MainWindow
     {
         try
         {
-            if (!double.IsFinite(threads.Value) || !double.IsFinite(cdHunk.Value) || !double.IsFinite(dvdHunk.Value))
+            string codecError = CodecSelectionError();
+            if (codecError != null)
+            {
+                status.Text = codecError;
+                await new ContentDialog
+                {
+                    XamlRoot = tabs.XamlRoot,
+                    Title = Localization.IsPortuguese ? "Selecione os codecs" : "Select codecs",
+                    Content = codecError,
+                    CloseButtonText = "OK"
+                }.ShowAsync();
+                return;
+            }
+            bool legacy = legacyCompatibility.IsChecked == true;
+            if (!double.IsFinite(threads.Value) || (!legacy && (!double.IsFinite(cdHunk.Value) || !double.IsFinite(dvdHunk.Value))))
                 throw new InvalidOperationException("Enter valid thread and hunk values.");
             var options = new EncoderSettings
             {
@@ -104,16 +119,17 @@ sealed partial class MainWindow
                 Output = output.Text,
                 Platform = (string)platform.SelectedItem,
                 Threads = checked((int)threads.Value),
-                CdHunk = checked((int)cdHunk.Value),
-                DvdHunk = checked((int)dvdHunk.Value),
+                CdHunk = legacy ? 9792 : checked((int)cdHunk.Value),
+                DvdHunk = legacy ? 2048 : checked((int)dvdHunk.Value),
                 Cd = SelectedCodecs(cdCodecChoices),
                 Dvd = SelectedCodecs(dvdCodecChoices),
                 ChdmanPath = chdmanPath.Text.Trim(),
-                UseRamExtraction = ramExtraction.IsChecked == true && ramExtraction.IsEnabled,
+                UseRamExtraction = ramExtraction.IsChecked == true,
                 RamDiskPath = ramDiskPath.Text.Trim(),
                 Online = online.IsChecked == true,
                 Delete = delete.IsChecked == true,
-                AutoDetectSystem = autoDetect.IsChecked == true
+                AutoDetectSystem = autoDetect.IsChecked == true,
+                LegacyCompatibility = legacy
             };
             options.Validate();
             SavePreferences();
@@ -146,6 +162,20 @@ sealed partial class MainWindow
             stop.IsEnabled = false;
             stopNow.IsEnabled = false;
         }
+    }
+
+    /// <summary>Explain missing codecs before starting extraction or encoding.</summary>
+    string CodecSelectionError()
+    {
+        if (legacyCompatibility.IsChecked == true) return null;
+        bool needsDvd = autoDetect.IsChecked == true || (string)platform.SelectedItem == "PS2";
+        bool missingCd = SelectedCodecs(cdCodecChoices).Length == 0;
+        bool missingDvd = needsDvd && SelectedCodecs(dvdCodecChoices).Length == 0;
+        if (!missingCd && !missingDvd) return null;
+        string media = missingCd && missingDvd ? "CD / DVD" : missingCd ? "CD" : "DVD";
+        return Localization.IsPortuguese
+            ? $"Selecione pelo menos um codec de {media} em Opções de codificação. Cada codec define como os dados são comprimidos."
+            : $"Select at least one {media} codec in Encoding options. Each codec defines how the data is compressed.";
     }
 
     void RequestStop()

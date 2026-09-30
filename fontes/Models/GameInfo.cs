@@ -11,4 +11,6 @@ sealed class GameInfo
     public string Source = "";
     public string Image = "";
     public string Detail = "";
+    public string CoverProvider = "";
+    public string CoverUrl = "";
 }

@@ -7,9 +7,10 @@ static class GameHtml
 
     public static string Render(GameInfo game, byte[] cover, bool ps2 = true)
     {
-        string mime = ps2 ? "image/jpeg" : "image/png";
-        string covers = ps2 ? "xlenore/ps2-covers" : "xlenore/psx-covers";
-        string image = cover == null || cover.Length > 1048576
+        string mime = cover != null && cover.Length > 0 && cover[0] == 255 ? "image/jpeg" : "image/png";
+        string covers = game.CoverProvider.Length > 0 ? game.CoverProvider
+            : ps2 ? "xlenore/ps2-covers" : "xlenore/psx-covers";
+        string image = cover == null || cover.Length > 10000000
             ? "<div class='placeholder'>" + (Localization.IsPortuguese ? "Capa indisponível" : "Cover unavailable") + "</div>"
             : "<img alt='" + (Localization.IsPortuguese ? "Capa do jogo" : "Game cover")
                 + "' src='data:" + mime + ";base64," + Convert.ToBase64String(cover) + "'>";
@@ -26,6 +27,7 @@ static class GameHtml
             + "</p><p>" + Escape(game.Detection) + "</p><p>" + Escape(game.Lookup)
             + "</p><p>" + Escape(game.Detail) + "</p><small>" + Escape(game.Source)
             + "<br>" + Escape(game.Image) + "<br>" + Escape(game.DatabaseUrl)
-            + "<br>" + (Localization.IsPortuguese ? "Capas: " : "Covers: ") + covers + "</small></html>";
+            + "<br>" + (Localization.IsPortuguese ? "Capas: " : "Covers: ") + Escape(covers)
+            + "<br>" + Escape(game.CoverUrl) + "</small></html>";
     }
 }

@@ -1,4 +1,8 @@
-DiscForge CHD 2.4.0 — Windows x64 — 30/09/2026
+DiscForge CHD 2.5.0 — Windows x64 — 30/09/2026
+
+Versão 2.5: marque a extração em RAM com mais de 12 GiB totais e pelo menos 5 GiB livres. Uma unidade RAM existente e verificada ainda é necessária: selecione-a em Configurações. Sem ela, usa disco e registra o motivo. Memória e espaço são verificados novamente por arquivo; nenhum driver ou unidade RAM é instalado.
+
+Selecione pelo menos um codec CD e um DVD para PS2 ou detecção automática. O aplicativo explica opções ausentes antes de iniciar. Compatibilidade com dispositivos antigos cria CHD v4 com zlib e hunk fixo (CD 9792 bytes; DVD 2048 bytes), desabilitando as escolhas modernas. Os arquivos podem ficar maiores e o suporte depende do firmware. Capas de PS1 ausentes podem usar miniaturas Libretro como reserva.
 
 Extraia o ZIP completo e execute DiscForge-CHD.exe. Mantenha juntas as pastas app, documentation e licenses. O aplicativo exige Windows 10 2004 (19041) ou superior. WebView2 exibe capas, mas não é necessário para converter.
 

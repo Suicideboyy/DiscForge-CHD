@@ -15,6 +15,7 @@ static class Localization
         ["Game lookup"] = "Consulta de jogos", ["Remove original"] = "Remover original",
         ["Auto-detect system"] = "Detectar sistema automaticamente",
         ["Use RAM extraction"] = "Descompactar em RAM",
+        ["Compatibility with older devices"] = "Compatibilidade com dispositivos antigos",
         ["Existing RAM drive"] = "Unidade de RAM existente",
         ["Select an existing RAM drive"] = "Selecione uma unidade de RAM existente",
         ["CURRENT INPUT"] = "ENTRADA ATUAL", ["CPU · APP"] = "CPU · APP",

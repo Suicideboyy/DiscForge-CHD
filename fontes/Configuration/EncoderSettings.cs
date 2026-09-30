@@ -8,6 +8,7 @@ class EncoderSettings
     public string Output;
     public string Platform = "PS2";
     public bool AutoDetectSystem = false;
+    public bool LegacyCompatibility = false;
     public string Cd = "cdlz,cdzs,cdzl,cdfl";
     public string Dvd = "lzma,zstd,zlib,flac";
     public int CdHunk = 2448;
@@ -61,10 +62,11 @@ class EncoderSettings
             throw new Exception("Invalid platform.");
         }
 
-        CheckCodecs(Cd, new[]{"cdlz", "cdzs", "cdzl", "cdfl"});
-        CheckCodecs(Dvd, new[]{"lzma", "zstd", "zlib", "flac", "huff"});
-        if (CdHunk < 2448 || CdHunk > 1048576 || CdHunk % 2448 != 0 || DvdHunk < 2048 || DvdHunk > 1048576
-            || DvdHunk % 2048 != 0)
+        if (!LegacyCompatibility) CheckCodecs(Cd, new[]{"cdlz", "cdzs", "cdzl", "cdfl"}, "CD");
+        if (!LegacyCompatibility && (Platform == "PS2" || AutoDetectSystem))
+            CheckCodecs(Dvd, new[]{"lzma", "zstd", "zlib", "flac", "huff"}, "DVD");
+        if (!LegacyCompatibility && (CdHunk < 2448 || CdHunk > 1048576 || CdHunk % 2448 != 0 || DvdHunk < 2048 || DvdHunk > 1048576
+            || DvdHunk % 2048 != 0))
         {
             throw new Exception("Invalid hunk size for the media.");
         }
@@ -76,8 +78,10 @@ class EncoderSettings
         BundledTools.ValidateSelectedTools(this);
     }
 
-    static void CheckCodecs(string codecs, string[] allowed)
+    static void CheckCodecs(string codecs, string[] allowed, string media)
     {
+        if (string.IsNullOrWhiteSpace(codecs))
+            throw new Exception($"Select at least one {media} codec in Encoding options.");
         var set = new HashSet<string>();
         foreach (string c in codecs.Split(','))
         {

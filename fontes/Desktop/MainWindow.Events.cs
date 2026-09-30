@@ -17,6 +17,8 @@ sealed partial class MainWindow
         platform.SelectionChanged += (_, _) => { UpdatePlatform(); game.Reset(); };
         autoDetect.Checked += (_, _) => UpdatePlatform();
         autoDetect.Unchecked += (_, _) => UpdatePlatform();
+        legacyCompatibility.Checked += (_, _) => UpdatePlatform();
+        legacyCompatibility.Unchecked += (_, _) => UpdatePlatform();
         resetDefaults.Click += (_, _) => RestoreDefaults();
         language.SelectionChanged += (_, _) =>
         {

@@ -20,6 +20,7 @@ sealed partial class MainWindow
     readonly CheckBox online = new() { Content = "Identify games by serial", IsChecked = true };
     readonly CheckBox delete = new() { Content = "Remove archive after success", IsChecked = false };
     readonly CheckBox autoDetect = new() { Content = "Auto-detect system", IsChecked = false };
+    readonly CheckBox legacyCompatibility = new() { IsChecked = false };
     readonly ComboBox language = new() { ItemsSource = new[] { "English", "Português (Brasil)" }, SelectedIndex = 0 };
     readonly Button start = new() { Content = "Start conversion", MinHeight = 42 };
     readonly Button stop = new() { Content = "Stop after current", IsEnabled = false, MinHeight = 42 };

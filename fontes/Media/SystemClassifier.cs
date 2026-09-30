@@ -9,7 +9,11 @@ using System.Text.RegularExpressions;
 static class SystemClassifier
 {
     public static string Detect(string path, string cueText, string root)
+        => Detect(path, cueText, root, out _);
+
+    public static string Detect(string path, string cueText, string root, out string serial)
     {
+        serial = "";
         string image = path;
         int sector = 2048, offset = 0;
         if (MediaFiles.Extension(path) == ".cue")
@@ -96,6 +100,11 @@ static class SystemClassifier
                     }
 
                     string cnf = Encoding.ASCII.GetString(ReadExtent(stream, start, size, sector, offset));
+                    var executable = Regex.Match(cnf,
+                        @"(?im)^\s*BOOT2?\s*=\s*cdrom0?:\s*[\\/]*([A-Z]{4})[_-](\d{3})[.\-_](\d{2})");
+                    if (executable.Success)
+                        serial = executable.Groups[1].Value.ToUpperInvariant() + "-"
+                            + executable.Groups[2].Value + executable.Groups[3].Value;
                     bool ps2 = Regex.IsMatch(cnf, @"(?im)^\s*BOOT2\s*=\s*cdrom0?:");
                     bool ps1 = Regex.IsMatch(cnf, @"(?im)^\s*BOOT\s*=\s*cdrom0?:");
                     return ps2 == ps1 ? "" : ps2 ? "PS2" : "PS1";

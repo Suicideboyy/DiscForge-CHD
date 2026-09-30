@@ -1,5 +1,9 @@
 # Third-party components
 
+DiscForge CHD 2.5.0.
+
+- Libretro PS1 thumbnails: https://github.com/libretro-thumbnails/Sony_-_PlayStation — online cover fallback; cover art is not bundled.
+
 - .NET 10 / SDK 10.0.401: https://github.com/dotnet/runtime — MIT and component notices.
 - Windows App SDK 2.5.1 / WinUI 3: https://github.com/microsoft/WindowsAppSDK — Microsoft/MIT licenses.
 - WebView2 SDK 1.0.4191.47: https://www.nuget.org/packages/Microsoft.Web.WebView2 — Microsoft license. The Evergreen Runtime is installed and updated separately by Microsoft.

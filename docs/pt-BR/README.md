@@ -2,6 +2,12 @@
 
 [English](../../README.md) · [Relatar erro](mailto:andrethiesen@live.com)
 
+Versão atual: **2.5.0**.
+
+A opção de RAM pode ser marcada com mais de 12 GiB totais e pelo menos 5 GiB livres. Escolha uma unidade RAM existente em Configurações; sem uma unidade válida, a extração usa disco e registra o motivo. Codecs ausentes recebem uma explicação antes da conversão. Capas de PS1 podem usar o acervo Libretro como reserva.
+
+**Compatibilidade com dispositivos antigos** grava CHD v4 com zlib, hunk de CD de 9792 bytes e DVD de 2048 bytes. Os arquivos podem ficar maiores; o suporte depende do firmware do dispositivo.
+
 Aplicativo Windows x64 para converter jogos de PlayStation 1 e 2 para CHD. Baixe o [ZIP da versão mais recente](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest), extraia tudo e execute `DiscForge-CHD.exe`. Requer Windows 10 2004 ou superior. .NET 10 e Windows App SDK estão incluídos; WebView2 é necessário apenas para exibir capas.
 
 O programa extrai ZIP, RAR e outros formatos somente com SharpCompress. Inspeciona as informações de inicialização do disco para identificar PS1 ou PS2. A detecção automática escolhe o perfil adequado; no modo manual, a conversão é recusada se o sistema não corresponder à seleção. Faixas BIN numeradas sem CUE podem receber um CUE temporário quando a estrutura é segura de inferir. Os arquivos originais são preservados nesse caso.

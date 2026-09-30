@@ -192,4 +192,23 @@ sealed class GameDatabase
         misses.Add(serial);
         return null;
     }
+
+    // PS1 titles use a platform-specific catalog; PS2 media lookups stay separate.
+    public GameRecord LookupPs1(string serial, string title)
+    {
+        if (!online) return null;
+        var entries = BackupGameCatalog.Match(BackupGameCatalog.LoadAsync(false).GetAwaiter().GetResult(),
+            serial, title);
+        string[] names = entries.Select(e => e.Name).Distinct().ToArray();
+        if (names.Length != 1) return null;
+        return new GameRecord
+        {
+            Serial = serial,
+            Title = names[0],
+            Type = "CD",
+            Provider = "Libretro / Redump PS1",
+            Url = BackupGameCatalog.Url(false),
+            Checked = DateTime.UtcNow.ToString("o")
+        };
+    }
 }

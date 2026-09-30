@@ -1,3 +1,11 @@
+2.5.0 — 2026-09-30
+PASS: portable build with zero warnings/errors; WinUI3/WebView2 smoke, RAM eligibility, empty-codec messages and legacy control locking.
+PASS: genuine v4 CD, six-track CD and DVD: modern chdman verification and extracted SHA256 roundtrip; Unicode output and invalid-input cleanup.
+PASS: application converts a copied PS1 CHD to v4, verifies it and keeps the original; v4 filenames are separate from v5.
+PASS: ten cover/catalog checks, including live Card Captor Sakura Japanese backup cover (461682 bytes), authoritative serial and cache.
+LIMIT: specific legacy firmware and an ancient chdman reader were not available for testing.
+LIMIT: no existing RAM drive was present; real RAM extraction remains untested.
+
 2.4.0 — 2026-09-30
 PASS: portable build with zero warnings/errors; .NET ZIP creation and readable package entries, no 7z.exe/7z.dll.
 PASS: real six-track RAR copied to work, extracted with SharpCompress CRC/size checks, converted and verified; CHD SHA-256 matches 2.3.0.

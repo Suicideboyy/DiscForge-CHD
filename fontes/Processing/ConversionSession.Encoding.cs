@@ -127,6 +127,9 @@ sealed partial class ConversionSession
             }
 
             string output = outputNaming.Build(game, source, media, index, total);
+            if (_settings.LegacyCompatibility)
+                output = Path.Combine(Path.GetDirectoryName(output),
+                    Path.GetFileNameWithoutExtension(output) + " [CHD v4].chd");
             if (!outputs.Add(output))
             {
                 throw new IOException("Two discs produced the same output name.");
@@ -142,6 +145,11 @@ sealed partial class ConversionSession
 
             int hunk = game.Type == "CD" ? _settings.CdHunk : _settings.DvdHunk;
             string codecs = game.Type == "CD" ? _settings.Cd : _settings.Dvd;
+            if (_settings.LegacyCompatibility)
+            {
+                hunk = game.Type == "CD" ? 9792 : 2048;
+                codecs = game.Type == "CD" ? "cdzl" : "zlib";
+            }
             Say("Tipo: " + game.Type + " | Hunk: " + hunk + " | Codecs: " + codecs);
             Show(game);
             string candidate = Path.Combine(folder, "encoded.chd");
@@ -149,7 +157,16 @@ sealed partial class ConversionSession
             await toolRunner.RequireSuccessAsync("chdman.exe", true, game.Type == "CD" ? "createcd"
                 : "createdvd", "-i", input, "-o", candidate, "-hs", hunk.ToString(), "-c", codecs, "-np",
                 _settings.Threads.ToString()).ConfigureAwait(false);
-            if (chd && new FileInfo(media.Path).Length <= new FileInfo(candidate).Length
+            // Write a real v4 container before checking and publishing the output.
+            if (_settings.LegacyCompatibility)
+            {
+                string legacy = Path.Combine(folder, "compatible.chd");
+                Say("Converting to CHD v4 / zlib: " + game.Title);
+                await toolRunner.RequireSuccessAsync("chd-v4.exe", true, candidate, legacy)
+                    .ConfigureAwait(false);
+                candidate = legacy;
+            }
+            if (!_settings.LegacyCompatibility && chd && new FileInfo(media.Path).Length <= new FileInfo(candidate).Length
                 && (game.System == "PS1" || oldHunk == hunk))
             {
                 candidate = media.Path;
@@ -203,7 +220,8 @@ sealed partial class ConversionSession
 
     void ClassifyAndEnrich(GameInfo game, string path, string cue, string root)
     {
-        game.System = SystemClassifier.Detect(path, cue, root);
+        game.System = SystemClassifier.Detect(path, cue, root, out string bootSerial);
+        if (string.IsNullOrEmpty(game.Serial)) game.Serial = bootSerial;
         if (game.System.Length == 0)
         {
             throw new IOException("PS1/PS2 system is unknown; SYSTEM.CNF could not be verified.");

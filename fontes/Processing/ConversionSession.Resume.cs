@@ -45,7 +45,14 @@ sealed partial class ConversionSession
         }
         else
         {
-            game.Lookup = "PS1 disc header";
+            GameRecord hit = database.LookupPs1(game.Serial, game.Title);
+            game.Lookup = hit == null ? "PS1 disc header" : "Serial confirmed / " + hit.Provider;
+            if (hit != null)
+            {
+                if (!String.IsNullOrWhiteSpace(hit.Title)) game.Title = hit.Title;
+                game.Type = "CD";
+                game.DatabaseUrl = hit.Url;
+            }
         }
 
         game.Status = "PROCESSING";

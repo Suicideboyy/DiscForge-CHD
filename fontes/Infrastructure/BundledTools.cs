@@ -34,8 +34,8 @@ static class BundledTools
             }
 
         string[] selected = settings == null
-            ? new[] { "" }
-            : new[] { settings.ChdmanPath };
+            ? new[] { "", "" }
+            : new[] { settings.ChdmanPath, "" };
         using (var hash = SHA256.Create())
         using (var signature = new MemoryStream())
         {
@@ -60,7 +60,7 @@ static class BundledTools
         Tools = Path.Combine(root, id);
         Directory.CreateDirectory(Tools);
         FileSystemPaths.EnsureNoLinks(Tools);
-        string[] names = { "chdman.exe" };
+        string[] names = { "chdman.exe", "chd-v4.exe" };
         for (int index = 0; index < names.Length; index++)
         {
             string name = names[index];

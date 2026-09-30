@@ -84,15 +84,24 @@ sealed class GamePanel : Grid, IDisposable
     {
         string serial = MediaFiles.NormalizeSerial(info.Serial);
         if (serial.Length == 0) serial = MediaFiles.NormalizeSerial(info.Image + " " + info.Source);
-        if (current.Serial != serial || currentPs2 != ps2) { generation++; cover = null; loading = false; }
+        if (current.Serial != serial || currentPs2 != ps2
+            || serial.Length == 0 && current.Source != info.Source)
+        { generation++; cover = null; loading = false; }
+        if (cover != null)
+        {
+            info.CoverProvider = current.CoverProvider;
+            info.CoverUrl = current.CoverUrl;
+        }
         currentPs2 = ps2;
         info.Serial = serial;
         current = info;
         Render();
-        if (!loading && serial.Length > 0) await LoadCoverAsync();
+        if (!loading && cover == null && (serial.Length > 0 || info.Title.Length > 0))
+            await LoadCoverAsync();
     }
 
-    public Task RetryAsync() => cover == null && !loading && current.Serial.Length > 0
+    public Task RetryAsync() => cover == null && !loading
+        && (current.Serial.Length > 0 || current.Title.Length > 0)
         && DateTime.UtcNow - attempted > TimeSpan.FromSeconds(30) ? LoadCoverAsync() : Task.CompletedTask;
 
     // Ignore late replies so a previous game cover is never shown.
@@ -101,10 +110,16 @@ sealed class GamePanel : Grid, IDisposable
         int request = generation;
         loading = true;
         attempted = DateTime.UtcNow;
-        byte[] result = await CoverService.Load(current.Serial, currentPs2);
+        CoverImage result = await CoverService.LoadDetails(current.Serial, current.Title,
+            currentPs2, current.Source);
         if (disposed || request != generation) return;
         loading = false;
-        if (result != null) cover = result;
+        if (result != null)
+        {
+            cover = result.Bytes;
+            current.CoverProvider = result.Provider;
+            current.CoverUrl = result.Url;
+        }
         Render();
     }
 

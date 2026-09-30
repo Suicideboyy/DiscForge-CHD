@@ -18,6 +18,7 @@ sealed partial class MainWindow
         public string RamDiskPath { get; set; } = "";
         public string Language { get; set; } = "en";
         public bool AutoDetectSystem { get; set; }
+        public bool LegacyCompatibility { get; set; }
     }
 
     // Keep output under input unless the user customized it during this session.
@@ -44,6 +45,7 @@ sealed partial class MainWindow
             Localization.SetLanguage(saved.Language);
             language.SelectedIndex = Localization.IsPortuguese ? 1 : 0;
             autoDetect.IsChecked = saved.AutoDetectSystem;
+            legacyCompatibility.IsChecked = saved.LegacyCompatibility;
             input.Text = saved.Input;
             FollowInputFolder();
             chdmanPath.Text = saved.ChdmanPath;
@@ -65,7 +67,8 @@ sealed partial class MainWindow
                 UseRamExtraction = ramExtraction.IsChecked == true,
                 RamDiskPath = ramDiskPath.Text.Trim(),
                 Language = Localization.Language,
-                AutoDetectSystem = autoDetect.IsChecked == true
+                AutoDetectSystem = autoDetect.IsChecked == true,
+                LegacyCompatibility = legacyCompatibility.IsChecked == true
             };
             File.WriteAllText(PreferencesPath, JsonSerializer.Serialize(saved));
         }
@@ -96,6 +99,7 @@ sealed partial class MainWindow
     {
         platform.SelectedIndex = 0;
         autoDetect.IsChecked = false;
+        legacyCompatibility.IsChecked = false;
         threads.Value = MachineInfo.LogicalProcessors;
         cdHunk.Value = 2448;
         dvdHunk.Value = 2048;
@@ -121,6 +125,7 @@ sealed partial class MainWindow
         online.Content = Localization.T("Identify games by serial");
         delete.Content = Localization.T("Remove archive after success");
         autoDetect.Content = Localization.T("Auto-detect system");
+        legacyCompatibility.Content = Localization.T("Compatibility with older devices");
         advanced.Header = Localization.T("Encoding options");
         aboutChanges.Header = Localization.T("Changelog");
         resetDefaults.Content = Localization.T("Reset defaults");

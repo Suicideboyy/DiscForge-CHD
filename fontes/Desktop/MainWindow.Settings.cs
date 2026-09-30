@@ -41,6 +41,7 @@ sealed partial class MainWindow
         advanced.HorizontalAlignment = HorizontalAlignment.Stretch;
         advanced.HorizontalContentAlignment = HorizontalAlignment.Stretch;
         encoder.Children.Add(advanced);
+        encoder.Children.Add(WithHelp(legacyCompatibility, "Compatibility with older devices", OptionHelp.LegacyCompatibility));
         encoder.Children.Add(WithHelp(autoDetect, "Auto-detect system", OptionHelp.AutoDetect));
         encoder.Children.Add(WithHelp(ramExtraction, "Use RAM extraction", OptionHelp.RamExtraction));
         encoder.Children.Add(ramStatus);
@@ -160,9 +161,12 @@ sealed partial class MainWindow
     void UpdatePlatform()
     {
         bool ps2 = (string)platform.SelectedItem == "PS2";
-        dvdHunk.IsEnabled = ps2 || autoDetect.IsChecked == true;
+        bool modern = legacyCompatibility.IsChecked != true;
+        cdHunk.IsEnabled = modern;
+        dvdHunk.IsEnabled = modern && (ps2 || autoDetect.IsChecked == true);
         online.IsEnabled = delete.IsEnabled = ps2 || autoDetect.IsChecked == true;
-        foreach (var choice in dvdCodecChoices) choice.IsEnabled = ps2;
+        foreach (var choice in cdCodecChoices) choice.IsEnabled = modern;
+        foreach (var choice in dvdCodecChoices) choice.IsEnabled = modern && (ps2 || autoDetect.IsChecked == true);
     }
 
     void SetSettingsEnabled(bool enabled)

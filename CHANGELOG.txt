@@ -1,3 +1,9 @@
+2.5.0 — 2026-09-30
+- RAM checkbox uses physical memory eligibility; clearer guidance for existing RAM drives and disk fallback.
+- Missing codec selections are explained before conversion.
+- Libretro thumbnail fallback for missing PS1 covers.
+- Compatibility with older devices: CHD v4 with fixed zlib and media-specific hunks.
+
 2.4.0 — 2026-09-30
 - Removed the 7-Zip application/DLL and its packaging dependency.
 - Optional archive extraction to an existing verified RAM disk, gated by >12 GiB total and >=5 GiB available memory.

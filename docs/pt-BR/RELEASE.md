@@ -1,8 +1,8 @@
-﻿# DiscForge CHD 2.4.0
+# DiscForge CHD 2.5.0
 
-- Removidos o aplicativo e a DLL do 7-Zip, inclusive da compilação. SharpCompress mantém os formatos suportados, incluindo .7z.
-- Extração opcional em unidade RAM existente e verificada. Exige mais de 12 GiB de RAM total e pelo menos 5 GiB livres.
-- Verificação por jogo mantém uma reserva de memória. Se faltar RAM ou espaço, usa disco e registra o motivo. O CHD é gravado em disco.
-- A limpeza remove apenas a pasta temporária do aplicativo; a unidade RAM nunca é desmontada e nenhum driver é instalado.
+- Opção de RAM segue os limites físicos (>12 GiB totais, >=5 GiB livres). O texto diferencia memória suficiente de unidade RAM existente; unidade ausente ou inválida usa disco e registra o motivo.
+- Codecs CD/DVD ausentes recebem uma explicação antes do processamento.
+- Capas de PS1 podem usar o repositório Libretro como reserva.
+- Compatibilidade com dispositivos antigos grava CHD v4 com zlib, hunk de CD de 9792 bytes e DVD de 2048 bytes. O arquivo pode ficar maior; o suporte depende do firmware.
 
-Extraia o ZIP completo da versão 2.4.0 e execute DiscForge-CHD.exe. Erros: andrethiesen@live.com.
+Extraia o ZIP completo DiscForge-CHD-2.5.0-win-x64.zip e execute DiscForge-CHD.exe. Requer Windows 10 2004+ x64. Erros: andrethiesen@live.com.
