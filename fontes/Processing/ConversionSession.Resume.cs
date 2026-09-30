@@ -10,7 +10,11 @@ sealed partial class ConversionSession
         {
             Source = source,
             Image = media.Path,
-            Title = MediaFiles.OutputStem(source)
+            Title = MediaFiles.OutputStem(source),
+            SourceFormat = Path.GetExtension(source).TrimStart('.').ToUpperInvariant(),
+            SourceSize = new FileInfo(source).Length,
+            CurrentFormat = Path.GetExtension(media.Path).TrimStart('.').ToUpperInvariant(),
+            CurrentSize = new FileInfo(media.Path).Length
         };
         game.Serial = MediaFiles.NormalizeSerial(Path.GetFileName(media.Path));
         if (game.Serial.Length == 0 && media.CueText != null)

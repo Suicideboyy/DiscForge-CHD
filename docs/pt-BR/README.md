@@ -2,9 +2,9 @@
 
 [English](../../README.md) · [Relatar erro](mailto:andrethiesen@live.com)
 
-Versão atual: **2.5.0**.
+Versão atual: **2.5.1**.
 
-A opção de RAM pode ser marcada com mais de 12 GiB totais e pelo menos 5 GiB livres. Escolha uma unidade RAM existente em Configurações; sem uma unidade válida, a extração usa disco e registra o motivo. Codecs ausentes recebem uma explicação antes da conversão. Capas de PS1 podem usar o acervo Libretro como reserva.
+O painel do jogo mostra data de lançamento quando informada pelo catálogo, formato e tamanho atuais. Informações indisponíveis são identificadas. A extração utiliza temporários em disco; a opção de unidade RAM foi removida. Codecs ausentes recebem uma explicação antes da conversão. Capas de PS1 podem usar o acervo Libretro como reserva.
 
 **Compatibilidade com dispositivos antigos** grava CHD v4 com zlib, hunk de CD de 9792 bytes e DVD de 2048 bytes. Os arquivos podem ficar maiores; o suporte depende do firmware do dispositivo.
 

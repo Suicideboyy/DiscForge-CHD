@@ -1,8 +1,6 @@
-DiscForge CHD 2.5.0
+DiscForge CHD 2.5.1
 
-- RAM extraction checkbox follows physical memory eligibility (>12 GiB total, >=5 GiB free). Clear guidance distinguishes available memory from an existing RAM drive; invalid/missing drives fall back to disk with a reason.
-- Missing CD/DVD codec selections now receive an explanation before processing.
-- PS1 cover art can fall back to the Libretro thumbnail repository.
-- Compatibility with older devices writes CHD v4 using zlib, CD hunks of 9792 bytes and DVD hunks of 2048 bytes. Output may be larger; support depends on device firmware.
+- Removed the RAM-drive extraction option; extraction uses owned disk-backed temporary files.
+- The game panel replaces technical paths and lookup messages with game details: release date when available, current format and size.
 
-Extract the complete DiscForge-CHD-2.5.0-win-x64.zip and run DiscForge-CHD.exe. Windows 10 2004+ x64 is required. Report bugs: andrethiesen@live.com.
+Extract the complete DiscForge-CHD-2.5.1-win-x64.zip and run DiscForge-CHD.exe. Windows 10 2004+ x64 is required. Report bugs: andrethiesen@live.com.

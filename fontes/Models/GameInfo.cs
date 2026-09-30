@@ -13,4 +13,9 @@ sealed class GameInfo
     public string Detail = "";
     public string CoverProvider = "";
     public string CoverUrl = "";
+    public string ReleaseDate = "";
+    public string CurrentFormat = "";
+    public long CurrentSize;
+    public string SourceFormat = "";
+    public long SourceSize;
 }

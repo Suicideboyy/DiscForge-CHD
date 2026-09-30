@@ -1,6 +1,6 @@
-DiscForge CHD 2.5.0 — Windows x64 — 30/09/2026
+DiscForge CHD 2.5.1 — Windows x64 — 30/09/2026
 
-Versão 2.5: marque a extração em RAM com mais de 12 GiB totais e pelo menos 5 GiB livres. Uma unidade RAM existente e verificada ainda é necessária: selecione-a em Configurações. Sem ela, usa disco e registra o motivo. Memória e espaço são verificados novamente por arquivo; nenhum driver ou unidade RAM é instalado.
+Versão 2.5.1: a extração usa temporários em disco. A opção de unidade RAM foi removida porque chdman exige imagens com acesso aleatório em arquivos; a extração direta em memória pelo processo não é suportada. O painel mostra data de lançamento quando disponível, formato e tamanho atuais em vez de caminhos e mensagens técnicas.
 
 Selecione pelo menos um codec CD e um DVD para PS2 ou detecção automática. O aplicativo explica opções ausentes antes de iniciar. Compatibilidade com dispositivos antigos cria CHD v4 com zlib e hunk fixo (CD 9792 bytes; DVD 2048 bytes), desabilitando as escolhas modernas. Os arquivos podem ficar maiores e o suporte depende do firmware. Capas de PS1 ausentes podem usar miniaturas Libretro como reserva.
 
@@ -15,7 +15,3 @@ Arquivos ZIP/RAR e outros formatos são extraídos somente com SharpCompress. O 
 O aplicativo verifica o CHD antes de remover opcionalmente arquivos comprimidos. A exclusão fica desligada por padrão. Parar agora cancela a tarefa atual, remove temporários e mantém os originais. CPU e leitura/escrita representam o aplicativo e seus processos auxiliares.
 
 Logs ficam em pasta-de-entrada/temp/log.txt e em %LOCALAPPDATA%/DiscForge CHD/logs. Relatar erro gera ZIP de até 10 MB e abre um rascunho com anexo para revisão; nada é enviado automaticamente. E-mail: andrethiesen@live.com. Restaure as configurações padrão pela aba Configurações.
-
-Versão 2.4: escolha uma pasta de unidade RAM já instalada em Configurações e marque a extração em RAM. Exige mais de 12 GiB totais e pelo menos 5 GiB livres. Antes de cada arquivo, o aplicativo confere tamanho descompactado e capacidade da unidade, reservando memória para Windows e chdman. Se faltar memória ou a unidade não estiver disponível, usa disco e registra o motivo. Apaga somente sua pasta temporária e nunca desmonta a unidade do usuário. O CHD é gravado em disco. O aplicativo não instala drivers.
-
-São reconhecidas unidades Windows do tipo RAM e unidades ImDisk de memória. As configurações da unidade e do Windows podem permitir paginação; a redução de gravações intermediárias não garante ausência total de acesso ao disco.

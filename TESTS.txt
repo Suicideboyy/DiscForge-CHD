@@ -1,3 +1,11 @@
+2.5.1 — 2026-09-30
+PASS: portable build with zero warnings/errors; WinUI3/WebView2 and English/Portuguese interface smoke.
+PASS: no active RAM controls, configuration, process options or RAM-drive implementation remain.
+PASS: game panel renders labeled facts and escaped values without source paths, URLs or lookup diagnostics; visual preview reviewed.
+PASS: copied PS1 CHD converted and verified; reported final CHD v5 and 5593364 bytes match the output, original preserved.
+PASS: missing-codec explanation, legacy encoding controls, progress/timer and settings lock regressions.
+LIMIT: current metadata catalogs provide no verified release dates for the identified discs; the panel shows Not available.
+
 2.5.0 — 2026-09-30
 PASS: portable build with zero warnings/errors; WinUI3/WebView2 smoke, RAM eligibility, empty-codec messages and legacy control locking.
 PASS: genuine v4 CD, six-track CD and DVD: modern chdman verification and extracted SHA256 roundtrip; Unicode output and invalid-input cleanup.

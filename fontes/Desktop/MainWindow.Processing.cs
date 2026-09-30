@@ -124,8 +124,6 @@ sealed partial class MainWindow
                 Cd = SelectedCodecs(cdCodecChoices),
                 Dvd = SelectedCodecs(dvdCodecChoices),
                 ChdmanPath = chdmanPath.Text.Trim(),
-                UseRamExtraction = ramExtraction.IsChecked == true,
-                RamDiskPath = ramDiskPath.Text.Trim(),
                 Online = online.IsChecked == true,
                 Delete = delete.IsChecked == true,
                 AutoDetectSystem = autoDetect.IsChecked == true,

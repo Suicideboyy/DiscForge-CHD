@@ -14,7 +14,6 @@ sealed partial class MainWindow
     // Avoid overlapping samples; counter collection stays off the UI thread.
     async Task RefreshTelemetry()
     {
-        RefreshRamAvailability();
         elapsed.Text = $"{(int)clock.Elapsed.TotalHours:00}:{clock.Elapsed.Minutes:00}:{clock.Elapsed.Seconds:00}";
         if (sampling || closed) return;
         sampling = true;

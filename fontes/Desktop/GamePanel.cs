@@ -126,8 +126,8 @@ sealed class GamePanel : Grid, IDisposable
     void Render()
     {
         if (disposed) return;
-        fallback.Text = current.Title + "\n" + current.Serial + " • " + current.Type + "\n" + Localization.T(current.Status)
-            + "\n" + current.Detail + (BrowserStatus.StartsWith("Unavailable") ? "\nWebView2 Runtime unavailable." : "");
+        fallback.Text = GameHtml.PlainText(current)
+            + (BrowserStatus.StartsWith("Unavailable") ? "\nWebView2 Runtime unavailable." : "");
         if (ready)
         {
             string html = GameHtml.Render(current, cover, currentPs2);

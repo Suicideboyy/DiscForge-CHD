@@ -5,6 +5,9 @@ static class AppChangelog
     // User-visible features and fixes since the first C# version.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.5.1 — 30/09/2026", "",
+        "• Removed RAM-drive extraction; temporary images are extracted to disk.",
+        "• Game details show available release date, current format and size instead of technical messages.", "",
         "2.5.0 — 30/09/2026", "",
         "• RAM extraction can be selected when physical memory is sufficient; missing RAM drive guidance is clearer.",
         "• Missing codecs are explained before conversion starts.",
@@ -49,6 +52,9 @@ static class AppChangelog
 
     public static readonly string PortugueseText = String.Join("\r\n", new[]
     {
+        "2.5.1 — 30/09/2026", "",
+        "• Removida a extração em unidade RAM; imagens temporárias são extraídas em disco.",
+        "• Informações do jogo mostram lançamento disponível, formato e tamanho atuais em vez de mensagens técnicas.", "",
         "2.5.0 — 30/09/2026", "",
         "• A extração em RAM pode ser marcada com memória suficiente; orientação da unidade RAM mais clara.",
         "• Codecs ausentes são explicados antes da conversão.",

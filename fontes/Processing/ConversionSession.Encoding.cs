@@ -30,6 +30,7 @@ sealed partial class ConversionSession
                 string info = await toolRunner.RequireSuccessAsync("chdman.exe", false, "info", "-i",
                     input).ConfigureAwait(false);
                 oldHunk = MediaFiles.ReadInfoNumber(info, "Hunk Size");
+                game.CurrentFormat = "CHD v" + MediaFiles.ReadInfoNumber(info, "File Version");
                 long unit = MediaFiles.ReadInfoNumber(info, "Unit Size");
                 game.Type = unit == 2448 || Regex.IsMatch(info, @"CHT2|CHTR|CHCD") ? "CD" : unit == 2048
                     || info.Contains("DVD ") ? "DVD" : "";
@@ -71,6 +72,7 @@ sealed partial class ConversionSession
                 }
 
                 game.Type = "CD";
+                game.CurrentSize = original;
                 game.Detection = media.Path.EndsWith(" (reconstructed).cue",
                     StringComparison.OrdinalIgnoreCase)
                     ? "Reconstructed CUE descriptor" : "Original CUE descriptor";
@@ -138,6 +140,7 @@ sealed partial class ConversionSession
             if (await ValidExisting(output).ConfigureAwait(false))
             {
                 game.Status = "ALREADY EXISTS";
+                UpdateOutputFacts(game, output);
                 Show(game);
                 Say("Already exists: " + Path.GetFileName(output));
                 return null;
@@ -198,6 +201,7 @@ sealed partial class ConversionSession
             Say("Saved: " + output + " | Original: " + original + " bytes | CHD: " + final + " bytes"
                 + (packed > 0 ? " | Archive: " + packed + " bytes" : ""));
             game.Status = "COMPLETED";
+            UpdateOutputFacts(game, output);
             game.Detail = "Verified CHD; " + final + " bytes";
             Show(game);
             return output;
@@ -216,6 +220,17 @@ sealed partial class ConversionSession
             Show(game);
             throw;
         }
+    }
+
+    // Read the actual container version, including when a smaller original CHD was retained.
+    static void UpdateOutputFacts(GameInfo game, string path)
+    {
+        using var stream = File.OpenRead(path);
+        Span<byte> header = stackalloc byte[16];
+        stream.ReadExactly(header);
+        uint version = System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(header[12..]);
+        game.CurrentFormat = "CHD v" + version;
+        game.CurrentSize = stream.Length;
     }
 
     void ClassifyAndEnrich(GameInfo game, string path, string cue, string root)

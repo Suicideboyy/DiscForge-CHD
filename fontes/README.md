@@ -22,4 +22,4 @@ Diagnostic commands: `--run-test input output PS2`, `--auto-test input output PS
 
 Version 2.3: disc boot data classifies PS1/PS2; archive extraction precedes the existing-output check. `Localization` owns visible strings, `CrashReporter` bounds session logs, and `IssueReport` creates a small ZIP for user-reviewed email drafts. A generated CUE never authorizes deletion of the source archive.
 
-Version 2.4: MemoryStatus reads physical RAM; RamWorkspace verifies an existing memory drive, applies capacity limits and owns only a unique temporary folder. ArchiveReader uses SharpCompress alone. --ram-test exercises disk fallback with an ordinary input drive.
+Version 2.5.1: archive extraction uses owned disk-backed temporary folders. RAM-drive integration was removed; chdman consumes seekable image files, so no direct memory extraction mode is advertised.

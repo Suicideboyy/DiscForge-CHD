@@ -11,7 +11,20 @@ sealed partial class MainWindow
             await Task.Delay(4000);
             Report("Entrada 1 / 1: UI diagnostics");
             await Task.Delay(100);
-            await game.UpdateAsync(new GameInfo { Title = "WinUI 3 test", Serial = "SLUS-21296", Type = "CD" }, true);
+            var facts = new GameInfo
+            {
+                Title = "WinUI 3 test <safe>", Serial = "SLUS-21296", Type = "CD", System = "PS2",
+                CurrentFormat = "CHD v5", CurrentSize = 1048576, SourceFormat = "RAR", SourceSize = 2097152,
+                Source = "PRIVATE_SOURCE_PATH", Image = "PRIVATE_IMAGE_PATH",
+                DatabaseUrl = "https://private.invalid/database", CoverUrl = "https://private.invalid/cover",
+                Detection = "PRIVATE_DETECTION", Lookup = "PRIVATE_LOOKUP", Detail = "PRIVATE_DETAIL"
+            };
+            string factsHtml = GameHtml.Render(facts, null);
+            if (factsHtml.Contains("PRIVATE_") || factsHtml.Contains("private.invalid")
+                || !factsHtml.Contains("&lt;safe&gt;") || !factsHtml.Contains("CHD v5")
+                || !factsHtml.Contains("1.00 MiB") && !factsHtml.Contains("1,00 MiB"))
+                throw new InvalidOperationException("Game facts exposed diagnostics or lost escaped values.");
+            await game.UpdateAsync(facts, true);
             Report("Comprimindo: UI diagnostics");
             Report("Etapa: 42%");
             await RefreshTelemetry();
@@ -22,27 +35,11 @@ sealed partial class MainWindow
             await Task.Delay(200);
             if (clock.IsRunning || batch.Value != 100)
                 throw new InvalidOperationException("Batch completion did not update the UI.");
-            if (helpButtons.Count < 13) throw new InvalidOperationException("Help buttons are missing.");
-            const ulong gib = 1073741824;
-            if (MemoryStatus.IsEligible(12 * gib, 5 * gib) ||
-                MemoryStatus.IsEligible(16 * gib, 5 * gib - 1) ||
-                !MemoryStatus.IsEligible(16 * gib, 5 * gib))
-                throw new InvalidOperationException("RAM thresholds failed.");
-            string previousRamPath = ramDiskPath.Text;
-            bool? previousRamChoice = ramExtraction.IsChecked;
-            ramDiskPath.Text = Path.GetTempPath();
-            RefreshRamAvailability();
-            if (MemoryStatus.TryRead(out var currentMemory) &&
-                ramExtraction.IsEnabled != currentMemory.Eligible)
-                throw new InvalidOperationException("RAM checkbox must depend on physical memory, not the drive path.");
-            if (RamWorkspace.TryValidateDrive(ramDiskPath.Text, out _, out _))
-                throw new InvalidOperationException("RAM extraction accepted an ordinary disk.");
+            if (helpButtons.Count < 12) throw new InvalidOperationException("Help buttons are missing.");
             SetSettingsEnabled(false);
-            if (ramDiskPath.IsEnabled || ramExtraction.IsEnabled || toolSettingsPage.IsEnabled)
-                throw new InvalidOperationException("RAM settings remained enabled during conversion.");
+            if (toolSettingsPage.IsEnabled)
+                throw new InvalidOperationException("Tool settings remained enabled during conversion.");
             SetSettingsEnabled(true);
-            ramDiskPath.Text = previousRamPath;
-            ramExtraction.IsChecked = previousRamChoice;
             int previousLanguage = language.SelectedIndex;
             language.SelectedIndex = 1;
             await Task.Delay(150);
@@ -91,7 +88,7 @@ sealed partial class MainWindow
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".about.png");
             await File.WriteAllTextAsync(destination, "WinUI3=OK\nWebView2=" + game.BrowserStatus
-                + "\nProgress/Timer=OK\nRAM eligibility/settings=OK\nThreads=" + threads.Value
+                + "\nProgress/Timer=OK\nTool settings=OK\nThreads=" + threads.Value
                 + "\nCPU=" + cpu.Text + "\nDisk=" + disk.Text);
         }
         catch (Exception ex) { await File.WriteAllTextAsync(destination, ex.ToString()); }

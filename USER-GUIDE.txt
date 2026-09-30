@@ -1,6 +1,6 @@
-DiscForge CHD 2.5.0 - Windows x64 - 2026-09-30
+DiscForge CHD 2.5.1 - Windows x64 - 2026-09-30
 
-Version 2.5: RAM extraction is selectable with more than 12 GiB total and at least 5 GiB free physical memory. An existing verified RAM drive is still required: select it in Settings. Without one, extraction falls back to disk and logs why. Memory and capacity are checked again for each archive. No driver or RAM drive is installed.
+Version 2.5.1: extraction uses disk-backed temporary files. The RAM-drive option was removed because chdman requires seekable image files; direct in-process memory extraction is not supported. The game panel displays release date when available, current format and size rather than technical paths and lookup messages.
 
 Select at least one CD codec, and one DVD codec for PS2 or automatic detection. The app explains missing selections before work starts. Compatibility with older devices creates CHD v4 with zlib and fixed hunks (CD 9792 bytes; DVD 2048 bytes); modern codec/hunk controls are disabled. Files can be larger and compatibility depends on device firmware. Missing PS1 cover images fall back to Libretro thumbnails.
 
@@ -23,7 +23,3 @@ Logs: input/temp/log.txt. Cache: %LOCALAPPDATA%/CHD Optimizer. Conversion does n
 Version 2.2 adds Stop Now, codec checkboxes and a Settings tab for selecting external chdman.exe. The input folder is remembered and changing it defaults the output to its otimizados subfolder. CPU and I/O indicators measure the application and its child tools. Distinct game revisions receive distinct output names. When a safe multi-track BIN set has no CUE, a temporary CUE is generated; because original pregaps and indexes cannot be recovered, the source archive is retained. PS1 covers come from xlenore/psx-covers.
 
 Version 2.3 adds disc-based PS1/PS2 detection. Automatic mode selects the system; manual mode rejects mismatches or unidentified discs. The interface supports English and Brazilian Portuguese, codec/hunk guidance and Reset defaults. Report issue creates a diagnostic ZIP of up to 10 MB and opens an email draft with the attachment for review; nothing is sent automatically. Crash logs: %LOCALAPPDATA%/DiscForge CHD/logs. Bug reports: andrethiesen@live.com.
-
-Version 2.4: Select an existing RAM disk folder in Settings and enable RAM extraction. It is available only with more than 12 GiB total RAM and at least 5 GiB free. Before each archive, the app checks expanded size and volume capacity while reserving memory for Windows and chdman. Insufficient memory or an unavailable RAM volume falls back to disk with an explicit log message. Only this task's temporary folder is removed; the user's RAM disk is never unmounted. CHD output remains on disk. No RAM disk driver is installed by the application.
-
-Supported RAM volumes: Windows RAM drive type and ImDisk memory drives. Existing drive/Windows settings may allow paging; reduced intermediate writes do not guarantee zero disk traffic.

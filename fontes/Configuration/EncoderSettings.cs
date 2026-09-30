@@ -17,8 +17,6 @@ class EncoderSettings
     public bool Delete = false;
     public bool Online = true;
     public string ChdmanPath = "";
-    public bool UseRamExtraction;
-    public string RamDiskPath = "";
     public void Validate()
     {
         Input = Path.GetFullPath(Input).TrimEnd('\\');

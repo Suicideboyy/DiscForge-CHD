@@ -14,8 +14,6 @@ sealed partial class MainWindow
     {
         public string Input { get; set; } = "";
         public string ChdmanPath { get; set; } = "";
-        public bool UseRamExtraction { get; set; }
-        public string RamDiskPath { get; set; } = "";
         public string Language { get; set; } = "en";
         public bool AutoDetectSystem { get; set; }
         public bool LegacyCompatibility { get; set; }
@@ -49,8 +47,6 @@ sealed partial class MainWindow
             input.Text = saved.Input;
             FollowInputFolder();
             chdmanPath.Text = saved.ChdmanPath;
-            ramExtraction.IsChecked = saved.UseRamExtraction;
-            ramDiskPath.Text = saved.RamDiskPath;
         }
         catch (Exception ex) { Append("Preferences: " + ex.Message); }
     }
@@ -64,8 +60,6 @@ sealed partial class MainWindow
             {
                 Input = input.Text.Trim(),
                 ChdmanPath = chdmanPath.Text.Trim(),
-                UseRamExtraction = ramExtraction.IsChecked == true,
-                RamDiskPath = ramDiskPath.Text.Trim(),
                 Language = Localization.Language,
                 AutoDetectSystem = autoDetect.IsChecked == true,
                 LegacyCompatibility = legacyCompatibility.IsChecked == true
@@ -85,7 +79,6 @@ sealed partial class MainWindow
             Localization.IsPortuguese ? "Idioma da interface. A escolha é salva automaticamente." :
                 "Interface language. Your choice is saved automatically."));
         body.Children.Add(Field("chdman.exe", PathRow(chdmanPath, true), OptionHelp.ChdmanPath));
-        body.Children.Add(Field("Existing RAM drive", PathRow(ramDiskPath), OptionHelp.RamDisk));
         ToolTipService.SetToolTip(resetDefaults, OptionHelp.Reset);
         body.Children.Add(resetDefaults);
         var page = new StackPanel { Padding = new Thickness(24), Spacing = 16 };
@@ -107,9 +100,7 @@ sealed partial class MainWindow
         foreach (var choice in dvdCodecChoices) choice.IsChecked = (string)choice.Tag != "huff";
         online.IsChecked = true;
         delete.IsChecked = false;
-        chdmanPath.Text = ramDiskPath.Text = "";
-        ramExtraction.IsChecked = false;
-        RefreshRamAvailability();
+        chdmanPath.Text = "";
         UpdatePlatform();
         SavePreferences();
     }
@@ -120,8 +111,6 @@ sealed partial class MainWindow
         output.PlaceholderText = Localization.T("CHD destination");
         chdmanPath.PlaceholderText =
             Localization.T("Automatic (bundled)");
-        ramDiskPath.PlaceholderText = Localization.T("Select an existing RAM drive");
-        ramExtraction.Content = Localization.T("Use RAM extraction");
         online.Content = Localization.T("Identify games by serial");
         delete.Content = Localization.T("Remove archive after success");
         autoDetect.Content = Localization.T("Auto-detect system");

@@ -36,7 +36,7 @@ static class Program
                 File.Copy(IssueReport.Create(args[1]), args[2], true);
                 return new FileInfo(args[2]).Length <= IssueReport.MaxBytes ? 0 : 1;
             }
-            if (args.Length == 4 && (args[0] is "--run-test" or "--stop-test" or "--delete-test" or "--cancel-test" or "--auto-test" or "--ram-test" or "--legacy-test"))
+            if (args.Length == 4 && (args[0] is "--run-test" or "--stop-test" or "--delete-test" or "--cancel-test" or "--auto-test" or "--legacy-test"))
                 return RunTest(args);
             if (args.Length == 3 && (args[0] is "--cover-test" or "--cover-test-ps1"))
             {
@@ -73,8 +73,6 @@ static class Program
             Output = args[2],
             Platform = args[3],
             AutoDetectSystem = args[0] == "--auto-test",
-            UseRamExtraction = args[0] == "--ram-test",
-            RamDiskPath = args[0] == "--ram-test" ? args[1] : "",
             Online = false,
             LegacyCompatibility = args[0] == "--legacy-test",
             Delete = args[0] == "--delete-test",

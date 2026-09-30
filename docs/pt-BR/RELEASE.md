@@ -1,8 +1,6 @@
-# DiscForge CHD 2.5.0
+DiscForge CHD 2.5.1
 
-- Opção de RAM segue os limites físicos (>12 GiB totais, >=5 GiB livres). O texto diferencia memória suficiente de unidade RAM existente; unidade ausente ou inválida usa disco e registra o motivo.
-- Codecs CD/DVD ausentes recebem uma explicação antes do processamento.
-- Capas de PS1 podem usar o repositório Libretro como reserva.
-- Compatibilidade com dispositivos antigos grava CHD v4 com zlib, hunk de CD de 9792 bytes e DVD de 2048 bytes. O arquivo pode ficar maior; o suporte depende do firmware.
+- Removida a opção de extração em unidade RAM; a extração usa temporários próprios em disco.
+- O painel substitui caminhos e mensagens técnicas por informações do jogo: lançamento quando disponível, formato e tamanho atuais.
 
-Extraia o ZIP completo DiscForge-CHD-2.5.0-win-x64.zip e execute DiscForge-CHD.exe. Requer Windows 10 2004+ x64. Erros: andrethiesen@live.com.
+Extraia o ZIP completo DiscForge-CHD-2.5.1-win-x64.zip e execute DiscForge-CHD.exe. Requer Windows 10 2004+ x64. Relate erros: andrethiesen@live.com.

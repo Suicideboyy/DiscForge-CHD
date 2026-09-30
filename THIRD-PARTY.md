@@ -1,6 +1,6 @@
 # Third-party components
 
-DiscForge CHD 2.5.0.
+DiscForge CHD 2.5.1.
 
 - Libretro PS1 thumbnails: https://github.com/libretro-thumbnails/Sony_-_PlayStation — online cover fallback; cover art is not bundled.
 

@@ -13,7 +13,6 @@ sealed partial class MainWindow
         stop.Click += (_, _) => RequestStop();
         stopNow.Click += (_, _) => RequestStopNow();
         input.TextChanged += (_, _) => FollowInputFolder();
-        ramDiskPath.TextChanged += (_, _) => RefreshRamAvailability();
         platform.SelectionChanged += (_, _) => { UpdatePlatform(); game.Reset(); };
         autoDetect.Checked += (_, _) => UpdatePlatform();
         autoDetect.Unchecked += (_, _) => UpdatePlatform();
@@ -48,7 +47,6 @@ sealed partial class MainWindow
         timer.Tick += async (_, _) => await RefreshTelemetry();
         timer.Start();
         UpdatePlatform();
-        RefreshRamAvailability();
     }
 
     UIElement BuildProgress()
