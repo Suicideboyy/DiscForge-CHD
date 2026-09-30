@@ -1,4 +1,4 @@
-# DiscForge CHD
+# DiscForge CHD — Conversor de PS1 e PS2 para CHD no Windows
 
 [English](../../README.md) · [Relatar erro](mailto:andrethiesen@live.com)
 

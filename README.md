@@ -1,8 +1,8 @@
-# DiscForge CHD
+# DiscForge CHD — PS1 and PS2 CHD Converter for Windows
 
 [Português (Brasil)](docs/pt-BR/README.md) · [Report a bug](mailto:andrethiesen@live.com)
 
-Windows x64 application for converting PlayStation 1 and PlayStation 2 games to CHD.
+DiscForge CHD is a Windows x64 application that converts PlayStation 1 (PS1) and PlayStation 2 (PS2) disc images to the CHD (Compressed Hunks of Data) format using chdman. Convert ISO, BIN/CUE and supported ZIP, RAR or 7z archives through a graphical interface available in English and Brazilian Portuguese.
 
 ## Install
 
