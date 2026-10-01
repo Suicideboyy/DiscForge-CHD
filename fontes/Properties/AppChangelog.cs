@@ -5,6 +5,9 @@ static class AppChangelog
     // User-visible features and fixes since the first C# version.
     public static readonly string Text = String.Join("\r\n", new[]
     {
+        "2.6.0 — 01/10/2026", "",
+        "• New coordinated dark Bento interface inspired by UI/UX Pro Max, with clearer cards and game details.",
+        "• Native keyboard controls and animations that respect Windows settings.", "",
         "2.5.1 — 30/09/2026", "",
         "• Removed RAM-drive extraction; temporary images are extracted to disk.",
         "• Game details show available release date, current format and size instead of technical messages.", "",
@@ -52,6 +55,9 @@ static class AppChangelog
 
     public static readonly string PortugueseText = String.Join("\r\n", new[]
     {
+        "2.6.0 — 01/10/2026", "",
+        "• Nova interface Bento escura inspirada no UI/UX Pro Max, com cartões e detalhes do jogo mais claros.",
+        "• Controles nativos por teclado e animações que respeitam as configurações do Windows.", "",
         "2.5.1 — 30/09/2026", "",
         "• Removida a extração em unidade RAM; imagens temporárias são extraídas em disco.",
         "• Informações do jogo mostram lançamento disponível, formato e tamanho atuais em vez de mensagens técnicas.", "",

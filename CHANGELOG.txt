@@ -1,3 +1,7 @@
+2.6.0 — 2026-10-01
+- Coordinated dark Bento interface inspired by UI/UX Pro Max, native controls and clearer game cards.
+- Animations respect the Windows setting; keyboard shortcut for starting conversion.
+
 2.5.1 — 2026-09-30
 - Removed RAM-drive extraction; archives use disk-backed temporary files.
 - Game panel shows available release date, current format and size instead of technical paths and lookup messages.

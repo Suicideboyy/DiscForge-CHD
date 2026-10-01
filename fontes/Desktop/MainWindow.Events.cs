@@ -59,12 +59,14 @@ sealed partial class MainWindow
         body.Children.Add(batchStatus);
         body.Children.Add(batch);
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        actions.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection
-        {
-            new Microsoft.UI.Xaml.Media.Animation.AddDeleteThemeTransition()
-        };
+        if (new Windows.UI.ViewManagement.UISettings().AnimationsEnabled)
+            actions.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection
+            {
+                new Microsoft.UI.Xaml.Media.Animation.AddDeleteThemeTransition()
+            };
         start.Style = (Style)Application.Current.Resources["AccentButtonStyle"];
-        start.Background = VisualTheme.Accent;
+        if (!VisualTheme.HighContrast) start.Background = VisualTheme.Brush(124, 58, 237);
+        start.AccessKey = "S";
         start.Content = ActionLabel(Symbol.Play, Localization.T("Start conversion"));
         stop.Content = ActionLabel(Symbol.Pause, Localization.T("Stop after current"));
         stopNow.Content = ActionLabel(Symbol.Stop, Localization.T("Stop now"));
@@ -84,7 +86,7 @@ sealed partial class MainWindow
         };
         actions.Children.Add(start);
         actions.Children.Add(stop);
-        stopNow.Background = VisualTheme.Brush(243, 213, 219);
+        if (!VisualTheme.HighContrast) stopNow.Background = VisualTheme.Brush(82, 31, 49);
         ToolTipService.SetToolTip(stopNow, HelpText(OptionHelp.StopNow));
         actions.Children.Add(stopNow);
         actions.Children.Add(open);
@@ -101,7 +103,7 @@ sealed partial class MainWindow
     static StackPanel ActionLabel(Symbol symbol, string label)
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 7 };
-        row.Children.Add(new SymbolIcon(symbol));
+        row.Children.Add(new SymbolIcon(symbol) { Foreground = VisualTheme.Ink });
         row.Children.Add(VisualTheme.Text(label, 13, true));
         return row;
     }

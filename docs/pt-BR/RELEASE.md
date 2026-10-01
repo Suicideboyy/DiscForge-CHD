@@ -1,6 +1,7 @@
-DiscForge CHD 2.5.1
+# DiscForge CHD 2.6.0
 
-- Removida a opção de extração em unidade RAM; a extração usa temporários próprios em disco.
-- O painel substitui caminhos e mensagens técnicas por informações do jogo: lançamento quando disponível, formato e tamanho atuais.
+- Nova interface Bento escura inspirada no UI/UX Pro Max, com cores coordenadas entre WinUI e WebView2.
+- Cartões, métricas, ações e informações do jogo mais claros.
+- Controles nativos, foco por teclado e respeito à configuração de animações do Windows; sem novas dependências de execução.
 
-Extraia o ZIP completo DiscForge-CHD-2.5.1-win-x64.zip e execute DiscForge-CHD.exe. Requer Windows 10 2004+ x64. Relate erros: andrethiesen@live.com.
+Baixe e extraia o ZIP portátil completo antes de abrir DiscForge-CHD.exe. A conversão continua com o mesmo comportamento.

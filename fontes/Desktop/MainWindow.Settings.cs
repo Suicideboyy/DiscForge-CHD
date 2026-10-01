@@ -105,7 +105,8 @@ sealed partial class MainWindow
         var help = new Button
         {
             Content = "?", Width = 28, Height = 28, Padding = new Thickness(0),
-            Background = VisualTheme.Brush(240, 238, 254), Foreground = VisualTheme.Accent,
+            Background = VisualTheme.HighContrast ? VisualTheme.Surface : VisualTheme.Brush(48, 39, 77),
+            Foreground = VisualTheme.Accent,
             CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(0),
             Flyout = new Flyout { Content = HelpText(explanation) }
         };

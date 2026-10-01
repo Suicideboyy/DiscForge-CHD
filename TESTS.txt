@@ -1,3 +1,10 @@
+2.6.0 — 2026-10-01
+PASS: portable .NET/WinUI build, zero warnings/errors; WinUI3/WebView2, EN/PT switch, settings lock, codec validation and legacy controls smoke.
+PASS: reviewed native wide, narrow, expanded and About previews plus separate WebView2 game-cover preview; palette, facts and hierarchy remain readable.
+PASS: checked foreground/background palette contrast locally; text pairs exceed 4.5:1.
+NOTE: OS high-contrast and disabled-animation paths use system colors/settings; a full Accessibility Insights scan was not run.
+NOTE: encoding and archive modules are unchanged in this design release.
+
 2.5.1 — 2026-09-30
 PASS: portable build with zero warnings/errors; WinUI3/WebView2 and English/Portuguese interface smoke.
 PASS: no active RAM controls, configuration, process options or RAM-drive implementation remain.

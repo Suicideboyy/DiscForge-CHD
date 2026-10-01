@@ -6,11 +6,11 @@ DiscForge CHD is a Windows x64 application that converts PlayStation 1 (PS1) and
 
 ## Install
 
-Current version: **2.5.1**.
+Current version: **2.6.0**.
 
 Download the portable ZIP from the [latest release](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest). Extract the entire archive and run `DiscForge-CHD.exe`. Keep every folder from the archive together. .NET and Windows App SDK are included. Windows 10 2004 or newer is required; Windows 11 is recommended. The game cover panel uses the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Conversion remains available if WebView2 is missing.
 
-- WinUI 3 interface with cards, expandable advanced settings and contextual help.
+- Dark Bento interface inspired by UI/UX Pro Max, with native WinUI 3 controls and contextual help.
 - WebView2 game panel, serial-based covers, custom icon and build date.
 - PS2 CD: `createcd`, default hunk 2448. DVD: `createdvd`, default hunk 2048. Both are configurable.
 - SharpCompress extraction for supported archives, without the 7-Zip application or DLL.

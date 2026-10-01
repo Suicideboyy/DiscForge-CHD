@@ -6,13 +6,22 @@ using Windows.UI;
 /// <summary>Shared palette and controls for native pages.</summary>
 static class VisualTheme
 {
-    public static SolidColorBrush Canvas => Brush(242, 245, 250);
-    public static SolidColorBrush Ink => Brush(28, 42, 66);
-    public static SolidColorBrush Muted => Brush(99, 113, 135);
-    public static SolidColorBrush Accent => Brush(104, 83, 218);
-    public static SolidColorBrush Teal => Brush(0, 132, 125);
-    public static SolidColorBrush White => Brush(255, 255, 255);
-    public static SolidColorBrush Navy => Brush(23, 36, 60);
+    // UI/UX Pro Max: Bento Box Grid structure with its gaming palette.
+    // Keep typography and input/focus states native to WinUI.
+    public static bool HighContrast => new Windows.UI.ViewManagement.AccessibilitySettings().HighContrast;
+    static SolidColorBrush SystemBrush(Windows.UI.ViewManagement.UIColorType type)
+        => new(new Windows.UI.ViewManagement.UISettings().GetColorValue(type));
+    public static SolidColorBrush Canvas => HighContrast
+        ? SystemBrush(Windows.UI.ViewManagement.UIColorType.Background) : Brush(15, 15, 35);
+    public static SolidColorBrush Surface => HighContrast ? Canvas : Brush(30, 28, 53);
+    public static SolidColorBrush Outline => HighContrast ? Ink : Brush(63, 61, 86);
+    public static SolidColorBrush Ink => HighContrast
+        ? SystemBrush(Windows.UI.ViewManagement.UIColorType.Foreground) : Brush(226, 232, 240);
+    public static SolidColorBrush Muted => HighContrast ? Ink : Brush(148, 163, 184);
+    public static SolidColorBrush Accent => HighContrast ? Ink : Brush(167, 139, 250);
+    public static SolidColorBrush Teal => HighContrast ? Ink : Brush(94, 234, 212);
+    public static SolidColorBrush White => HighContrast ? Ink : Brush(255, 255, 255);
+    public static SolidColorBrush Navy => Surface;
     public static SolidColorBrush Brush(byte r, byte g, byte b) => new(Color.FromArgb(255, r, g, b));
 
     public static TextBlock Text(string value, double size = 14, bool strong = false)
@@ -31,10 +40,10 @@ static class VisualTheme
     {
         return new Border
         {
-            Background = White,
-            BorderBrush = Brush(223, 230, 240),
+            Background = Surface,
+            BorderBrush = Outline,
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(18),
+            CornerRadius = new CornerRadius(16),
             Padding = new Thickness(padding),
             Child = content
         };
@@ -43,7 +52,20 @@ static class VisualTheme
     public static StackPanel Section(string number, string title)
     {
         var body = new StackPanel { Spacing = 14 };
-        var heading = Text(number + "   " + Localization.T(title), 17, true);
+        var heading = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+        var marker = Text(number, 12, true);
+        marker.Foreground = Accent;
+        if (number.Length > 0) heading.Children.Add(new Border
+        {
+            Background = HighContrast ? Surface : Brush(48, 39, 77), CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(9, 6, 9, 6), Child = marker
+        });
+        heading.Children.Add(new TextBlock
+        {
+            Text = Localization.T(title), FontSize = 17, Foreground = Ink,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap
+        });
         body.Children.Add(heading);
         return body;
     }

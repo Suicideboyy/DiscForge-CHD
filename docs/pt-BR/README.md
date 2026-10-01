@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [Relatar erro](mailto:andrethiesen@live.com)
 
-Versão atual: **2.5.1**.
+Versão atual: **2.6.0**.
 
 O painel do jogo mostra data de lançamento quando informada pelo catálogo, formato e tamanho atuais. Informações indisponíveis são identificadas. A extração utiliza temporários em disco; a opção de unidade RAM foi removida. Codecs ausentes recebem uma explicação antes da conversão. Capas de PS1 podem usar o acervo Libretro como reserva.
 

@@ -15,6 +15,7 @@ sealed partial class MainWindow : Window
         if (File.Exists(icon)) AppWindow.SetIcon(icon);
         LoadPreferences();
         BuildTabs();
+        tabs.RequestedTheme = ElementTheme.Dark;
         Content = tabs;
         ConnectEvents();
         if (args.Length == 2 && args[0] == "--ui-smoke") RunSmoke(args[1]);
@@ -77,10 +78,11 @@ sealed partial class MainWindow : Window
     UIElement BuildConversion()
     {
         var page = new StackPanel { Spacing = 20, Padding = new Thickness(24) };
-        page.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection
-        {
-            new Microsoft.UI.Xaml.Media.Animation.EntranceThemeTransition()
-        };
+        if (new Windows.UI.ViewManagement.UISettings().AnimationsEnabled)
+            page.ChildrenTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection
+            {
+                new Microsoft.UI.Xaml.Media.Animation.EntranceThemeTransition()
+            };
         page.Children.Add(BuildHeader());
         var columns = new Grid { ColumnSpacing = 20, RowSpacing = 20 };
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2.2, GridUnitType.Star) });
@@ -123,29 +125,30 @@ sealed partial class MainWindow : Window
         brand.Children.Add(new Image
         {
             Source = new BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "Assets", "discforge.png"))),
-            Width = 62, Height = 62
+            Width = 48, Height = 48
         });
         var name = new StackPanel { Spacing = 5, VerticalAlignment = VerticalAlignment.Center };
-        var title = VisualTheme.Text(AppInfo.Name, 29, true);
+        var title = VisualTheme.Text(AppInfo.Name, 27, true);
         title.Foreground = VisualTheme.White;
         name.Children.Add(title);
         var subtitle = VisualTheme.Text(Localization.T("Your collection. Less space. Every experience."), 13);
-        subtitle.Foreground = VisualTheme.Brush(183, 199, 222);
+        subtitle.Foreground = VisualTheme.Muted;
         name.Children.Add(subtitle);
         brand.Children.Add(name);
         var version = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Spacing = 6 };
         var release = VisualTheme.Text(Localization.T("VERSION ") + AppInfo.Version, 12, true);
-        release.Foreground = VisualTheme.Brush(153, 234, 217);
+        release.Foreground = VisualTheme.Teal;
         var date = VisualTheme.Text(Localization.T("Built on ") + BuildInfo.Date, 12);
-        date.Foreground = VisualTheme.Brush(206, 217, 236);
+        date.Foreground = VisualTheme.Muted;
         version.Children.Add(release);
         version.Children.Add(date);
         var row = VisualTheme.Pair(brand, version);
         row.ColumnDefinitions[1].Width = GridLength.Auto;
         return new Border
         {
-            Background = VisualTheme.Navy, CornerRadius = new CornerRadius(20),
-            Padding = new Thickness(24, 18, 24, 18), Child = row
+            Background = VisualTheme.Navy, CornerRadius = new CornerRadius(16),
+            BorderBrush = VisualTheme.Outline, BorderThickness = new Thickness(1),
+            Padding = new Thickness(24, 20, 24, 20), Child = row
         };
     }
 
@@ -156,7 +159,8 @@ sealed partial class MainWindow : Window
         {
             Metric(Localization.T("CURRENT INPUT"), elapsed, OptionHelp.Time, VisualTheme.Accent),
             Metric(Localization.T("CPU · APP"), cpu, OptionHelp.Cpu, VisualTheme.Teal),
-            Metric(Localization.T("DISK · APP"), disk, OptionHelp.Disk, VisualTheme.Brush(222, 133, 42))
+            Metric(Localization.T("DISK · APP"), disk, OptionHelp.Disk,
+                VisualTheme.HighContrast ? VisualTheme.Ink : VisualTheme.Brush(251, 191, 36))
         };
         foreach (var card in cards)
         {
@@ -171,14 +175,13 @@ sealed partial class MainWindow : Window
         Microsoft.UI.Xaml.Media.Brush color)
     {
         var body = new StackPanel { Spacing = 10 };
-        var title = VisualTheme.Text(heading, 10, true);
+        var title = VisualTheme.Text(heading, 11, true);
         title.Foreground = color;
         body.Children.Add(title);
         body.Children.Add(value);
         var card = VisualTheme.Card(body, 16);
-        card.BorderBrush = color;
-        card.BorderThickness = new Thickness(1, 3, 1, 1);
-        card.MinHeight = 114;
+        card.BorderBrush = VisualTheme.Outline;
+        card.MinHeight = 104;
         ToolTipService.SetToolTip(card, HelpText(explanation));
         return card;
     }
