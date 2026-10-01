@@ -1,9 +1,35 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 sealed partial class ConversionSession
 {
+    // Listing validates archive paths without decompressing images or trusting their console type.
+    internal async Task PreviewArchiveAsync(string source, string destination, long packed)
+    {
+        var files = await archiveReader.ListAsync(source, destination).ConfigureAwait(false);
+        var serials = files.Select(f => MediaFiles.NormalizeSerial(Path.GetFileName(f.Path)))
+            .Append(MediaFiles.NormalizeSerial(Path.GetFileName(source)))
+            .Where(s => s.Length > 0).Distinct().ToArray();
+        var game = new GameInfo
+        {
+            Source = source, Image = source, Title = MediaFiles.OutputStem(source),
+            SourceFormat = Path.GetExtension(source).TrimStart('.').ToUpperInvariant(),
+            CurrentFormat = Path.GetExtension(source).TrimStart('.').ToUpperInvariant(),
+            SourceSize = packed, CurrentSize = packed, Status = "IDENTIFYING"
+        };
+        Show(game);
+        var match = serials.Length > 1 ? null : await database.LookupPreviewAsync(
+            serials.FirstOrDefault() ?? "", game.Title).ConfigureAwait(false);
+        if (match != null)
+        {
+            game.Title = match.Value.Record.Title;
+            game.Serial = match.Value.Record.Serial;
+            game.System = match.Value.System;
+            game.Type = match.Value.Record.Type;
+            game.DatabaseUrl = match.Value.Record.Url;
+        }
+        game.Status = "EXTRACTING";
+        Show(game);
+    }
+
     GameInfo Identify(string source, DiscInput media)
     {
         var game = new GameInfo
@@ -34,29 +60,15 @@ sealed partial class ConversionSession
     {
         game.Status = "IDENTIFYING";
         Show(game);
-        if (game.System == "PS2")
+        GameRecord hit = game.System == "PS2" ? database.Lookup(game.Serial)
+            : database.LookupPs1(game.Serial, game.Title);
+        game.Lookup = hit != null ? "Serial confirmed / " + hit.Provider
+            : !_settings.Online ? "Online lookup disabled" : "No unambiguous database match";
+        if (hit != null)
         {
-            GameRecord hit = database.Lookup(game.Serial);
-            game.Lookup = hit == null ? (_settings.Online
-                ? "Database unavailable or no unambiguous match" : "Online lookup disabled")
-                : "Serial confirmed / " + hit.Provider;
-            if (hit != null)
-            {
-                if (!String.IsNullOrWhiteSpace(hit.Title)) game.Title = hit.Title;
-                game.Type = hit.Type;
-                game.DatabaseUrl = hit.Url;
-            }
-        }
-        else
-        {
-            GameRecord hit = database.LookupPs1(game.Serial, game.Title);
-            game.Lookup = hit == null ? "PS1 disc header" : "Serial confirmed / " + hit.Provider;
-            if (hit != null)
-            {
-                if (!String.IsNullOrWhiteSpace(hit.Title)) game.Title = hit.Title;
-                game.Type = "CD";
-                game.DatabaseUrl = hit.Url;
-            }
+            if (!String.IsNullOrWhiteSpace(hit.Title)) game.Title = hit.Title;
+            game.Type = hit.Type;
+            game.DatabaseUrl = hit.Url;
         }
 
         game.Status = "PROCESSING";

@@ -1,5 +1,3 @@
-﻿using System.Collections.Generic;
-using Microsoft.UI.Xaml.Controls;
 
 sealed partial class MainWindow
 {

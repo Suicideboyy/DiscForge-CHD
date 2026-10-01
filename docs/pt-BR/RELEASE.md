@@ -1,7 +1,8 @@
-# DiscForge CHD 2.6.0
+# DiscForge CHD 2.6.1
 
-- Nova interface Bento escura inspirada no UI/UX Pro Max, com cores coordenadas entre WinUI e WebView2.
-- Cartões, métricas, ações e informações do jogo mais claros.
-- Controles nativos, foco por teclado e respeito à configuração de animações do Windows; sem novas dependências de execução.
+- Corrigidos cortes no conteúdo e fundos diferentes ao maximizar a janela.
+- Informações e capas podem carregar antes de extrair a imagem, inclusive em ZIP. A correspondência no catálogo precisa ser única; o disco é verificado após a extração.
+- CHD v4 agora avisa que dispositivos atuais devem usar CHD v5.
+- O changelog deixa de anunciar funções removidas.
 
-Baixe e extraia o ZIP portátil completo antes de abrir DiscForge-CHD.exe. A conversão continua com o mesmo comportamento.
+Extraia o ZIP portátil completo antes de abrir DiscForge-CHD.exe. As regras de verificação continuam protegendo os originais.

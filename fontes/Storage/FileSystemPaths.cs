@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading;
 
 static class FileSystemPaths
 {
@@ -65,9 +60,7 @@ static class FileSystemPaths
     public static void DeleteWorkDirectory(string directory, string parent)
     {
         if (!IsInside(directory, parent))
-        {
             throw new IOException("Temporary folder is outside the expected location.");
-        }
 
         // Native tools can release their final directory handle shortly after exit.
         // Retry only temporary cleanup; every pass checks the boundary and links again.
@@ -95,9 +88,11 @@ static class FileSystemPaths
 
         EnsureNoLinks(directory);
         if (!Directory.Exists(directory)) return;
+        File.SetAttributes(directory, File.GetAttributes(directory) & ~FileAttributes.ReadOnly);
         foreach (string f in Directory.GetFiles(directory))
         {
             EnsureNoLinks(f);
+            File.SetAttributes(f, File.GetAttributes(f) & ~FileAttributes.ReadOnly);
             File.Delete(f);
         }
 

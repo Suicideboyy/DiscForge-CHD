@@ -1,5 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
 
 // Simple MAPI opens the default mail client's compose window; it never sends mail.
 static class EmailDraft

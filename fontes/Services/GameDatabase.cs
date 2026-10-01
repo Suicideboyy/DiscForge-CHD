@@ -1,14 +1,33 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Net;
 
 
 sealed class GameDatabase
 {
+    // Preview metadata is provisional; the extracted disc header controls conversion.
+    public async Task<(GameRecord Record, string System)?> LookupPreviewAsync(string serial, string title)
+    {
+        if (!online) return null;
+        var catalogs = await Task.WhenAll(BackupGameCatalog.LoadAsync(false),
+            BackupGameCatalog.LoadAsync(true)).ConfigureAwait(false);
+        return MatchPreview(catalogs, serial, title);
+    }
+
+    internal static (GameRecord Record, string System)? MatchPreview(
+        BackupGameCatalog.Entry[][] catalogs, string serial, string title)
+    {
+        var matches = catalogs.SelectMany((entries, index) =>
+            BackupGameCatalog.Match(entries, serial, title)
+                .Select(entry => (Entry: entry, System: index == 0 ? "PS1" : "PS2")))
+            .Distinct().ToArray();
+        if (matches.Length != 1) return null;
+        var match = matches[0];
+        return (new GameRecord
+        {
+            Serial = match.Entry.Serial, Title = match.Entry.Name,
+            Type = match.System == "PS1" ? "CD" : "",
+            Provider = "Libretro / Redump", Url = BackupGameCatalog.Url(match.System == "PS2")
+        }, match.System);
+    }
+
     readonly bool online;
     readonly string cacheDirectory;
     readonly Action<string> report;

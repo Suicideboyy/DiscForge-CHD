@@ -1,9 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 // Keeps bounded application diagnostics outside the game library.
 static class CrashReporter

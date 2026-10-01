@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 
 sealed class FileSnapshot
 {

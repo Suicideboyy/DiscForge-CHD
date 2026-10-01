@@ -1,8 +1,3 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 sealed partial class MainWindow
 {

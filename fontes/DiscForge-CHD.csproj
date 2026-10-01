@@ -24,6 +24,8 @@
     <Content Include="Assets/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="tools/chdman.exe" LogicalName="chdman.exe" />
     <EmbeddedResource Include="tools/chd-v4.exe" LogicalName="chd-v4.exe" />
+    <EmbeddedResource Include="Assets/pt-BR.json" LogicalName="pt-BR.json" />
+    <EmbeddedResource Include="Assets/changelog.json" LogicalName="changelog.json" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
     <PackageReference Include="SharpCompress" Version="1.0.0" />

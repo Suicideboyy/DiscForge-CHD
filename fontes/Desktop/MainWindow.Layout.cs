@@ -1,8 +1,3 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 sealed partial class MainWindow : Window
@@ -15,8 +10,12 @@ sealed partial class MainWindow : Window
         if (File.Exists(icon)) AppWindow.SetIcon(icon);
         LoadPreferences();
         BuildTabs();
-        tabs.RequestedTheme = ElementTheme.Dark;
-        Content = tabs;
+        // Theme the full client area, including space beyond the selected tab.
+        var workspace = new Grid { Background = VisualTheme.Canvas, RequestedTheme = ElementTheme.Dark };
+        tabs.HorizontalAlignment = tabs.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+        tabs.VerticalAlignment = tabs.VerticalContentAlignment = VerticalAlignment.Stretch;
+        workspace.Children.Add(tabs);
+        Content = workspace;
         ConnectEvents();
         if (args.Length == 2 && args[0] == "--ui-smoke") RunSmoke(args[1]);
     }
@@ -44,6 +43,11 @@ sealed partial class MainWindow : Window
             IconSource = new SymbolIconSource { Symbol = Symbol.Setting }, Content = BuildToolSettings() });
         tabs.TabItems.Add(new TabViewItem { Header = Localization.T("About"), IsClosable = false,
             IconSource = new SymbolIconSource { Symbol = Symbol.Help }, Content = BuildAbout() });
+        foreach (var tab in tabs.TabItems.OfType<TabViewItem>())
+        {
+            tab.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+            tab.VerticalContentAlignment = VerticalAlignment.Stretch;
+        }
         tabs.SelectedIndex = selected;
         game.RefreshLanguage();
     }
@@ -115,6 +119,7 @@ sealed partial class MainWindow : Window
         {
             Content = page,
             Background = VisualTheme.Canvas,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
         };
     }

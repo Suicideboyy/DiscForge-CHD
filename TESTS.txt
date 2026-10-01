@@ -1,3 +1,12 @@
+2.6.1 ? 2026-10-01
+PASS: portable build, zero warnings/errors; maximized root/tabs fill the client area, EN/PT, WebView2 and visible CHD v4 warning smoke.
+PASS: ZIP preview resolves real Cardcaptor Sakura PS1 and PS2 fixture before image extraction; unknown/multiple-serial cases remain unknown, no extraction directory created.
+PASS: six-track real RAR copy creates the same SHA256 CHD as the prior version; re-run reports Existing and newly owned workspace is cleaned.
+PASS: copied PS1 CHD converts/verifies v4 and v5; cancel returns2, no output, original unchanged and temporary workspace removed.
+PASS: ZIP extraction works; traversal and symlink fixtures are rejected.
+PASS: original localized dictionary preserved with case-sensitive keys; historical removed RAM/7-Zip fallback features omitted from in-app history.
+CODE: maintained C# physical lines 4352 -> 3916 (-10.02%), including new fixes/tests. Translation/history data moved to embedded JSON; data files are reported separately.
+
 2.6.0 — 2026-10-01
 PASS: portable .NET/WinUI build, zero warnings/errors; WinUI3/WebView2, EN/PT switch, settings lock, codec validation and legacy controls smoke.
 PASS: reviewed native wide, narrow, expanded and About previews plus separate WebView2 game-cover preview; palette, facts and hierarchy remain readable.

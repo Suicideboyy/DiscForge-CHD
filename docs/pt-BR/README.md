@@ -2,11 +2,11 @@
 
 [English](../../README.md) · [Relatar erro](mailto:andrethiesen@live.com)
 
-Versão atual: **2.6.0**.
+Versão atual: **2.6.1**.
 
 O painel do jogo mostra data de lançamento quando informada pelo catálogo, formato e tamanho atuais. Informações indisponíveis são identificadas. A extração utiliza temporários em disco; a opção de unidade RAM foi removida. Codecs ausentes recebem uma explicação antes da conversão. Capas de PS1 podem usar o acervo Libretro como reserva.
 
-**Compatibilidade com dispositivos antigos** grava CHD v4 com zlib, hunk de CD de 9792 bytes e DVD de 2048 bytes. Os arquivos podem ficar maiores; o suporte depende do firmware do dispositivo.
+**Compatibilidade com dispositivos antigos** grava CHD v4 com zlib, hunk de CD de 9792 bytes e DVD de 2048 bytes. Os arquivos podem ficar maiores; o suporte depende do firmware do dispositivo. Em dispositivos atuais, prefira CHD v5.
 
 Aplicativo Windows x64 para converter jogos de PlayStation 1 e 2 para CHD. Baixe o [ZIP da versão mais recente](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest), extraia tudo e execute `DiscForge-CHD.exe`. Requer Windows 10 2004 ou superior. .NET 10 e Windows App SDK estão incluídos; WebView2 é necessário apenas para exibir capas.
 

@@ -1,7 +1,8 @@
-# DiscForge CHD 2.6.0
+# DiscForge CHD 2.6.1
 
-- New dark Bento workspace inspired by UI/UX Pro Max, with coordinated native and WebView2 colors.
-- Clearer cards, metric hierarchy, action colors and game facts.
-- Native controls, keyboard focus and reduced animation support; no additional runtime dependencies.
+- Fixed clipped content and mixed backgrounds when maximizing the window.
+- Archive metadata and covers can load before image extraction, including ZIP. Catalog matches must be unique; the actual disc is verified afterwards.
+- CHD v4 now warns that current devices should use CHD v5.
+- The changelog no longer advertises removed features.
 
-Download the complete portable ZIP and extract it before launching DiscForge-CHD.exe. Encoding behavior is unchanged.
+Extract the complete portable ZIP before running DiscForge-CHD.exe. Originals remain protected by the existing verification rules.

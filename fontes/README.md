@@ -12,7 +12,7 @@
 | Media / Storage | Disc images, CUE, serials, output names and file integrity |
 | Configuration / Models | Validated settings and shared data |
 | Properties | Version, build date and in-app changelog |
-| Assets | Application icon in ICO and PNG formats |
+| Assets | Icons and embedded JSON translations/history |
 
 The active project is `DiscForge-CHD.csproj`. `Desktop` separates layout, controls, settings, events, processing, telemetry, About and diagnostics. `VisualTheme` centralizes appearance and `OptionHelp` centralizes explanations. `BuildTools` at repository root contains the portable launcher and host generator. There is no WinForms or System.Web dependency in the compiled application.
 
@@ -23,3 +23,5 @@ Diagnostic commands: `--run-test input output PS2`, `--auto-test input output PS
 Version 2.3: disc boot data classifies PS1/PS2; archive extraction precedes the existing-output check. `Localization` owns visible strings, `CrashReporter` bounds session logs, and `IssueReport` creates a small ZIP for user-reviewed email drafts. A generated CUE never authorizes deletion of the source archive.
 
 Version 2.5.1: archive extraction uses owned disk-backed temporary folders. RAM-drive integration was removed; chdman consumes seekable image files, so no direct memory extraction mode is advertised.
+
+Version 2.6.1: common imports are in Application/GlobalUsings.cs. Localized text and user-visible history are embedded JSON resources. ZIP metadata is provisional until the disc header is verified. Temporary cleanup changes attributes only inside its validated owned workspace.

@@ -1,5 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
 
 static class MachineInfo
 {

@@ -1,13 +1,8 @@
-using System;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 
 sealed class GamePanel : Grid, IDisposable
 {
-    readonly WebView2 browser = new();
+    readonly WebView2 browser = new() { DefaultBackgroundColor = VisualTheme.Surface.Color };
     readonly TextBlock fallback = new() { Text = "Loading game details…", TextWrapping = TextWrapping.Wrap };
     GameInfo current = new() { Status = "Waiting for input" };
     byte[] cover;
@@ -96,11 +91,13 @@ sealed class GamePanel : Grid, IDisposable
         info.Serial = serial;
         current = info;
         Render();
+        if (info.System is not ("PS1" or "PS2")) return;
         if (!loading && cover == null && (serial.Length > 0 || info.Title.Length > 0))
             await LoadCoverAsync();
     }
 
     public Task RetryAsync() => cover == null && !loading
+        && current.System is "PS1" or "PS2"
         && (current.Serial.Length > 0 || current.Title.Length > 0)
         && DateTime.UtcNow - attempted > TimeSpan.FromSeconds(30) ? LoadCoverAsync() : Task.CompletedTask;
 

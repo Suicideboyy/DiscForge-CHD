@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 // Serial is authoritative. Title matching is exact after removing a known translation label;
 // ambiguous entries are never used to guess a different game or console generation.

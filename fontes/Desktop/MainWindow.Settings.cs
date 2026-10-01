@@ -1,13 +1,10 @@
-using System;
-using Microsoft.UI.Xaml;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.UI.Xaml.Automation;
-using Microsoft.UI.Xaml.Controls;
 using Windows.Storage.Pickers;
 
 sealed partial class MainWindow
 {
+    readonly TextBlock legacyWarning = new() { TextWrapping = TextWrapping.Wrap, FontSize = 12 };
+
     /// <summary>Groups common fields and keeps technical choices in one expandable section.</summary>
     void BuildSettings()
     {
@@ -42,6 +39,9 @@ sealed partial class MainWindow
         advanced.HorizontalContentAlignment = HorizontalAlignment.Stretch;
         encoder.Children.Add(advanced);
         encoder.Children.Add(WithHelp(legacyCompatibility, "Compatibility with older devices", OptionHelp.LegacyCompatibility));
+        legacyWarning.Text = OptionHelp.LegacyWarning;
+        legacyWarning.Foreground = VisualTheme.HighContrast ? VisualTheme.Ink : VisualTheme.Brush(251, 191, 36);
+        encoder.Children.Add(legacyWarning);
         encoder.Children.Add(WithHelp(autoDetect, "Auto-detect system", OptionHelp.AutoDetect));
         encoder.Children.Add(WithHelp(online, "Game lookup", OptionHelp.Lookup));
         encoder.Children.Add(WithHelp(delete, "Remove original", OptionHelp.Delete));
@@ -161,6 +161,7 @@ sealed partial class MainWindow
     {
         bool ps2 = (string)platform.SelectedItem == "PS2";
         bool modern = legacyCompatibility.IsChecked != true;
+        legacyWarning.Visibility = modern ? Visibility.Collapsed : Visibility.Visible;
         cdHunk.IsEnabled = modern;
         dvdHunk.IsEnabled = modern && (ps2 || autoDetect.IsChecked == true);
         online.IsEnabled = delete.IsEnabled = ps2 || autoDetect.IsChecked == true;

@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 
 sealed partial class ConversionSession
@@ -84,6 +79,7 @@ sealed partial class ConversionSession
                     var snapshots = ArchiveReader.GetVolumes(source).Select(p => new FileSnapshot(p)).ToList();
                     long packed = snapshots.Sum(p => p.Size);
                     string unpacked = Path.Combine(_workingDirectory, "unpacked");
+                    await PreviewArchiveAsync(source, unpacked, packed).ConfigureAwait(false);
                     Say("Descompactando: " + Path.GetFileName(source));
                     Directory.CreateDirectory(unpacked);
                     await archiveReader.ExtractAsync(source, unpacked).ConfigureAwait(false);

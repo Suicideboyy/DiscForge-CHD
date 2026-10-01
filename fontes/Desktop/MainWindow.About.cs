@@ -1,5 +1,3 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 sealed partial class MainWindow
 {

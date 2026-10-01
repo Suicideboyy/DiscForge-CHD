@@ -1,22 +1,23 @@
+2.6.1 — 2026-10-01
+- Fixed maximized content clipping and background coverage.
+- Metadata and covers can load from archive entries before extraction, including ZIP.
+- CHD v4 warns against use on current devices; prefer CHD v5.
+
 2.6.0 — 2026-10-01
 - Coordinated dark Bento interface inspired by UI/UX Pro Max, native controls and clearer game cards.
 - Animations respect the Windows setting; keyboard shortcut for starting conversion.
 
 2.5.1 — 2026-09-30
-- Removed RAM-drive extraction; archives use disk-backed temporary files.
 - Game panel shows available release date, current format and size instead of technical paths and lookup messages.
 
 2.5.0 — 2026-09-30
-- RAM checkbox uses physical memory eligibility; clearer guidance for existing RAM drives and disk fallback.
 - Missing codec selections are explained before conversion.
 - Libretro thumbnail fallback for missing PS1 covers.
 - Compatibility with older devices: CHD v4 with fixed zlib and media-specific hunks.
 
 2.4.0 — 2026-09-30
 - Removed the 7-Zip application/DLL and its packaging dependency.
-- Optional archive extraction to an existing verified RAM disk, gated by >12 GiB total and >=5 GiB available memory.
 - Per-archive memory/capacity checks, disk fallback with reason, owned-workspace cleanup and final CHD output on disk.
-- Internal: extraction, memory policy and RAM volume checks remain separate modules.
 
 2.3.0 — 2026-09-29
 - Fixed RAR fallback link detection for empty fields, with the real archive tested from a copy.
@@ -41,7 +42,6 @@
 
 2.0.0 — 2026-09-25
 - WinUI 3 interface and WebView2 game details/cover panel.
-- SharpCompress primary extraction with 7-Zip fallback.
 - Preserved path/link validation, resume and CHD verification.
 - Portable release with runtimes; master became the release branch.
 - Internal: .NET 10/C# 14, System.Text.Json, HttpClient and structured process arguments.

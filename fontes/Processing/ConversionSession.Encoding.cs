@@ -1,10 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 sealed partial class ConversionSession
 {
@@ -79,19 +72,12 @@ sealed partial class ConversionSession
             }
             else
             {
-                byte[] header = new byte[16];
-                using (var stream = File.OpenRead(input))
-                {
-                    stream.ReadExactly(header);
-                }
-
-                bool raw = original > 0 && original % 2352 == 0 && header[0] == 0 && header[11] == 0
-                    && header.Skip(1).Take(10).All(b => b == 255) && (header[15] == 1 || header[15] == 2);
+                int rawMode = MediaFiles.ReadRawMode(input);
                 string mode;
-                if (raw)
+                if (rawMode > 0)
                 {
                     game.Type = "CD";
-                    mode = "MODE" + header[15] + "/2352";
+                    mode = "MODE" + rawMode + "/2352";
                     game.Detection = "RAW CD header: " + mode;
                 }
                 else if (original > 0 && original % 2048 == 0)

@@ -1,25 +1,10 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
-sealed class ToolRunner
+/// <summary>Runs isolated converters, streams bounded diagnostics, and owns cancellation.</summary>
+sealed class ToolRunner(Action<string> report, Func<string> workingDirectory)
 {
-    readonly Action<string> report;
-    readonly Func<string> workingDirectory;
-    public ToolRunner(Action<string> report, Func<string> workingDirectory)
-    {
-        this.report = report;
-        this.workingDirectory = workingDirectory;
-    }
-
     public async Task<ProcessResult> RunAsync(string name, string[] args, bool progress)
     {
         var start = new ProcessStartInfo(Path.Combine(BundledTools.Tools, name))
-
         {
             UseShellExecute = false,
             CreateNoWindow = true,
@@ -30,130 +15,74 @@ sealed class ToolRunner
             StandardErrorEncoding = Encoding.UTF8,
             WorkingDirectory = workingDirectory()
         };
-        foreach (string argument in args)
+        foreach (string argument in args) start.ArgumentList.Add(argument);
+        using var process = new Process { StartInfo = start };
+        Engine.ThrowIfCancelled();
+        process.Start();
+        AppProcessRegistry.Register(process);
+        using var cancellation = Engine.Token.Register(() =>
         {
-            start.ArgumentList.Add(argument);
-        }
-        using (var process = new Process
+            try { if (!process.HasExited) process.Kill(entireProcessTree: true); }
+            catch (Exception) { } // The converter may have exited concurrently.
+        });
+        try
         {
-            StartInfo = start
-        })
-        {
-            Engine.ThrowIfCancelled();
-            process.Start();
-            AppProcessRegistry.Register(process);
-            // Cancel the whole native process tree so chdman/7-Zip cannot continue writing.
-            using var cancellation = Engine.Token.Register(() =>
-            {
-                try
-                {
-                    if (!process.HasExited)
-                    {
-                        process.Kill(entireProcessTree: true);
-                    }
-                }
-                catch (Exception) { } // The process may have exited concurrently.
-            });
-            try
-            {
             process.StandardInput.Close();
             var text = new StringBuilder();
-            object gate = new object();
+            object gate = new();
             bool truncated = false;
-            Action<string> line = value =>
+            void Emit(string value)
             {
                 lock (gate)
                 {
-                    if (text.Length + value.Length < 16000000)
-                    {
-                        text.AppendLine(value);
-                    }
-                    else
-                    {
-                        truncated = true;
-                    }
+                    if (text.Length + value.Length < 16000000) text.AppendLine(value);
+                    else truncated = true;
                 }
-
-                if (progress)
-                {
-                    var m = Regex.Match(value, @"(?<!\d)(\d{1,3}(?:[.,]\d+)?)\s*%");
-                    if (m.Success)
-                    {
-                        report("Etapa: " + m.Groups[1].Value + "%");
-                    }
-                }
+                if (!progress) return;
+                var match = Regex.Match(value, @"(?<!\d)(\d{1,3}(?:[.,]\d+)?)\s*%");
+                if (match.Success) report("Etapa: " + match.Groups[1].Value + "%");
             }
-
-            ;
-            await Task.WhenAll(ReadLinesAsync(process.StandardOutput, line),
-                ReadLinesAsync(process.StandardError, line)).ConfigureAwait(false);
+            await Task.WhenAll(ReadLinesAsync(process.StandardOutput, Emit),
+                ReadLinesAsync(process.StandardError, Emit)).ConfigureAwait(false);
             await process.WaitForExitAsync(Engine.Token).ConfigureAwait(false);
             Engine.ThrowIfCancelled();
             if (truncated)
-            {
-                throw new IOException(
-                    "Tool output exceeded the limit; " +
-                    "operation stopped to prevent an incomplete listing.");
-            }
-
-            if (progress && process.ExitCode == 0)
-            {
-                report("Etapa: 100%");
-            }
-
-            return new ProcessResult
-            {
-                Code = process.ExitCode,
-                Text = text.ToString()
-            };
-            }
-            finally
-            {
-                AppProcessRegistry.Unregister(process.Id);
-            }
+                throw new IOException("Tool output exceeded the limit; "
+                    + "operation stopped to prevent an incomplete listing.");
+            if (progress && process.ExitCode == 0) report("Etapa: 100%");
+            return new ProcessResult { Code = process.ExitCode, Text = text.ToString() };
         }
+        finally { AppProcessRegistry.Unregister(process.Id); }
     }
 
+    // Native tools redraw progress with carriage returns; ordinary ReadLine misses these updates.
     static async Task ReadLinesAsync(StreamReader reader, Action<string> emit)
     {
-        char[] chars = new char[1024];
+        char[] buffer = new char[1024];
         var line = new StringBuilder();
-        int n;
-        while ((n = await reader.ReadAsync(chars, 0, chars.Length).ConfigureAwait(false)) > 0)
+        int count;
+        while ((count = await reader.ReadAsync(buffer.AsMemory()).ConfigureAwait(false)) > 0)
         {
-            for (int i = 0; i < n; i++)
+            foreach (char value in buffer.AsSpan(0, count))
             {
-                char c = chars[i];
-                if (c == '\r' || c == '\n' || c == '\b')
+                if (value is '\r' or '\n' or '\b')
                 {
-                    if (line.Length > 0)
-                    {
-                        emit(line.ToString());
-                        line.Clear();
-                    }
+                    if (line.Length == 0) continue;
+                    emit(line.ToString());
+                    line.Clear();
                 }
-                else if (line.Length < 1000000)
-                {
-                    line.Append(c);
-                }
+                else if (line.Length < 1000000) line.Append(value);
             }
         }
-
-        if (line.Length > 0)
-        {
-            emit(line.ToString());
-        }
+        if (line.Length > 0) emit(line.ToString());
     }
 
     public async Task<string> RequireSuccessAsync(string name, bool progress, params string[] args)
     {
-        var r = await RunAsync(name, args, progress).ConfigureAwait(false);
-        if (r.Code != 0)
-        {
-            throw new IOException(name + " (exit code " + r.Code + "): " + r.Text.Substring(Math.Max(0,
-                r.Text.Length - 3000)));
-        }
-
-        return r.Text;
+        var result = await RunAsync(name, args, progress).ConfigureAwait(false);
+        if (result.Code != 0)
+            throw new IOException($"{name} (exit code {result.Code}): "
+                + result.Text[Math.Max(0, result.Text.Length - 3000)..]);
+        return result.Text;
     }
 }

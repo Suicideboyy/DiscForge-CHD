@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 sealed partial class MainWindow
 {
@@ -68,7 +65,8 @@ sealed partial class MainWindow
                 throw new InvalidOperationException("Missing CD codecs were not explained.");
             legacyCompatibility.IsChecked = true;
             if (cdHunk.IsEnabled || dvdHunk.IsEnabled || cdCodecChoices[0].IsEnabled ||
-                dvdCodecChoices[0].IsEnabled || CodecSelectionError() != null)
+                dvdCodecChoices[0].IsEnabled || CodecSelectionError() != null ||
+                legacyWarning.Visibility != Microsoft.UI.Xaml.Visibility.Visible)
                 throw new InvalidOperationException("Legacy profile did not override modern encoding options.");
             legacyCompatibility.IsChecked = previousLegacy;
             for (int i = 0; i < cdCodecChoices.Count; i++) cdCodecChoices[i].IsChecked = previousCd[i];
@@ -79,6 +77,16 @@ sealed partial class MainWindow
             advanced.IsExpanded = false;
             await game.SavePreviewAsync(destination + ".game.png");
 
+            var presenter = (Microsoft.UI.Windowing.OverlappedPresenter)AppWindow.Presenter;
+            presenter.Maximize();
+            await Task.Delay(300);
+            var root = (Microsoft.UI.Xaml.FrameworkElement)Content;
+            await SaveSnapshotAsync(destination + ".maximized.png");
+            if (Math.Abs(root.ActualWidth - tabs.ActualWidth) > 1 ||
+                Math.Abs(root.ActualHeight - tabs.ActualHeight) > 1)
+                throw new InvalidOperationException($"Maximized layout: root {root.ActualWidth}×{root.ActualHeight}; tabs {tabs.ActualWidth}×{tabs.ActualHeight}.");
+            presenter.Restore();
+
             AppWindow.Resize(new Windows.Graphics.SizeInt32(980, 900));
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".narrow.png");
@@ -88,6 +96,7 @@ sealed partial class MainWindow
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".about.png");
             await File.WriteAllTextAsync(destination, "WinUI3=OK\nWebView2=" + game.BrowserStatus
+                + "\nMaximized layout=OK\nCHD v4 warning=OK"
                 + "\nProgress/Timer=OK\nTool settings=OK\nThreads=" + threads.Value
                 + "\nCPU=" + cpu.Text + "\nDisk=" + disk.Text);
         }

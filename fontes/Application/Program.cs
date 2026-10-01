@@ -1,10 +1,4 @@
-using System;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Collections.Generic;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 
 static class Program
 {
@@ -15,6 +9,16 @@ static class Program
         {
             CrashReporter.Initialize();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            if (args.Length == 3 && args[0] == "--preview-test")
+            {
+                string temporary = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(args[2])), "preview-work");
+                var lines = new List<string>();
+                var session = new ConversionSession(new EncoderSettings { Online = true }, lines.Add, temporary);
+                session.PreviewArchiveAsync(args[1], temporary, new FileInfo(args[1]).Length)
+                    .GetAwaiter().GetResult();
+                File.WriteAllLines(args[2], lines);
+                return Directory.Exists(temporary) ? 1 : 0;
+            }
             if (args.Length == 2 && args[0] == "--tools-test")
             {
                 BundledTools.Stage(new EncoderSettings { ChdmanPath = args[1] });
