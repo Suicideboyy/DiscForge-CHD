@@ -2,6 +2,15 @@
 
 [English](../../README.md) · [Relatar erro](mailto:andrethiesen@live.com)
 
+## Versões e branches
+
+| Branch | Versão | Finalidade |
+| --- | --- | --- |
+| `master` | **2.6.1** | [Download estável](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest) |
+| `dev` | [![dev](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FSuicideboyy%2FDiscForge-CHD%2Frefs%2Fheads%2Fdev%2Fdev-status.json)](https://github.com/Suicideboyy/DiscForge-CHD/tree/dev) | Desenvolvimento e RCs acumuladas do código |
+
+A dev começa baseada na 2.6.1, sem RC ou release. O indicador acompanha a RC mais recente. Alterações futuras ficam na dev; incorporar, compilar e publicar pela master exige comando explícito do usuário.
+
 Versão atual: **2.6.1**.
 
 O painel do jogo mostra data de lançamento quando informada pelo catálogo, formato e tamanho atuais. Informações indisponíveis são identificadas. A extração utiliza temporários em disco; a opção de unidade RAM foi removida. Codecs ausentes recebem uma explicação antes da conversão. Capas de PS1 podem usar o acervo Libretro como reserva.

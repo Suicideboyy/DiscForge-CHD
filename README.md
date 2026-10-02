@@ -2,6 +2,15 @@
 
 [Português (Brasil)](docs/pt-BR/README.md) · [Report a bug](mailto:andrethiesen@live.com)
 
+## Versions and branches
+
+| Branch | Version | Purpose |
+| --- | --- | --- |
+| `master` | **2.6.1** | [Stable download](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest) |
+| `dev` | [![dev](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FSuicideboyy%2FDiscForge-CHD%2Frefs%2Fheads%2Fdev%2Fdev-status.json)](https://github.com/Suicideboyy/DiscForge-CHD/tree/dev) | Development and accumulated RC source checkpoints |
+
+Dev starts from 2.6.1 with no RC or release. Its badge follows the latest development checkpoint. Future changes go to dev; master is merged, compiled and released only on an explicit user request.
+
 DiscForge CHD is a Windows x64 application that converts PlayStation 1 (PS1) and PlayStation 2 (PS2) disc images to the CHD (Compressed Hunks of Data) format using chdman. Convert ISO, BIN/CUE and supported ZIP, RAR or 7z archives through a graphical interface available in English and Brazilian Portuguese.
 
 ## Install
@@ -27,6 +36,6 @@ Download the portable ZIP from the [latest release](https://github.com/Suicidebo
 
 ## Development
 
-C# 14 / .NET 10. The SDK is pinned in `global.json`; package versions are locked in `fontes/packages.lock.json`. Run `fontes/build.ps1` to build a release. See [source structure](fontes/README.md), [tests](TESTS.txt), [publishing](PUBLISHING.md) and [third-party components](THIRD-PARTY.md).
+C# 14 / .NET 10. The SDK is pinned in `global.json`; package versions are locked in `fontes/packages.lock.json`. Use `Publish.ps1` for dev updates; stable builds require an explicit user request and `-Stable`. See [source structure](fontes/README.md), [tests](TESTS.txt), [publishing](PUBLISHING.md) and [third-party components](THIRD-PARTY.md).
 
-The current branch is **master**. Previous versions remain in tags. Local distributions are stored under `versions/X.Y.Z/`; downloadable binaries are attached to GitHub Releases. Bug reports: [andrethiesen@live.com](mailto:andrethiesen@live.com).
+The default branch is **master**; active development uses **dev**. Previous versions remain in tags. Local distributions are stored under `versions/X.Y.Z/`; downloadable binaries are attached to GitHub Releases. Bug reports: [andrethiesen@live.com](mailto:andrethiesen@live.com).
