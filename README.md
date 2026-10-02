@@ -2,6 +2,18 @@
 
 [Português (Brasil)](docs/pt-BR/README.md) · [Report a bug](mailto:andrethiesen@live.com)
 
+## Download DiscForge CHD for Windows — PS1 and PS2 converter
+
+Convert PlayStation ISO and BIN/CUE images to CHD with a Windows graphical interface. Download the complete portable package; no separate .NET installation is required.
+
+| Download | Contents |
+| --- | --- |
+| **[Download DiscForge CHD 2.6.1 — Windows x64](https://github.com/Suicideboyy/DiscForge-CHD/releases/download/v2.6.1/DiscForge-CHD-2.6.1-win-x64.zip)** | Complete application, encoder and required runtime files |
+| [Download source code — 2.6.1](https://github.com/Suicideboyy/DiscForge-CHD/releases/download/v2.6.1/DiscForge-CHD-2.6.1-source.zip) | Source archive for this stable release |
+| [Download SHA-256 checksums](https://github.com/Suicideboyy/DiscForge-CHD/releases/download/v2.6.1/SHA256.txt) | Checksums for verifying the downloaded package |
+
+For future versions, visit [all releases](https://github.com/Suicideboyy/DiscForge-CHD/releases) or the [latest stable release](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest). Extract the entire Windows ZIP, keep its folders together and launch `DiscForge-CHD.exe`. See the [user guide](USER-GUIDE.txt) for converting PS1 and PS2 games to CHD.
+
 ## Versions and branches
 
 | Branch | Version | Purpose |
