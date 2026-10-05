@@ -18,7 +18,7 @@ For future versions, visit [all releases](https://github.com/Suicideboyy/DiscFor
 
 | Branch | Version | Purpose |
 | --- | --- | --- |
-| `master` | **2.6.1** | [Stable download](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest) |
+| `master` | **2.7.0** | [Stable download](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest) |
 | `dev` | [![dev](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FSuicideboyy%2FDiscForge-CHD%2Frefs%2Fheads%2Fdev%2Fdev-status.json)](https://github.com/Suicideboyy/DiscForge-CHD/tree/dev) | Development and accumulated RC source checkpoints |
 
 Dev starts from 2.6.1 with no RC or release. Its badge follows the latest development checkpoint. Future changes go to dev; master is merged, compiled and released only on an explicit user request.
@@ -27,7 +27,7 @@ DiscForge CHD is a Windows x64 application that converts PlayStation 1 (PS1) and
 
 ## Install
 
-Current version: **2.6.1**.
+Current version: **2.7.0**.
 
 Download the portable ZIP from the [latest release](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest). Extract the entire archive and run `DiscForge-CHD.exe`. Keep every folder from the archive together. .NET and Windows App SDK are included. Windows 10 2004 or newer is required; Windows 11 is recommended. The game cover panel uses the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Conversion remains available if WebView2 is missing.
 

@@ -18,7 +18,7 @@ Para próximas versões, acesse [todas as versões](https://github.com/Suicidebo
 
 | Branch | Versão | Finalidade |
 | --- | --- | --- |
-| `master` | **2.6.1** | [Download estável](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest) |
+| `master` | **2.7.0** | [Download estável](https://github.com/Suicideboyy/DiscForge-CHD/releases/latest) |
 | `dev` | [![dev](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FSuicideboyy%2FDiscForge-CHD%2Frefs%2Fheads%2Fdev%2Fdev-status.json)](https://github.com/Suicideboyy/DiscForge-CHD/tree/dev) | Desenvolvimento e RCs acumuladas do código |
 
 A dev começa baseada na 2.6.1, sem RC ou release. O indicador acompanha a RC mais recente. Alterações futuras ficam na dev; incorporar, compilar e publicar pela master exige comando explícito do usuário.
