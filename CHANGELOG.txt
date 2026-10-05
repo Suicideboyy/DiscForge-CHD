@@ -1,3 +1,13 @@
+2.7.0 — 2026-10-05
+- Fluent shell: sidebar navigation replaces the tabs, with a compact title bar and a Mica backdrop.
+- Conversion page reorganized as a responsive Bento: input, CPU and disk tiles, game card and performance chart.
+- Commands grouped by role: start conversion, stop, and open the output are distinct at a glance.
+- The layout follows the window; the navigation pane collapses and cards, commands and chart captions restack.
+- Accessible names and help text on every control; buttons keep native hover and pressed feedback.
+
+2.6.2 — 2026-10-05
+- Offline telemetry sparklines for CPU, disk and stage rendered locally; the textual values remain the accessible source.
+
 2.6.1 — 2026-10-01
 - Fixed maximized content clipping and background coverage.
 - Metadata and covers can load from archive entries before extraction, including ZIP.

@@ -14,7 +14,7 @@ sealed partial class MainWindow
                 + "\n\n" + Localization.T("Review the logs before sending.");
             var dialog = new ContentDialog
             {
-                XamlRoot = tabs.XamlRoot,
+                XamlRoot = navigation.XamlRoot,
                 Title = Localization.T("Report issue"),
                 Content = details,
                 PrimaryButtonText = Localization.T("Open email with attachment"),
@@ -36,7 +36,7 @@ sealed partial class MainWindow
                     { UseShellExecute = true });
                 await new ContentDialog
                 {
-                    XamlRoot = tabs.XamlRoot,
+                    XamlRoot = navigation.XamlRoot,
                     Title = Localization.T("Email client unavailable"),
                     Content = Localization.T("The report was saved. Attach it manually to an email to")
                         + " " + AppInfo.BugEmail + ".\n\n" + path,
@@ -49,7 +49,7 @@ sealed partial class MainWindow
             CrashReporter.Record(ex, "ReportIssueAsync");
             await new ContentDialog
             {
-                XamlRoot = tabs.XamlRoot,
+                XamlRoot = navigation.XamlRoot,
                 Title = Localization.T("Report issue"),
                 Content = ex.Message,
                 CloseButtonText = "OK"

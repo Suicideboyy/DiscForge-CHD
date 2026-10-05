@@ -96,7 +96,7 @@ sealed partial class MainWindow
                 status.Text = codecError;
                 await new ContentDialog
                 {
-                    XamlRoot = tabs.XamlRoot,
+                    XamlRoot = navigation.XamlRoot,
                     Title = Localization.IsPortuguese ? "Selecione os codecs" : "Select codecs",
                     Content = codecError,
                     CloseButtonText = "OK"

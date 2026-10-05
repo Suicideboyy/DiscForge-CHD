@@ -67,18 +67,27 @@ sealed partial class MainWindow
     // Bundled tools remain the default; custom paths are optional.
     UIElement BuildToolSettings()
     {
-        var body = VisualTheme.Section("⚙", "External tools");
+        // No number chip here: the numbered flow belongs to the conversion page.
+        var body = VisualTheme.Section("", "External tools");
         body.Children.Add(VisualTheme.Text(Localization.T(
             "Leave paths blank to use the tools included with this application."), 13));
         body.Children.Add(Field("Language", language,
             Localization.IsPortuguese ? "Idioma da interface. A escolha é salva automaticamente." :
                 "Interface language. Your choice is saved automatically."));
-        body.Children.Add(Field("chdman.exe", PathRow(chdmanPath, true), OptionHelp.ChdmanPath));
+        body.Children.Add(Field("chdman.exe", PathRow(chdmanPath, "chdman.exe", true), OptionHelp.ChdmanPath));
         ToolTipService.SetToolTip(resetDefaults, OptionHelp.Reset);
+        VisualTheme.Secondary(resetDefaults);
         body.Children.Add(resetDefaults);
-        var page = new StackPanel { Padding = new Thickness(24), Spacing = 16 };
+        var page = new StackPanel { Padding = new Thickness(24), Spacing = VisualTheme.GapL };
+        page.Children.Add(BuildPageHeading(Localization.T("Settings"),
+            Localization.T("Language, bundled tools and reset.")));
         page.Children.Add(VisualTheme.Card(body));
-        toolSettingsPage = new ScrollViewer { Content = page, Background = VisualTheme.Canvas };
+        toolSettingsPage = new ScrollViewer
+        {
+            Content = page, Background = null,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+        };
         return toolSettingsPage;
     }
 
