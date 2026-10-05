@@ -4,7 +4,7 @@ Version 2.5.1: extraction uses disk-backed temporary files. The RAM-drive option
 
 Select at least one CD codec, and one DVD codec for PS2 or automatic detection. The app explains missing selections before work starts. Compatibility with older devices creates CHD v4 with zlib and fixed hunks (CD 9792 bytes; DVD 2048 bytes); modern codec/hunk controls are disabled. Files can be larger and compatibility depends on device firmware. Missing PS1 cover images fall back to Libretro thumbnails.
 
-Extract the COMPLETE win-x64.zip archive and run DiscForge-CHD.exe at its root. Keep every folder from the archive together. The ? buttons explain each option; advanced settings are initially collapsed. The header and About tab show the application name, version and build date.
+Extract the COMPLETE win-x64.zip archive and run DiscForge-CHD.exe at its root. Keep every folder from the archive together. Use the left navigation to move between Conversion, Settings and About; the pane collapses to icons when the window narrows. The ? buttons explain each option; advanced settings are initially collapsed. The title bar shows the application name and the About page shows the version and build date.
 
 Requires Windows 10 2004 (19041) or newer. .NET 10 and Windows App SDK are included. The WebView2 Runtime is needed for covers but not for conversion: https://developer.microsoft.com/microsoft-edge/webview2/
 

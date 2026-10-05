@@ -1,4 +1,14 @@
-2.6.1 ? 2026-10-01
+2.7.0 — 2026-10-05
+PASS: portable build, zero warnings/errors; NavigationView shell, Mica backdrop, compact title bar and maximized root/navigation fill the client area; EN/PT, WebView2 and visible CHD v4 warning smoke.
+PASS: UI smoke asserts the reflow against the width that drove it at 1380, maximized, 900 and 620 pixel windows; stat tiles, chart captions, settings cards and the command row never wrap or clip, and the telemetry strip stays non-zero at every width.
+PASS: UI smoke asserts the same reflow again after a language change at the narrowest width, so a stale reflow latch cannot leave a rebuilt page in the wrong arrangement. Confirmed as a real regression guard: removing the latch reset fails this stage with "game card at column 1 contradicts the latch".
+PASS: UI smoke asserts accessible names and help text on every editor, command, expander, codec choice and help button, that the saved language reaches the shared labels at startup, and that no stat readout wraps inside its tile.
+NOTE: high contrast resolves every custom token to a system colour and replaces Mica with the solid canvas; both paths were exercised by code only, as this session ran with HighContrast=off and Animations=on.
+NOTE: RenderTargetBitmap cannot capture a SystemBackdrop, so the smoke images show the card surfaces only and the Mica window background is transparent in them. Mica itself is asserted separately, not from the images.
+NOTE: the primary command uses the app accent instead of the system AccentButtonStyle, so it always matches the section markers and the chart legend in the same card rather than following the user's Windows accent colour.
+NOTE: the game panel keeps its own WebView2 scrolling, so a long game sheet scrolls inside the card before the page scrollbar responds. This behaviour is unchanged from 2.6.2.
+
+2.6.1 — 2026-10-01
 PASS: portable build, zero warnings/errors; maximized root/tabs fill the client area, EN/PT, WebView2 and visible CHD v4 warning smoke.
 PASS: ZIP preview resolves real Cardcaptor Sakura PS1 and PS2 fixture before image extraction; unknown/multiple-serial cases remain unknown, no extraction directory created.
 PASS: six-track real RAR copy creates the same SHA256 CHD as the prior version; re-run reports Existing and newly owned workspace is cleaned.

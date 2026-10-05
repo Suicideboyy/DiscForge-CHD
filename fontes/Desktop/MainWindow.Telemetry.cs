@@ -19,6 +19,9 @@ sealed partial class MainWindow
             cpu.Text = sample.CpuPercent.HasValue ? $"{sample.CpuPercent:N1}%" : "N/A";
             disk.Text = $"{Localization.T("Read: ")}{Rate(sample.ReadBytesPerSecond)}\n"
                 + $"{Localization.T("Write: ")}{Rate(sample.WriteBytesPerSecond)}";
+            // Plotly strip is a best-effort visual layer: one snapshot per tick,
+            // history stays in telemetry.js (90 points via extendTraces maxPoints).
+            _ = telemetry.PostSnapshotAsync(TelemetrySnapshot.From(sample, stage.Value, batch.Value));
             if (running) await game.RetryAsync();
         }
         catch (Exception ex) { if (!closed) disk.Text = "Metrics unavailable: " + ex.Message; }
