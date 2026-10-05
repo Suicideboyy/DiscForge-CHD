@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Telemetry</title>
+<link rel="stylesheet" href="telemetry.css">
+<div id="telemetry-root" aria-hidden="true">
+  <div id="cpu-chart" class="spark"></div>
+  <div id="disk-chart" class="spark"></div>
+  <div id="stage-chart" class="spark"></div>
+</div>
+<script src="plotly-basic.min.js"></script>
+<script src="telemetry.js"></script>
+</html>

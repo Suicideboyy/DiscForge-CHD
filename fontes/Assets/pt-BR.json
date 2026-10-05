@@ -47,6 +47,8 @@
   "Waiting…": "Aguardando…",
   "Read: ": "Leitura: ",
   "Write: ": "Gravação: ",
+  "Telemetry": "Telemetria",
+  "last 90 s": "últimos 90 s",
   "Conversion complete": "Conversão concluída",
   "Stopped now; temporary files removed": "Parado; temporários removidos",
   "Stopped after the current input": "Parado após a entrada atual",

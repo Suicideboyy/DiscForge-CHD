@@ -1,5 +1,9 @@
 {
   "en": [
+    "2.6.2 — 05/10/2026",
+    "",
+    "• Offline telemetry sparklines (CPU, disk and stage) rendered locally with Plotly.js; textual metrics remain the accessible source.",
+    "",
     "2.6.1 — 01/10/2026",
     "",
     "• Fixed maximized window content clipping and mismatched backgrounds.",
@@ -68,6 +72,10 @@
     "• Resume skips games already converted; CHDs are verified before optional archive removal."
   ],
   "pt-BR": [
+    "2.6.2 — 05/10/2026",
+    "",
+    "• Minigráficos de telemetria offline (CPU, disco e etapa) renderizados localmente com Plotly.js; os valores textuais continuam sendo a fonte acessível.",
+    "",
     "2.6.1 — 01/10/2026",
     "",
     "• Corrigidos cortes no conteúdo e fundos diferentes ao maximizar.",

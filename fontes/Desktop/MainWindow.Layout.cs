@@ -55,7 +55,7 @@ sealed partial class MainWindow : Window
     // Shared controls must leave their old parents before language rebuilds the pages.
     void DetachTree(UIElement element)
     {
-        if (element == null || ReferenceEquals(element, game)) return;
+        if (element == null || ReferenceEquals(element, game) || ReferenceEquals(element, telemetry)) return;
         if (element is Panel panel)
         {
             foreach (var child in panel.Children.ToArray()) DetachTree(child);
@@ -95,6 +95,7 @@ sealed partial class MainWindow : Window
         columns.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         var work = new StackPanel { Spacing = 16 };
         work.Children.Add(BuildMetrics());
+        work.Children.Add(BuildTelemetry());
         BuildSettings();
         settingsHost.Content = settings;
         work.Children.Add(settingsHost);
@@ -174,6 +175,22 @@ sealed partial class MainWindow : Window
             row.Children.Add(card);
         }
         return row;
+    }
+
+    // Single Plotly strip (CPU | disk | stage) under the metric cards.
+    // Text values stay in the cards above; the WebView is a decorative layer.
+    UIElement BuildTelemetry()
+    {
+        var body = new StackPanel { Spacing = 8 };
+        var title = VisualTheme.Text(Localization.T("Telemetry") + " · " + Localization.T("last 90 s"), 11, true);
+        title.Foreground = VisualTheme.Muted;
+        body.Children.Add(title);
+        telemetry.HorizontalAlignment = HorizontalAlignment.Stretch;
+        telemetry.Height = 68;
+        body.Children.Add(telemetry);
+        var card = VisualTheme.Card(body, 16);
+        card.BorderBrush = VisualTheme.Outline;
+        return card;
     }
 
     static Border Metric(string heading, UIElement value, string explanation,

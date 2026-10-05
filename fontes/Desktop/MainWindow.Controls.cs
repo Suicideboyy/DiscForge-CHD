@@ -38,6 +38,7 @@ sealed partial class MainWindow
         HorizontalContentAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch
     };
     readonly GamePanel game = new();
+    readonly TelemetryPanel telemetry = new();
     readonly TabView tabs = new() { IsAddTabButtonVisible = false };
     readonly Expander advanced = new() { Header = "Encoding options" };
     readonly Expander aboutChanges = new() { Header = "Changelog" };

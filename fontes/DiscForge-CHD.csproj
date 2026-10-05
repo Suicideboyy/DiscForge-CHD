@@ -21,7 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Application/**/*.cs;Archives/**/*.cs;Configuration/**/*.cs;Infrastructure/**/*.cs;Media/**/*.cs;Models/**/*.cs;Processing/**/*.cs;Properties/**/*.cs;Services/**/*.cs;Storage/**/*.cs;Desktop/**/*.cs" />
-    <Content Include="Assets/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets/**/*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <EmbeddedResource Include="tools/chdman.exe" LogicalName="chdman.exe" />
     <EmbeddedResource Include="tools/chd-v4.exe" LogicalName="chd-v4.exe" />
     <EmbeddedResource Include="Assets/pt-BR.json" LogicalName="pt-BR.json" />

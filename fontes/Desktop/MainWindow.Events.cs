@@ -36,6 +36,7 @@ sealed partial class MainWindow
             SavePreferences();
             timer.Stop();
             performance.Dispose();
+            telemetry.Dispose();
             game.Dispose();
         };
         timer.Interval = TimeSpan.FromSeconds(1);

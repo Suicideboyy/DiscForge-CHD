@@ -29,9 +29,7 @@ sealed class GamePanel : Grid, IDisposable
         initializing = true;
         try
         {
-            var environment = await CoreWebView2Environment.CreateWithOptionsAsync(null,
-                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "CHD Optimizer", "WebView2"), null);
+            var environment = await WebView2Boot.GetEnvironmentAsync();
             await browser.EnsureCoreWebView2Async(environment);
             if (disposed) return;
             for (int attempt = 0; attempt < 20 && browser.CoreWebView2 == null; attempt++)

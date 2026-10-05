@@ -76,6 +76,7 @@ sealed partial class MainWindow
             await SaveSnapshotAsync(destination + ".advanced.png");
             advanced.IsExpanded = false;
             await game.SavePreviewAsync(destination + ".game.png");
+            await telemetry.SavePreviewAsync(destination + ".telemetry.png");
 
             var presenter = (Microsoft.UI.Windowing.OverlappedPresenter)AppWindow.Presenter;
             presenter.Maximize();
@@ -96,6 +97,7 @@ sealed partial class MainWindow
             await Task.Delay(300);
             await SaveSnapshotAsync(destination + ".about.png");
             await File.WriteAllTextAsync(destination, "WinUI3=OK\nWebView2=" + game.BrowserStatus
+                + "\nTelemetry=" + telemetry.Status
                 + "\nMaximized layout=OK\nCHD v4 warning=OK"
                 + "\nProgress/Timer=OK\nTool settings=OK\nThreads=" + threads.Value
                 + "\nCPU=" + cpu.Text + "\nDisk=" + disk.Text);
